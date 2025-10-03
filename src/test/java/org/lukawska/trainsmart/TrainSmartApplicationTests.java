@@ -8,5 +8,6 @@ class TrainSmartApplicationTests {
 
 	@Test
 	void contextLoads() {
+		TrainSmartApplication.main(new String[]{});
 	}
 }
