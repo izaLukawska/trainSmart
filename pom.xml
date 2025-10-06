@@ -11,6 +11,7 @@
     <groupId>org.lukawska</groupId>
     <artifactId>trainSmart</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>trainSmart</name>
     <description>trainSmart</description>
     <url/>
@@ -20,6 +21,9 @@
     <developers>
         <developer/>
     </developers>
+    <modules>
+        <module>app</module>
+    </modules>
     <scm>
         <connection/>
         <developerConnection/>
