@@ -7,7 +7,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 class TrainSmartApplicationTests {
 
 	@Test
-	void contextLoads() {
-		TrainSmartApplication.main(new String[]{});
-	}
+	void contextLoads() {}
 }
