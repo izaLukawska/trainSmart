@@ -1,0 +1,15 @@
+spring:
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: example@example.com
+    password: examplepassword
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            connectiontimeout: 5000
+            timeout: 5000
+            writetimeout: 5000
