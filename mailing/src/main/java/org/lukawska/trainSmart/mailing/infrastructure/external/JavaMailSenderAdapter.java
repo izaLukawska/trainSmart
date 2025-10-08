@@ -9,6 +9,8 @@ import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.service.MailService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -21,6 +23,7 @@ public class JavaMailSenderAdapter implements MailService {
 	private final JavaMailSender mailSender;
 
 	@Override
+	@Retryable(retryFor = {MessagingException.class}, backoff = @Backoff(delay = 5000))
 	public void sendEmail(MailRequest mailRequest) throws MessagingException {
 		if (mailRequest == null) {
 			throw new IllegalArgumentException("MailRequest cannot be null.");
