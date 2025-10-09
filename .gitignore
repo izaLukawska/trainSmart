@@ -43,3 +43,4 @@ replay_pid*
 # Others
 *.log
 HELP.md
+.env
