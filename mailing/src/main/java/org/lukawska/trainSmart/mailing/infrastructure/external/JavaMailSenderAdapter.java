@@ -4,9 +4,11 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainSmart.mailing.application.dto.Attachment;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.service.MailService;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.retry.annotation.Backoff;
@@ -23,18 +25,19 @@ public class JavaMailSenderAdapter implements MailService {
 	private final JavaMailSender mailSender;
 
 	@Override
-	@Retryable(retryFor = {MessagingException.class}, backoff = @Backoff(delay = 5000))
+	@Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
 	public void sendEmail(MailRequest mailRequest) throws MessagingException {
 		if (mailRequest == null) {
+			log.error("MailRequest cannot be null.");
 			throw new IllegalArgumentException("MailRequest cannot be null.");
 		}
 
-		if (mailRequest.getRecipients() == null || mailRequest.getRecipients().length == 0) {
-			log.warn("No recipient found in the mail request: {}", mailRequest);
-			throw new IllegalArgumentException("No recipient found.");
+		if(Arrays.stream(mailRequest.getRecipients()).anyMatch(StringUtils::isBlank)) {
+			log.error("Wrong recipients address in request: {}", mailRequest);
+			throw new IllegalArgumentException("Recipient address cannot be blank.");
 		}
 
-		log.info("Sending email to: {}", Arrays.toString(mailRequest.getRecipients()));
+		log.debug("Sending email to: {}", Arrays.toString(mailRequest.getRecipients()));
 
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
@@ -46,12 +49,12 @@ public class JavaMailSenderAdapter implements MailService {
 		}
 
 		mailSender.send(message);
-		log.info("Email sent to: {}", Arrays.toString(mailRequest.getRecipients()));
+		log.debug("Email sent to: {}", Arrays.toString(mailRequest.getRecipients()));
 	}
 
 	private MimeMessageHelper createMimeMessageHelper(MailRequest mailRequest, MimeMessage message)
 			throws MessagingException {
-		boolean isMultipart = mailRequest.isHtml() || !mailRequest.getAttachments().isEmpty();
+		boolean isMultipart = !mailRequest.getAttachments().isEmpty();
 		return new MimeMessageHelper(message, isMultipart, "UTF-8");
 	}
 

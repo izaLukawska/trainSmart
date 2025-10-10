@@ -2,6 +2,8 @@ package org.lukawska.trainSmart.mailing.infrastructure.external;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +17,8 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.List;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -29,7 +33,7 @@ class JavaMailSenderAdapterTest {
 	private JavaMailSenderAdapter mailSenderAdapter;
 
 	@Test
-	void shouldSendEmail_whenMailRequestIsValid() throws MessagingException {
+	void shouldSendEmailWhenMailRequestIsValid() throws MessagingException {
 		//given
 		final Attachment attachment = mock(Attachment.class);
 		when(attachment.fileName()).thenReturn("file.txt");
@@ -38,14 +42,15 @@ class JavaMailSenderAdapterTest {
 
 		final MailRequest mailRequest = MailRequest.builder()
 		                                           .recipients(new String[]{"test@example.com"})
-		                                           .subject("Test Subject")
-		                                           .text("Test Body")
-		                                           .isHtml(true)
+		                                           .subject(RandomStringUtils.secure().next(10))
+		                                           .text(RandomStringUtils.secure().next(20))
+		                                           .isHtml(new Random().nextBoolean())
 		                                           .attachments(List.of(attachment))
 		                                           .build();
 
 		MimeMessage mimeMessage = mock(MimeMessage.class);
 		when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+
 		//when
 		mailSenderAdapter.sendEmail(mailRequest);
 
@@ -54,14 +59,14 @@ class JavaMailSenderAdapterTest {
 	}
 
 	@Test
-	void shouldThrowIllegalArgumentException_whenMailRequestIsNull() {
+	void shouldThrowIllegalArgumentExceptionWhenMailRequestIsNull() {
 		//when && then
 		assertThrows(IllegalArgumentException.class, () -> mailSenderAdapter.sendEmail(null));
 	}
 
 	@ParameterizedTest
 	@NullAndEmptySource
-	void shouldThrowIllegalArgumentException_whenRecipientIsInvalid(String[] recipient) {
+	void shouldThrowIllegalArgumentExceptionWhenRecipientIsInvalid(String[] recipient) {
 		MailRequest mailRequest = MailRequest.builder().recipients(recipient).build();
 		assertThrows(IllegalArgumentException.class, () -> mailSenderAdapter.sendEmail(mailRequest));
 	}

@@ -24,7 +24,7 @@ public class MailController {
 
 	@PostMapping
 	public ResponseEntity<Void> sendMail(@Valid @RequestBody MailRequest mailRequest) throws MessagingException {
-		log.info("Sending mail to: {}", Arrays.toString(mailRequest.getRecipients()));
+		log.debug("Sending mail to: {}", Arrays.toString(mailRequest.getRecipients()));
 		mailService.sendEmail(mailRequest);
 		return ResponseEntity.ok().build();
 	}
