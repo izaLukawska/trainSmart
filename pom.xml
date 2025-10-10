@@ -40,11 +40,11 @@
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <postgresql.version>42.7.8</postgresql.version>
+        <h2.version>2.3.232</h2.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <spring-security-test.version>6.5.5</spring-security-test.version>
         <!-- Plugin version -->
         <maven-compiler.plugin.version>3.14.0</maven-compiler.plugin.version>
-        <spring-boot.maven-plugin.version>${spring-boot.version}</spring-boot.maven-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -88,6 +88,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -29,21 +29,24 @@ public class JavaMailSenderAdapter implements MailService {
 			throw new IllegalArgumentException("MailRequest cannot be null.");
 		}
 
-		if (mailRequest.getTo() == null || mailRequest.getTo().length == 0) {
+		if (mailRequest.getRecipients() == null || mailRequest.getRecipients().length == 0) {
 			log.warn("No recipient found in the mail request: {}", mailRequest);
 			throw new IllegalArgumentException("No recipient found.");
 		}
 
-		log.info("Sending email to: {}", Arrays.toString(mailRequest.getTo()));
+		log.info("Sending email to: {}", Arrays.toString(mailRequest.getRecipients()));
 
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
 
 		applyMailData(mailRequest, messageHelper);
-		addAttachments(mailRequest, messageHelper);
+
+		if (!mailRequest.getAttachments().isEmpty()) {
+			addAttachments(mailRequest, messageHelper);
+		}
 
 		mailSender.send(message);
-		log.info("Email send to: {}", Arrays.toString(mailRequest.getTo()));
+		log.info("Email sent to: {}", Arrays.toString(mailRequest.getRecipients()));
 	}
 
 	private MimeMessageHelper createMimeMessageHelper(MailRequest mailRequest, MimeMessage message)
@@ -53,7 +56,7 @@ public class JavaMailSenderAdapter implements MailService {
 	}
 
 	private void applyMailData(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
-		helper.setTo(mailRequest.getTo());
+		helper.setTo(mailRequest.getRecipients());
 		helper.setSubject(mailRequest.getSubject());
 		helper.setText(mailRequest.getText(), mailRequest.isHtml());
 	}

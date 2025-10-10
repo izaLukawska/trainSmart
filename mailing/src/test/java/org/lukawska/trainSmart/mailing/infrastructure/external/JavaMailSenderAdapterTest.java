@@ -37,7 +37,7 @@ class JavaMailSenderAdapterTest {
 		when(attachment.source()).thenReturn(new ByteArrayResource("Test source".getBytes()));
 
 		final MailRequest mailRequest = MailRequest.builder()
-		                                           .to(new String[]{"test@example.com"})
+		                                           .recipients(new String[]{"test@example.com"})
 		                                           .subject("Test Subject")
 		                                           .text("Test Body")
 		                                           .isHtml(true)
@@ -62,7 +62,7 @@ class JavaMailSenderAdapterTest {
 	@ParameterizedTest
 	@NullAndEmptySource
 	void shouldThrowIllegalArgumentException_whenRecipientIsInvalid(String[] recipient) {
-		MailRequest mailRequest = MailRequest.builder().to(recipient).build();
+		MailRequest mailRequest = MailRequest.builder().recipients(recipient).build();
 		assertThrows(IllegalArgumentException.class, () -> mailSenderAdapter.sendEmail(mailRequest));
 	}
 }

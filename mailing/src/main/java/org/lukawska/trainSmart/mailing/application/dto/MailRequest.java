@@ -15,7 +15,7 @@ public class MailRequest {
 
 	@NotNull
 	@Size(min = 1, message = "At least one recipient required.")
-	private String[] to;
+	private String[] recipients;
 
 	private String subject;
 

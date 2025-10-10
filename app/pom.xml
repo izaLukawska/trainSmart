@@ -15,13 +15,15 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.maven-plugin.version>${spring-boot.version}</spring-boot.maven-plugin.version>
+        <trainsmart.version>0.0.1-SNAPSHOT</trainsmart.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>mailing</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${trainsmart.version}</version>
         </dependency>
     </dependencies>
 
