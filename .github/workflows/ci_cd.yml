@@ -12,11 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_HOST: db
+      # Hardcoded wartości dla CI (tylko testowe!)
+      DB_USER: testuser
+      DB_PASSWORD: testpass
+      DB_NAME: testdb
+      DB_HOST: localhost
       DB_PORT: 5432
+      SPRING_PROFILES_ACTIVE: ci
 
     steps:
       # Checkout repo
@@ -30,37 +32,40 @@ jobs:
           cache: 'maven'
           cache-dependency-path: 'pom.xml'
 
-      # Start PostgreSQL (Docker Compose)
-      - name: Start PostgreSQL service
+      # Start PostgreSQL (bez docker-compose)
+      - name: Start PostgreSQL container
         run: |
-          docker compose up -d db
+          docker run -d \
+            --name postgres-test \
+            -e POSTGRES_USER=$DB_USER \
+            -e POSTGRES_PASSWORD=$DB_PASSWORD \
+            -e POSTGRES_DB=$DB_NAME \
+            -p 5432:5432 \
+            postgres:16
           echo "Waiting for PostgreSQL to start..."
-          for i in {1..15}; do
-            if docker exec $(docker ps -qf "name=db") pg_isready -U $DB_USER; then
+          for i in {1..10}; do
+            if docker exec postgres-test pg_isready -U $DB_USER > /dev/null 2>&1; then
               echo "PostgreSQL is ready!"
               break
             fi
-            sleep 2
+            echo "Waiting..."
+            sleep 3
           done
 
       # Build Maven project
       - name: Build JAR
-        run: mvn -B -U clean package
+        run: mvn -B -U clean package -Pci
 
-      # Run unit + integration tests
+      # Run unit & integration tests
       - name: Run tests with JaCoCo
-        run: mvn verify
+        run: mvn verify -Pci
 
-      # Stop Docker Compose
-      - name: Stop Docker Compose
+      # Stop PostgreSQL
+      - name: Stop PostgreSQL
         if: always()
-        run: docker compose down
+        run: docker stop postgres-test && docker rm postgres-test
 
-      # Check dependency updates
-      - name: Check dependency updates
-        run: mvn versions:display-dependency-updates
-
-      # Upload artifacts: JAR, JaCoCo, Dependency-Check
+      # Upload artifacts
       - name: Upload Spring Boot JAR
         uses: actions/upload-artifact@v4
         with:
@@ -74,31 +79,31 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
-      - name: Upload Dependency-Check report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-check-report
-          path: dependency-check-report/
-
-      # Build Docker image (multi-stage)
+      # Build Docker image (optional)
       - name: Build Docker image
         run: docker build -t app:latest .
 
-      # Scan Docker image with Trivy
+      # Scan Docker image
       - name: Scan Docker image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: app:latest
 
-      # Run Docker Compose (smoke test)
-      - name: Run Docker Compose (smoke test)
+      # Smoke test (optional)
+      - name: Run Docker container smoke test
         run: |
-          docker compose up -d
+          docker run -d -p 8080:8080 --name app-test \
+            -e DB_USER=$DB_USER \
+            -e DB_PASSWORD=$DB_PASSWORD \
+            -e DB_NAME=$DB_NAME \
+            -e DB_HOST=$DB_HOST \
+            -e DB_PORT=$DB_PORT \
+            -e SPRING_PROFILES_ACTIVE=ci \
+            app:latest
           sleep 15
           if ! nc -z localhost 8080; then
-            echo "ERROR: Application not listening on port 8080"
-            docker compose logs
+            echo "ERROR: App not listening on 8080"
+            docker logs app-test
             exit 1
           fi
-          docker compose down
+          docker stop app-test && docker rm app-test
