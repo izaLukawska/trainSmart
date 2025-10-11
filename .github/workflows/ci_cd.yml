@@ -1,0 +1,92 @@
+name: CI/CD Build and Test
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo
+      - uses: actions/checkout@v3
+
+      # Set up JDK 21 + Maven cache
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: 'pom.xml'
+
+      # Generate .env from GitHub Secrets
+      - name: Create .env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+
+      # Load env vars for Maven
+      - name: Load env vars
+        run: |
+          export $(cat .env | xargs)
+
+      # Build Maven project
+      - name: Build JAR
+        run: mvn -B -U clean package
+
+      # Run unit tests with JaCoCo
+      - name: Run tests with JaCoCo
+        run: mvn verify
+
+      # Check dependency updates
+      - name: Check dependency updates
+        run: mvn versions:display-dependency-updates
+
+      # Upload artifacts: JAR, JaCoCo, Dependency-Check
+      - name: Upload Spring Boot JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-boot-jar
+          path: target/*.jar
+
+      - name: Upload JaCoCo report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+
+      - name: Upload Dependency-Check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: dependency-check-report/
+
+      # Build Docker image (multi-stage)
+      - name: Build Docker image
+        run: docker build -t app:latest .
+
+      # Scan Docker image with Trivy
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: app:latest
+
+      # Run Docker Compose (smoke test)
+      - name: Run Docker Compose
+        run: |
+          docker-compose up -d
+          sleep 15
+          if ! nc -z localhost 8080; then
+            echo "ERROR: Application not listening on port 8080"
+            exit 1
+          fi
+          docker-compose down
