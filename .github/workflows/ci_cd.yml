@@ -11,6 +11,13 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_HOST: db
+      DB_PORT: 5432
+
     steps:
       # Checkout repo
       - uses: actions/checkout@v3
@@ -23,27 +30,31 @@ jobs:
           cache: 'maven'
           cache-dependency-path: 'pom.xml'
 
-      # Generate .env from GitHub Secrets
-      - name: Create .env file
+      # Start PostgreSQL (Docker Compose)
+      - name: Start PostgreSQL service
         run: |
-          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
-
-      # Load env vars for Maven
-      - name: Load env vars
-        run: |
-          export $(cat .env | xargs)
+          docker-compose up -d db
+          echo "Waiting for PostgreSQL to start..."
+          for i in {1..15}; do
+            if docker exec $(docker ps -qf "name=db") pg_isready -U $DB_USER; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            sleep 2
+          done
 
       # Build Maven project
       - name: Build JAR
-        run: mvn -B -U clean package
+        run: mvn -B -U clean package -Pci
 
-      # Run unit tests with JaCoCo
+      # Run unit + integration tests
       - name: Run tests with JaCoCo
-        run: mvn verify
+        run: mvn verify -Pci
+
+      # Stop Docker Compose
+      - name: Stop Docker Compose
+        if: always()
+        run: docker-compose down
 
       # Check dependency updates
       - name: Check dependency updates
@@ -81,12 +92,13 @@ jobs:
           image-ref: app:latest
 
       # Run Docker Compose (smoke test)
-      - name: Run Docker Compose
+      - name: Run Docker Compose (smoke test)
         run: |
           docker-compose up -d
           sleep 15
           if ! nc -z localhost 8080; then
             echo "ERROR: Application not listening on port 8080"
+            docker-compose logs
             exit 1
           fi
           docker-compose down
