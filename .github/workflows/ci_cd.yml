@@ -15,6 +15,7 @@ jobs:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}
+      DB_HOST: db
       DB_PORT: 5432
 
     steps:
@@ -69,11 +70,11 @@ jobs:
 
       # Build all services defined in docker-compose.yml
       - name: Build Docker Compose services
-        run: docker-compose -f docker-compose.yml build
+        run: docker compose -f docker-compose.yml build
 
       # Start all services
       - name: Start Docker Compose services
-        run: docker-compose -f docker-compose.yml up -d
+        run: docker compose -f docker-compose.yml up -d
 
       # Wait for app service to be ready
       - name: Wait for App service
@@ -100,4 +101,4 @@ jobs:
       # Tear down all services
       - name: Stop Docker Compose services
         if: always()
-        run: docker-compose -f docker-compose.yml down
+        run: docker compose -f docker-compose.yml down
