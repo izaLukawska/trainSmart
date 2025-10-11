@@ -15,13 +15,13 @@ jobs:
       # 1️⃣ Checkout repository
       - uses: actions/checkout@v3
 
-      # 2️⃣ Install Docker Compose (v2 plugin)
+      # 2️⃣ Install Docker Compose
       - name: Install Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      # 3️⃣ Create temporary .env from GitHub secrets BEFORE Maven build
+      # 3️⃣ Create temporary .env for Docker Compose
       - name: Create temporary .env
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -30,7 +30,7 @@ jobs:
           echo "DB_HOST=db" >> .env
           echo "DB_PORT=5432" >> .env
 
-      # 4️⃣ Set up JDK 21 + Maven cache
+      # 4️⃣ Setup Java and Maven cache
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -38,26 +38,33 @@ jobs:
           cache: 'maven'
           cache-dependency-path: 'pom.xml'
 
-      # 5️⃣ Build Maven project (with .env variables exported)
+      # 5️⃣ Build Maven project (pass secrets as Maven properties)
       - name: Build JAR
         run: |
-          export $(grep -v '^#' .env | xargs)
-          mvn -B -U clean package
+          mvn -B -U clean package \
+            -DDB_USER="${{ secrets.DB_USER }}" \
+            -DDB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            -DDB_NAME="${{ secrets.DB_NAME }}" \
+            -DDB_HOST=db \
+            -DDB_PORT=5432
 
-      # 6️⃣ Run unit & integration tests with JaCoCo
+      # 6️⃣ Run tests with JaCoCo (pass secrets as Maven properties)
       - name: Run tests with JaCoCo
         run: |
-          export $(grep -v '^#' .env | xargs)
-          mvn verify
+          mvn verify \
+            -DDB_USER="${{ secrets.DB_USER }}" \
+            -DDB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            -DDB_NAME="${{ secrets.DB_NAME }}" \
+            -DDB_HOST=db \
+            -DDB_PORT=5432
 
-      # 7️⃣ Upload Spring Boot JAR artifact
+      # 7️⃣ Upload artifacts
       - name: Upload Spring Boot JAR
         uses: actions/upload-artifact@v4
         with:
           name: spring-boot-jar
           path: target/*.jar
 
-      # 8️⃣ Upload JaCoCo report
       - name: Upload JaCoCo report
         if: always()
         uses: actions/upload-artifact@v4
@@ -65,26 +72,38 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
-      # 9️⃣ Build Docker image
+      # 8️⃣ Build Docker image
       - name: Build Docker image
         run: docker build -t app:latest .
 
-      # 🔟 Scan Docker image with Trivy
+      # 9️⃣ Scan Docker image
       - name: Scan Docker image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: app:latest
 
-      # 11️⃣ Build all services from docker-compose.yml
+      # 🔟 Build Docker Compose services
       - name: Build Docker Compose services
         run: docker compose -f docker-compose.yml build
 
-      # 12️⃣ Start all services in detached mode
+      # 11️⃣ Start Docker Compose services
       - name: Start Docker Compose services
         run: docker compose -f docker-compose.yml up -d
 
-      # 13️⃣ Wait for app service to be ready
-      - name: Wait for App service
+      # 12️⃣ Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          for i in {1..30}; do
+            if docker exec $(docker ps -qf "name=db") pg_isready -U ${{ secrets.DB_USER }} > /dev/null 2>&1; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            sleep 2
+          done
+
+      # 13️⃣ Smoke test the app
+      - name: Smoke Test App
         run: |
           echo "Waiting for app to start..."
           for i in {1..30}; do
@@ -95,22 +114,20 @@ jobs:
             sleep 2
           done
 
-      # 14️⃣ Smoke test: check if app is listening on 8080
-      - name: Smoke Test App
-        run: |
           if ! nc -z localhost 8080; then
             echo "ERROR: App not listening on 8080"
             docker compose -f docker-compose.yml logs app
             exit 1
           fi
+
           echo "Smoke test passed: App is listening on 8080"
 
-      # 15️⃣ Tear down all services
+      # 14️⃣ Tear down all services
       - name: Stop Docker Compose services
         if: always()
         run: docker compose -f docker-compose.yml down
 
-      # 16️⃣ Remove temporary .env file
+      # 15️⃣ Remove temporary .env
       - name: Cleanup .env
         if: always()
         run: rm -f .env
