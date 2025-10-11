@@ -15,7 +15,6 @@ jobs:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}
-      DB_HOST: localhost
       DB_PORT: 5432
 
     steps:
@@ -30,38 +29,13 @@ jobs:
           cache: 'maven'
           cache-dependency-path: 'pom.xml'
 
-      # Start PostgreSQL (bez docker-compose)
-      - name: Start PostgreSQL container
-        run: |
-          docker run -d \
-            --name postgres-test \
-            -e POSTGRES_USER=$DB_USER \
-            -e POSTGRES_PASSWORD=$DB_PASSWORD \
-            -e POSTGRES_DB=$DB_NAME \
-            -p 5432:5432 \
-            postgres:17
-          echo "Waiting for PostgreSQL to start..."
-          for i in {1..10}; do
-            if docker exec postgres-test pg_isready -U $DB_USER > /dev/null 2>&1; then
-              echo "PostgreSQL is ready!"
-              break
-            fi
-            echo "Waiting..."
-            sleep 3
-          done
-
       # Build Maven project
       - name: Build JAR
         run: mvn -B -U clean package
 
-      # Run unit & integration tests
+      # Run unit & integration tests with JaCoCo
       - name: Run tests with JaCoCo
         run: mvn verify
-
-      # Stop PostgreSQL
-      - name: Stop PostgreSQL
-        if: always()
-        run: docker stop postgres-test && docker rm postgres-test
 
       # Upload artifacts
       - name: Upload Spring Boot JAR
@@ -77,7 +51,7 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
-      # Build Docker image (optional)
+      # Build Docker image
       - name: Build Docker image
         run: docker build -t app:latest .
 
@@ -87,20 +61,43 @@ jobs:
         with:
           image-ref: app:latest
 
-      # Smoke test (optional)
-      - name: Run Docker container smoke test
+      # Install Docker Compose
+      - name: Install Docker Compose
         run: |
-          docker run -d -p 8080:8080 --name app-test \
-            -e DB_USER=$DB_USER \
-            -e DB_PASSWORD=$DB_PASSWORD \
-            -e DB_NAME=$DB_NAME \
-            -e DB_HOST=host.docker.internal \
-            -e DB_PORT=$DB_PORT \
-            app:latest
-          sleep 15
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # Build all services defined in docker-compose.yml
+      - name: Build Docker Compose services
+        run: docker-compose -f docker-compose.yml build
+
+      # Start all services
+      - name: Start Docker Compose services
+        run: docker-compose -f docker-compose.yml up -d
+
+      # Wait for app service to be ready
+      - name: Wait for App service
+        run: |
+          echo "Waiting for app to start..."
+          for i in {1..30}; do
+            if nc -z localhost 8080; then
+              echo "App is up!"
+              break
+            fi
+            sleep 2
+          done
+
+      # Smoke test: check if app is listening
+      - name: Smoke Test App
+        run: |
           if ! nc -z localhost 8080; then
             echo "ERROR: App not listening on 8080"
-            docker logs app-test
+            docker-compose logs app
             exit 1
           fi
-          docker stop app-test && docker rm app-test
+          echo "Smoke test passed: App is listening on 8080"
+
+      # Tear down all services
+      - name: Stop Docker Compose services
+        if: always()
+        run: docker-compose -f docker-compose.yml down
