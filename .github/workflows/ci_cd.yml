@@ -11,18 +11,26 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    env:
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_HOST: db
-      DB_PORT: 5432
-
     steps:
-      # Checkout repo
+      # 1️⃣ Checkout repository
       - uses: actions/checkout@v3
 
-      # Set up JDK 21 + Maven cache
+      # 2️⃣ Install Docker Compose (v2 plugin)
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # 3️⃣ Create temporary .env from GitHub secrets BEFORE Maven build
+      - name: Create temporary .env
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_HOST=db" >> .env
+          echo "DB_PORT=5432" >> .env
+
+      # 4️⃣ Set up JDK 21 + Maven cache
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -30,21 +38,26 @@ jobs:
           cache: 'maven'
           cache-dependency-path: 'pom.xml'
 
-      # Build Maven project
+      # 5️⃣ Build Maven project (with .env variables exported)
       - name: Build JAR
-        run: mvn -B -U clean package
+        run: |
+          export $(grep -v '^#' .env | xargs)
+          mvn -B -U clean package
 
-      # Run unit & integration tests with JaCoCo
+      # 6️⃣ Run unit & integration tests with JaCoCo
       - name: Run tests with JaCoCo
-        run: mvn verify
+        run: |
+          export $(grep -v '^#' .env | xargs)
+          mvn verify
 
-      # Upload artifacts
+      # 7️⃣ Upload Spring Boot JAR artifact
       - name: Upload Spring Boot JAR
         uses: actions/upload-artifact@v4
         with:
           name: spring-boot-jar
           path: target/*.jar
 
+      # 8️⃣ Upload JaCoCo report
       - name: Upload JaCoCo report
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,31 +65,25 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
-      # Build Docker image
+      # 9️⃣ Build Docker image
       - name: Build Docker image
         run: docker build -t app:latest .
 
-      # Scan Docker image
+      # 🔟 Scan Docker image with Trivy
       - name: Scan Docker image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: app:latest
 
-      # Install Docker Compose
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker compose
-
-      # Build all services defined in docker-compose.yml
+      # 11️⃣ Build all services from docker-compose.yml
       - name: Build Docker Compose services
         run: docker compose -f docker-compose.yml build
 
-      # Start all services
+      # 12️⃣ Start all services in detached mode
       - name: Start Docker Compose services
         run: docker compose -f docker-compose.yml up -d
 
-      # Wait for app service to be ready
+      # 13️⃣ Wait for app service to be ready
       - name: Wait for App service
         run: |
           echo "Waiting for app to start..."
@@ -88,17 +95,22 @@ jobs:
             sleep 2
           done
 
-      # Smoke test: check if app is listening
+      # 14️⃣ Smoke test: check if app is listening on 8080
       - name: Smoke Test App
         run: |
           if ! nc -z localhost 8080; then
             echo "ERROR: App not listening on 8080"
-            docker-compose logs app
+            docker compose -f docker-compose.yml logs app
             exit 1
           fi
           echo "Smoke test passed: App is listening on 8080"
 
-      # Tear down all services
+      # 15️⃣ Tear down all services
       - name: Stop Docker Compose services
         if: always()
         run: docker compose -f docker-compose.yml down
+
+      # 16️⃣ Remove temporary .env file
+      - name: Cleanup .env
+        if: always()
+        run: rm -f .env
