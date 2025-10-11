@@ -12,13 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Hardcoded wartości dla CI (tylko testowe!)
-      DB_USER: testuser
-      DB_PASSWORD: testpass
-      DB_NAME: testdb
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
       DB_HOST: localhost
       DB_PORT: 5432
-      SPRING_PROFILES_ACTIVE: ci
 
     steps:
       # Checkout repo
@@ -41,7 +39,7 @@ jobs:
             -e POSTGRES_PASSWORD=$DB_PASSWORD \
             -e POSTGRES_DB=$DB_NAME \
             -p 5432:5432 \
-            postgres:16
+            postgres:17
           echo "Waiting for PostgreSQL to start..."
           for i in {1..10}; do
             if docker exec postgres-test pg_isready -U $DB_USER > /dev/null 2>&1; then
@@ -54,11 +52,11 @@ jobs:
 
       # Build Maven project
       - name: Build JAR
-        run: mvn -B -U clean package -Pci
+        run: mvn -B -U clean package
 
       # Run unit & integration tests
       - name: Run tests with JaCoCo
-        run: mvn verify -Pci
+        run: mvn verify
 
       # Stop PostgreSQL
       - name: Stop PostgreSQL
@@ -96,9 +94,8 @@ jobs:
             -e DB_USER=$DB_USER \
             -e DB_PASSWORD=$DB_PASSWORD \
             -e DB_NAME=$DB_NAME \
-            -e DB_HOST=$DB_HOST \
+            -e DB_HOST=host.docker.internal \
             -e DB_PORT=$DB_PORT \
-            -e SPRING_PROFILES_ACTIVE=ci \
             app:latest
           sleep 15
           if ! nc -z localhost 8080; then
