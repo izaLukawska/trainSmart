@@ -33,7 +33,7 @@ jobs:
       # Start PostgreSQL (Docker Compose)
       - name: Start PostgreSQL service
         run: |
-          docker-compose up -d db
+          docker compose up -d db
           echo "Waiting for PostgreSQL to start..."
           for i in {1..15}; do
             if docker exec $(docker ps -qf "name=db") pg_isready -U $DB_USER; then
@@ -45,16 +45,16 @@ jobs:
 
       # Build Maven project
       - name: Build JAR
-        run: mvn -B -U clean package -Pci
+        run: mvn -B -U clean package
 
       # Run unit + integration tests
       - name: Run tests with JaCoCo
-        run: mvn verify -Pci
+        run: mvn verify
 
       # Stop Docker Compose
       - name: Stop Docker Compose
         if: always()
-        run: docker-compose down
+        run: docker compose down
 
       # Check dependency updates
       - name: Check dependency updates
@@ -94,11 +94,11 @@ jobs:
       # Run Docker Compose (smoke test)
       - name: Run Docker Compose (smoke test)
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 15
           if ! nc -z localhost 8080; then
             echo "ERROR: Application not listening on port 8080"
-            docker-compose logs
+            docker compose logs
             exit 1
           fi
-          docker-compose down
+          docker compose down
