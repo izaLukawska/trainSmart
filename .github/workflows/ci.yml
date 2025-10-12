@@ -1,0 +1,108 @@
+name: Build, Test with Coverage and Docker Smoke Test
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 5433:5432
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up JDK 21 with caching
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Set environment variables
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Build project
+        run: mvn -B -U -DskipTests package
+
+      - name: Run tests and check coverage
+        run: mvn verify
+
+      - name: Upload Jacoco Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-reports
+          path: '**/target/site/jacoco/index.html'
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/target/surefire-reports/*.xml'
+
+      - name: Upload JAR Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jar-artifacts
+          path: '**/target/*.jar'
+
+  smoke-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate .env from secrets
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_DOCKER_PORT }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_DOCKER_HOST }}" >> .env
+
+      - name: Build and start services
+        run: docker compose up -d --build
+
+      - name: Smoke test (healthcheck)
+        run: |
+          for i in {1..15}; do
+            if curl -sSf http://localhost:8080/actuator/health; then
+              echo "Application run successfully"
+              docker compose down
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Application run failed"
+          docker compose logs
+          docker compose down
+          exit 1
