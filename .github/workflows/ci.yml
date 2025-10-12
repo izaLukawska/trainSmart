@@ -10,15 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        ports:
-          - 5433:5432
 
     steps:
       - uses: actions/checkout@v4
@@ -38,11 +29,19 @@ jobs:
           cache: 'maven'
           cache-dependency-path: '**/pom.xml'
 
+      - name: Set environment variables
+        run: |
+            echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+            echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
+            echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+            echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+
       - name: Build all modules
         run: mvn -B -U clean install
 
       - name: Run tests and check coverage
-        run: mvn verify
+        run: mvn test
 
       - name: Upload Jacoco Reports
         if: always()
