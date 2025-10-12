@@ -13,10 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Secret Scanning (truffleHog)
-        uses: trufflesecurity/trufflehog@v3.67.3
-        with:
-          extra_args: '--fail --no-update --json'
+      - name: Secret Scanner
+        uses: secret-scanner/action@0.0.2
 
       - name: Set up JDK 21 with caching
         uses: actions/setup-java@v5
