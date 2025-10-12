@@ -38,10 +38,10 @@ jobs:
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Build all modules
-        run: mvn -B -U clean install
+        run: mvn -B -U -DskipTests package
 
       - name: Run tests and check coverage
-        run: mvn test
+        run: mvn verify
 
       - name: Upload Jacoco Reports
         if: always()
