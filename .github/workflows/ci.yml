@@ -34,28 +34,28 @@ jobs:
 
       - name: Upload Jacoco Reports
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jacoco-reports
           path: '**/target/site/jacoco/index.html'
 
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: '**/target/surefire-reports/*.xml'
 
       - name: Upload JAR Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jar-artifacts
           path: '**/target/*.jar'
 
       - name: Upload ZIP Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zip-artifacts
           path: '**/target/*.zip'
