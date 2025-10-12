@@ -104,13 +104,13 @@ jobs:
         run: |
           for i in {1..15}; do
             if curl -sSf http://localhost:8080/actuator/health; then
-              echo "Aplikacja działa poprawnie"
+              echo "Application run successfully"
               docker compose down
               exit 0
             fi
             sleep 5
           done
-          echo "Aplikacja nie wystartowała poprawnie"
+          echo "Application run failed"
           docker compose logs
           docker compose down
           exit 1
