@@ -1,0 +1,61 @@
+name: Build, Test, Coverage
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Secret Scanning (truffleHog)
+        uses: trufflesecurity/trufflehog@v3.67.3
+        with:
+          extra_args: '--fail --no-update --json'
+
+      - name: Set up JDK 21 with caching
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Build all modules
+        run: mvn -B -U clean install
+
+      - name: Run tests and check coverage
+        run: mvn verify
+
+      - name: Upload Jacoco Reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-reports
+          path: '**/target/site/jacoco/index.html'
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: '**/target/surefire-reports/*.xml'
+
+      - name: Upload JAR Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jar-artifacts
+          path: '**/target/*.jar'
+
+      - name: Upload ZIP Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: zip-artifacts
+          path: '**/target/*.zip'
