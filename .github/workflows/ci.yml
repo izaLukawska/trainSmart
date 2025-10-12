@@ -51,7 +51,7 @@ jobs:
         run: mvn -B -U -DskipTests package
 
       - name: Run tests and check coverage
-        run: mvn test
+        run: mvn verify
 
       - name: Upload Jacoco Reports
         if: always()
