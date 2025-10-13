@@ -12,14 +12,14 @@ public final class MailMapper {
 
 	public static MailEntity mapToEntity(MailRequest mailRequest) {
 		return MailEntity.builder()
-		           .recipients(mailRequest.recipients())
-		           .cc(defaultListIfNull(mailRequest.cc()))
-		           .bcc(defaultListIfNull(mailRequest.bcc()))
-		           .subject(mailRequest.subject())
-		           .body(mailRequest.body())
-		           .isHtml(mailRequest.isHtml())
-		           .attachmentList(defaultListIfNull(mailRequest.attachmentList()))
-		           .build();
+		                 .recipients(mailRequest.recipients())
+		                 .cc(defaultListIfNull(mailRequest.cc()))
+		                 .bcc(defaultListIfNull(mailRequest.bcc()))
+		                 .subject(mailRequest.subject())
+		                 .body(mailRequest.body())
+		                 .isHtml(mailRequest.isHtml())
+		                 .attachmentList(defaultListIfNull(mailRequest.attachmentList()))
+		                 .build();
 	}
 
 	public static MailResponse mapToResponse(MailEntity mail) {

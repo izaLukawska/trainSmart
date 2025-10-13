@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.domain.entities.Attachment;
 import org.lukawska.trainSmart.mailing.application.service.MailSender;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -21,22 +22,24 @@ public class JavaMailSenderAdapter implements MailSender {
 
 	private final JavaMailSender mailSender;
 
+	@Value("${mail.from}")
+	private String mailFrom;
+
+	@Value("${mail.reply-to-support}")
+	private String replyToSupport;
+
 	@Override
 	@Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
-	public void sendEmail(MailRequest mailRequest) throws MessagingException {
-		log.debug("Sending email to: {}", mailRequest.recipients());
+	public void sendEmail(MailRequest mailRequest, String correlationId) throws MessagingException {
+		log.debug("Sending email with correlation id: {}", correlationId);
 
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
 
 		applyMailData(mailRequest, messageHelper);
 
-		if (!mailRequest.attachmentList().isEmpty()) {
-			addAttachments(mailRequest, messageHelper);
-		}
-
 		mailSender.send(message);
-		log.debug("Email sent to: {}", mailRequest.recipients());
+		log.debug("Successfully send email with correlation id: {}", correlationId);
 	}
 
 	private MimeMessageHelper createMimeMessageHelper(MailRequest mailRequest, MimeMessage message)
@@ -49,6 +52,20 @@ public class JavaMailSenderAdapter implements MailSender {
 		helper.setTo(mailRequest.recipients().toArray(new String[0]));
 		helper.setSubject(mailRequest.subject());
 		helper.setText(mailRequest.body(), mailRequest.isHtml());
+		helper.setFrom(mailFrom);
+		helper.setReplyTo(replyToSupport);
+
+		if (!mailRequest.cc().isEmpty()) {
+			helper.setCc(mailRequest.cc().toArray(new String[0]));
+		}
+
+		if (!mailRequest.bcc().isEmpty()) {
+			helper.setBcc(mailRequest.bcc().toArray(new String[0]));
+		}
+
+		if (!mailRequest.attachmentList().isEmpty()) {
+			addAttachments(mailRequest, helper);
+		}
 	}
 
 	private void addAttachments(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {

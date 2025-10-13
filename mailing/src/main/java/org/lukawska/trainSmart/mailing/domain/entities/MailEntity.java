@@ -57,7 +57,6 @@ public class MailEntity {
 	@Builder.Default
 	private boolean sentSuccess = false;
 
-	private String correlationId;
 
 	public void markAsSent() {
 		this.sentSuccess = true;
