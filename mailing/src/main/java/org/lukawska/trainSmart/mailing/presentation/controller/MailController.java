@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
-import org.lukawska.trainSmart.mailing.application.service.MailService;
+import org.lukawska.trainSmart.mailing.application.service.MailSender;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,12 +20,12 @@ import java.util.Arrays;
 @Slf4j
 public class MailController {
 
-	private final MailService mailService;
+	private final MailSender mailSender;
 
 	@PostMapping
 	public ResponseEntity<Void> sendMail(@Valid @RequestBody MailRequest mailRequest) throws MessagingException {
-		log.debug("Sending mail to: {}", Arrays.toString(mailRequest.getRecipients()));
-		mailService.sendEmail(mailRequest);
+		log.debug("Sending mail to: {}", mailRequest.attachmentList());
+		mailSender.sendEmail(mailRequest);
 		return ResponseEntity.ok().build();
 	}
 }

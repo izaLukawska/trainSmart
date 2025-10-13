@@ -3,13 +3,11 @@ package org.lukawska.trainSmart.mailing.infrastructure.external;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.lukawska.trainSmart.mailing.application.dto.Attachment;
-import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainSmart.mailing.domain.entities.Attachment;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,7 +16,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.List;
 import java.util.Random;
-import java.util.random.RandomGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;

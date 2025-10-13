@@ -1,4 +1,4 @@
-package org.lukawska.trainSmart.mailing.application.dto;
+package org.lukawska.trainSmart.mailing.domain.entities;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

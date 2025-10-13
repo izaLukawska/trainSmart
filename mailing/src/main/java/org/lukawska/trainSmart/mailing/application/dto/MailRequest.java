@@ -1,29 +1,16 @@
 package org.lukawska.trainSmart.mailing.application.dto;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import org.lukawska.trainSmart.mailing.domain.entities.Attachment;
 
 import java.util.List;
 
-@Builder
-@AllArgsConstructor
-@Getter
-public class MailRequest {
-
-	@NotNull
-	@Size(min = 1, message = "At least one recipient required.")
-	private String[] recipients;
-
-	private String subject;
-
-	private String text;
-
-	private boolean isHtml;
-
-	@Builder.Default
-	private List<Attachment> attachments = List.of();
-
-}
+public record MailRequest(
+		@NotEmpty(message = "At least one recipient is required.") List<String> recipients,
+		List<String> cc,
+		List<String> bcc,
+		@NotBlank(message = "Subject cannot be blank.") String subject,
+		@NotBlank(message = "Body cannot be blank.") String body,
+		boolean isHtml,
+		List<Attachment> attachmentList) {}

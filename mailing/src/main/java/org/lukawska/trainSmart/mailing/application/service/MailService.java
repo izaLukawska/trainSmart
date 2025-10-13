@@ -1,10 +1,16 @@
 package org.lukawska.trainSmart.mailing.application.service;
 
-import jakarta.mail.MessagingException;
-import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
+import org.springframework.stereotype.Service;
 
-public interface MailService {
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class MailService {
 
-	void sendEmail(MailRequest mailRequest) throws MessagingException;
+	private final MailRepository mailRepository;
+
 
 }
