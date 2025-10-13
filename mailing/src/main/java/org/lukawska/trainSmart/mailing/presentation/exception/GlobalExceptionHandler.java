@@ -1,10 +1,10 @@
 package org.lukawska.trainSmart.mailing.presentation.exception;
 
-import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainSmart.mailing.application.exception.RestException;
+import org.lukawska.trainSmart.mailing.presentation.dto.ExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailAuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -12,24 +12,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
+	@ExceptionHandler(RestException.class)
+	public ResponseEntity<ExceptionResponse> handleRestException(RestException ex) {
+		log.error("Handled RestException: {}", ex.getMessage(), ex);
+		return ResponseEntity.status(ex.getExceptionType().getHttpStatus())
+		                     .body(new ExceptionResponse(ex.getMessage(),
+		                                                 ex.getExceptionType().getHttpStatus().value()));
+	}
+
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<String> handleException(Exception e) {
-		log.error("Unexpected error encountered: ", e);
+	public ResponseEntity<ExceptionResponse> handleGenericException(Exception ex) {
+		log.error("Unhandled exception: {}", ex.getMessage(), ex);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-		                     .body("Internal server error: " + e.getMessage());
-	}
-
-	@ExceptionHandler(MessagingException.class)
-	public ResponseEntity<String> handleMessagingException(MessagingException e) {
-		log.error("Error during mail sending: ", e);
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-		                     .body("Error during mail sending: " + e.getMessage());
-	}
-
-	@ExceptionHandler(MailAuthenticationException.class)
-	public ResponseEntity<String> handleMailAuthException(MailAuthenticationException e) {
-		log.error("Authentication error during mail sending: ", e);
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-		                     .body("Mail authentication failed: " + e.getMessage());
+		                     .body(new ExceptionResponse(ex.getMessage(),
+		                                                 HttpStatus.INTERNAL_SERVER_ERROR.value()));
 	}
 }

@@ -10,6 +10,7 @@ import org.lukawska.trainSmart.mailing.application.mapper.MailMapper;
 import org.lukawska.trainSmart.mailing.application.validation.AttachmentValidation;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
+import org.springframework.mail.MailAuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -36,6 +37,12 @@ public class MailService {
 			log.info("Successfully sent mail with correlationId: {}", correlationId);
 			mailEntity.markAsSent();
 			return MailMapper.mapToResponse(mailEntity);
+		} catch (RestException e) {
+			log.error("Application error for mail {}: {}", correlationId, e.getMessage());
+			throw e;
+		} catch (MailAuthenticationException e) {
+			log.error("Mail authentication failed for mail {}: {}", correlationId, e.getMessage());
+			throw new RestException(ExceptionType.MAIL_AUTH_ERROR);
 		} catch (Exception e) {
 			log.error("Failed to send mail with correlation id: {}. Error: {}", correlationId, e.getMessage(), e);
 			throw new RestException(ExceptionType.MAIL_SEND_ERROR);
