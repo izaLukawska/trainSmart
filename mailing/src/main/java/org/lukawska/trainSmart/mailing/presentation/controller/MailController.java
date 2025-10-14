@@ -6,9 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.service.MailService;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,8 +19,58 @@ public class MailController {
 
 	private final MailService mailService;
 
-	public MailResponse sendMail(@Valid @RequestBody MailRequest mailRequest) {
-		log.debug("Received mail with subject: {}", mailRequest.subject());
-		return mailService.sendMail(mailRequest);
+	@PostMapping("/send")
+	public ResponseEntity<MailResponse> sendMail(@Valid @RequestBody MailRequest mailRequest) {
+		log.debug("Sending mail with subject: {}", mailRequest.subject());
+		return ResponseEntity.ok(mailService.sendMail(mailRequest));
+	}
+
+	@GetMapping("/get/{id}")
+	public ResponseEntity<MailResponse> getMailById(@PathVariable Long id) {
+		log.info("Searching for mail with id: {}", id);
+		return ResponseEntity.ok(mailService.getMailById(id));
+	}
+
+	@GetMapping
+	public ResponseEntity<List<MailResponse>> getAllMails() {
+		log.info("Fetching all mails");
+		return ResponseEntity.ok(mailService.getAllMails());
+	}
+
+	@GetMapping("/recipient")
+	public ResponseEntity<List<MailResponse>> getAllMailsByRecipient(@RequestParam String recipient) {
+		log.debug("Fetching mails for recipient: {}", recipient);
+		return ResponseEntity.ok(mailService.getAllMailsByRecipient(recipient));
+	}
+
+	@GetMapping("/cc")
+	public ResponseEntity<List<MailResponse>> getAllMailsByCc(@RequestParam String cc) {
+		log.debug("Fetching mails with CC containing: {}", cc);
+		return ResponseEntity.ok(mailService.getAllMailsByCc(cc));
+	}
+
+	@GetMapping("/bcc")
+	public ResponseEntity<List<MailResponse>> getAllMailsByBcc(@RequestParam String bcc) {
+		log.debug("Fetching mails with BCC containing: {}", bcc);
+		return ResponseEntity.ok(mailService.getAllMailsByBcc(bcc));
+	}
+
+	@GetMapping("/sent-between")
+	public ResponseEntity<List<MailResponse>> getAllMailsBySentAtBetween(@RequestParam String from,
+	                                                                     @RequestParam String to) {
+		log.info("Fetching mails sent between: {} and {}", from, to);
+		return ResponseEntity.ok(mailService.getAllMailsBySentAtBetween(from, to));
+	}
+
+	@GetMapping("/subject")
+	public ResponseEntity<List<MailResponse>> getAllMailsBySubjectContaining(@RequestParam String keyword) {
+		log.info("Fetching mails with subject containing: {}", keyword);
+		return ResponseEntity.ok(mailService.getAllMailsBySubjectContaining(keyword));
+	}
+
+	@GetMapping("/is-html")
+	public ResponseEntity<List<MailResponse>> getAllMailsByIsHtml(@RequestParam boolean isHtml) {
+		log.info("Fetching mails with isHtml: {}", isHtml);
+		return ResponseEntity.ok(mailService.getAllMailsByIsHtml(isHtml));
 	}
 }

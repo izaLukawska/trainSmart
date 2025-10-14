@@ -1,8 +1,7 @@
 package org.lukawska.trainSmart.mailing.application.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
-import org.lukawska.trainSmart.mailing.domain.entities.Attachment;
 
 public record MailResponse(
 		Long id,
@@ -14,7 +13,4 @@ public record MailResponse(
 		boolean isHtml,
 		String from,
 		String replyTo,
-		List<Attachment> attachmentList,
-		LocalDateTime sentAt,
-		boolean sentSuccess
-) {}
+		Instant sentAt) {}

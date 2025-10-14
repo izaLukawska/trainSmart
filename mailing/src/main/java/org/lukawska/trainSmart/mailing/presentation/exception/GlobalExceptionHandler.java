@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ExceptionResponse> handleGenericException(Exception ex) {
-		log.error("Unhandled exception: {}", ex.getMessage(), ex);
+		log.error("Unexpected error: {}", ex.getMessage(), ex);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 		                     .body(new ExceptionResponse(ex.getMessage(),
 		                                                 HttpStatus.INTERNAL_SERVER_ERROR.value()));

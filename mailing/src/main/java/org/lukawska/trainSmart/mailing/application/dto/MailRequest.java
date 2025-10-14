@@ -2,7 +2,7 @@ package org.lukawska.trainSmart.mailing.application.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import org.lukawska.trainSmart.mailing.domain.entities.Attachment;
+import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 
 import java.util.List;
 

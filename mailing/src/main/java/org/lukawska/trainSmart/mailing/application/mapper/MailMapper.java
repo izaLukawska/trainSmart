@@ -1,16 +1,23 @@
 package org.lukawska.trainSmart.mailing.application.mapper;
 
-import lombok.NoArgsConstructor;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@Component
 public final class MailMapper {
 
-	public static MailEntity mapToEntity(MailRequest mailRequest) {
+	@Value("${mail.from}")
+	private String mailFrom;
+
+	@Value("${mail.reply-to}")
+	private String replyTo;
+
+	public MailEntity mapToEntity(MailRequest mailRequest) {
 		return MailEntity.builder()
 		                 .recipients(mailRequest.recipients())
 		                 .cc(defaultListIfNull(mailRequest.cc()))
@@ -18,11 +25,10 @@ public final class MailMapper {
 		                 .subject(mailRequest.subject())
 		                 .body(mailRequest.body())
 		                 .isHtml(mailRequest.isHtml())
-		                 .attachmentList(defaultListIfNull(mailRequest.attachmentList()))
 		                 .build();
 	}
 
-	public static MailResponse mapToResponse(MailEntity mail) {
+	public MailResponse mapToResponse(MailEntity mail) {
 		return new MailResponse(
 				mail.getId(),
 				defaultListIfNull(mail.getRecipients()),
@@ -31,12 +37,9 @@ public final class MailMapper {
 				mail.getSubject(),
 				mail.getBody(),
 				mail.isHtml(),
-				mail.getFrom(),
-				mail.getReplyTo(),
-				defaultListIfNull(mail.getAttachmentList()),
-				mail.getSentAt(),
-				mail.isSentSuccess()
-		);
+				mailFrom,
+				replyTo,
+				mail.getSentAt());
 	}
 
 	private static <T> List<T> defaultListIfNull(List<T> list) {

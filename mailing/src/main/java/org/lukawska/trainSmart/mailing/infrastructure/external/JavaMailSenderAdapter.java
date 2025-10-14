@@ -5,7 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
-import org.lukawska.trainSmart.mailing.domain.entities.Attachment;
+import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 import org.lukawska.trainSmart.mailing.application.service.MailSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -36,6 +36,7 @@ public class JavaMailSenderAdapter implements MailSender {
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
 
+		log.info("Applying mail data for correlation id: {}", correlationId);
 		applyMailData(mailRequest, messageHelper);
 
 		mailSender.send(message);
@@ -70,7 +71,9 @@ public class JavaMailSenderAdapter implements MailSender {
 
 	private void addAttachments(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
 		for (Attachment attachment : mailRequest.attachmentList()) {
-			helper.addAttachment(attachment.fileName(), attachment.source(), attachment.mimeType());
+			helper.addAttachment(attachment.fileName(),
+			                     attachment.source(),
+			                     attachment.attachmentType().getMimeType());
 		}
 	}
 }

@@ -15,5 +15,7 @@ spring:
             writetimeout: 5000
 
 mail:
+  attachments:
+    max-size: 5242880
   from: no-reply@trainsmart.com
-  reply-to-support: support@trainsmart.com
+  reply-to: support@trainsmart.com

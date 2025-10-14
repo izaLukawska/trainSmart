@@ -3,7 +3,7 @@ package org.lukawska.trainSmart.mailing.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,22 +44,10 @@ public class MailEntity {
 
 	private boolean isHtml;
 
-	private String from;
-
-	private String replyTo;
-
-	@Builder.Default
-	@Transient
-	private List<Attachment> attachmentList = new ArrayList<>();
-
-	private LocalDateTime sentAt;
-
-	@Builder.Default
-	private boolean sentSuccess = false;
-
+	private Instant sentAt;
 
 	public void markAsSent() {
-		this.sentSuccess = true;
-		this.sentAt = LocalDateTime.now();
+		this.sentAt = Instant.now();
 	}
+
 }
