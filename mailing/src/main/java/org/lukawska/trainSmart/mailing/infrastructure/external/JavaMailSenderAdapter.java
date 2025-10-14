@@ -36,7 +36,7 @@ public class JavaMailSenderAdapter implements MailSender {
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
 
-		log.info("Applying mail data for correlation id: {}", correlationId);
+		log.debug("Applying mail data for correlation id: {}", correlationId);
 		applyMailData(mailRequest, messageHelper);
 
 		mailSender.send(message);
@@ -45,7 +45,7 @@ public class JavaMailSenderAdapter implements MailSender {
 
 	private MimeMessageHelper createMimeMessageHelper(MailRequest mailRequest, MimeMessage message)
 			throws MessagingException {
-		boolean isMultipart = !mailRequest.attachmentList().isEmpty();
+		boolean isMultipart = !mailRequest.attachments().isEmpty();
 		return new MimeMessageHelper(message, isMultipart, "UTF-8");
 	}
 
@@ -64,13 +64,13 @@ public class JavaMailSenderAdapter implements MailSender {
 			helper.setBcc(mailRequest.bcc().toArray(new String[0]));
 		}
 
-		if (!mailRequest.attachmentList().isEmpty()) {
+		if (!mailRequest.attachments().isEmpty()) {
 			addAttachments(mailRequest, helper);
 		}
 	}
 
 	private void addAttachments(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
-		for (Attachment attachment : mailRequest.attachmentList()) {
+		for (Attachment attachment : mailRequest.attachments()) {
 			helper.addAttachment(attachment.fileName(),
 			                     attachment.source(),
 			                     attachment.attachmentType().getMimeType());

@@ -33,7 +33,7 @@ public final class AttachmentValidation {
 
 	private void validateAttachmentExtension(Attachment att) {
 		String extension = StringUtils.substringAfterLast(att.fileName(), ".");
-		if (StringUtils.isBlank(extension) || !AttachmentType.isValidExtension(extension)) {
+		if (StringUtils.isBlank(extension) || !isValidExtension(extension)) {
 			throw new RestException(ExceptionType.INVALID_ATTACHMENT);
 		}
 	}
@@ -65,4 +65,13 @@ public final class AttachmentValidation {
 			throw new RestException(ExceptionType.ATTACHMENT_IO_ERROR);
 		}
 	}
+
+	private boolean isValidExtension(String extension) {
+        for (AttachmentType type : AttachmentType.values()) {
+            if (type.getExtension().equalsIgnoreCase(extension)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

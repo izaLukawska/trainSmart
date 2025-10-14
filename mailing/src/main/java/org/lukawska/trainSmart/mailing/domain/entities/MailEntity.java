@@ -37,9 +37,11 @@ public class MailEntity {
 	@Column(name = "bcc")
 	private List<String> bcc = new ArrayList<>();
 
+	@Column(nullable = false)
 	private String subject;
 
 	@Lob
+	@Column(nullable = false)
 	private String body;
 
 	private boolean isHtml;

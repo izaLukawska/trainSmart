@@ -70,7 +70,7 @@ public class MailController {
 
 	@GetMapping("/is-html")
 	public ResponseEntity<List<MailResponse>> getAllMailsByIsHtml(@RequestParam boolean isHtml) {
-		log.info("Fetching mails with isHtml: {}", isHtml);
+		log.info("Fetching html emails: {}", isHtml);
 		return ResponseEntity.ok(mailService.getAllMailsByIsHtml(isHtml));
 	}
 }

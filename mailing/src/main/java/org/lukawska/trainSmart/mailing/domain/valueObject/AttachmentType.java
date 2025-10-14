@@ -13,12 +13,4 @@ public enum AttachmentType {
 	private final String mimeType;
 	private final String extension;
 
-	public static boolean isValidExtension(String extension) {
-		for (AttachmentType type : values()) {
-			if (type.getExtension().equalsIgnoreCase(extension)) {
-				return true;
-			}
-		}
-		return false;
-	}
 }

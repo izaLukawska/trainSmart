@@ -9,8 +9,6 @@ public record MailResponse(
 		List<String> cc,
 		List<String> bcc,
 		String subject,
-		String body,
-		boolean isHtml,
 		String from,
 		String replyTo,
 		Instant sentAt) {}

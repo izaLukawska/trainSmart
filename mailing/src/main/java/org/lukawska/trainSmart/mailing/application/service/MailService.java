@@ -33,9 +33,9 @@ public class MailService {
 
 	public MailResponse sendMail(MailRequest mailRequest) {
 		String correlationId = UUID.randomUUID().toString();
-		if (CollectionUtils.isEmpty(mailRequest.attachmentList())) {
+		if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
 			log.info("Validating attachments for correlationId: {}", correlationId);
-			attachmentValidation.validateAttachments(mailRequest.attachmentList());
+			attachmentValidation.validateAttachments(mailRequest.attachments());
 		}
 
 		MailEntity mailEntity = mailMapper.mapToEntity(mailRequest);

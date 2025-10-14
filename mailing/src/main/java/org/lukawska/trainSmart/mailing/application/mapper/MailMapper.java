@@ -35,8 +35,6 @@ public final class MailMapper {
 				defaultListIfNull(mail.getCc()),
 				defaultListIfNull(mail.getBcc()),
 				mail.getSubject(),
-				mail.getBody(),
-				mail.isHtml(),
 				mailFrom,
 				replyTo,
 				mail.getSentAt());
