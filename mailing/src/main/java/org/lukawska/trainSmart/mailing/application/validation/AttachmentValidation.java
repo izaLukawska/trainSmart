@@ -13,19 +13,20 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
 public final class AttachmentValidation {
 
 	@Value("${mail.attachments.max-size}")
-	private long maxAttachmentSize;
+	private final long maxAttachmentSize;
 
 	public void validateAttachments(List<Attachment> attachments) {
 		for (Attachment att : attachments) {
+			validateAttachmentFileName(att);
 			validateAttachmentExtension(att);
 			validateAttachmentType(att);
-			validateAttachmentFileName(att);
 			validateAttachmentSize(att);
 		}
 	}
@@ -38,6 +39,10 @@ public final class AttachmentValidation {
 	}
 
 	private void validateAttachmentType(Attachment att) {
+		if(Objects.isNull(att) || Objects.isNull(att.attachmentType())){
+			throw new RestException(ExceptionType.INVALID_ATTACHMENT);
+		}
+
 		if (Arrays.stream(AttachmentType.values())
 		          .noneMatch(type -> type.getMimeType().equals(att.attachmentType().getMimeType()))) {
 			throw new RestException(ExceptionType.INVALID_ATTACHMENT);

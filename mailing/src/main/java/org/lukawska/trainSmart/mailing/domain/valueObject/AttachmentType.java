@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum AttachmentType {
 
-	PDF("application/pdf", ".pdf"),
-	EXCEL("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
+	PDF("application/pdf", "pdf"),
+	EXCEL("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx");
 
 	private final String mimeType;
 	private final String extension;
