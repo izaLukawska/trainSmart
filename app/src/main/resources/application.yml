@@ -9,3 +9,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+mail:
+  from: "noreply@twojadomena.pl"
+  reply-to: "kontakt@twojadomena.pl"
+  attachments:
+    max-size: 5242880

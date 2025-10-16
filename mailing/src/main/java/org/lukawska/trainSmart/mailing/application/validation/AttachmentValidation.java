@@ -20,7 +20,7 @@ import java.util.Objects;
 public final class AttachmentValidation {
 
 	@Value("${mail.attachments.max-size}")
-	private final long maxAttachmentSize;
+	private long maxAttachmentSize;
 
 	public void validateAttachments(List<Attachment> attachments) {
 		for (Attachment att : attachments) {

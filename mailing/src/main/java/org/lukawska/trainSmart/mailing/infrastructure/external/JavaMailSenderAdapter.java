@@ -25,7 +25,7 @@ public class JavaMailSenderAdapter implements MailSender {
 	@Value("${mail.from}")
 	private String mailFrom;
 
-	@Value("${mail.reply-to-support}")
+	@Value("${mail.reply-to}")
 	private String replyToSupport;
 
 	@Override
