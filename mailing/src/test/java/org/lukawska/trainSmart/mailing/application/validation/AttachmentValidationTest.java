@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class AttachmentValidationTest {
 
@@ -29,28 +28,22 @@ class AttachmentValidationTest {
 		//given
 		AttachmentType attachmentType = AttachmentType.values()[new Random().nextInt(AttachmentType.values().length)];
 		String fileName = UUID.randomUUID() + "." + attachmentType.getExtension();
-		Attachment attachment = new Attachment(fileName,
-		                                       AttachmentType.PDF,
-		                                       new ByteArrayResource(new byte[10]));
+		Attachment attachment = new Attachment(fileName, AttachmentType.PDF, new ByteArrayResource(new byte[10]));
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertDoesNotThrow(() -> attachmentValidation.validateAttachments(attachments));
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).doesNotThrowAnyException();
 	}
 
 	@Test
 	void shouldThrowExceptionWhenAttachmentNameInvalid() {
 		//given
 		AttachmentType attachmentType = AttachmentType.values()[new Random().nextInt(AttachmentType.values().length)];
-		Attachment attachment = new Attachment("",
-		                                       attachmentType,
-		                                       new ByteArrayResource(new byte[10]));
+		Attachment attachment = new Attachment("", attachmentType, new ByteArrayResource(new byte[10]));
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatThrownBy(() -> attachmentValidation.validateAttachments(attachments))
-				.isInstanceOf(RuntimeException.class)
-				.hasMessage(ExceptionType.INVALID_ATTACHMENT_NAME.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.INVALID_ATTACHMENT_NAME.getMessage());
 	}
 
 	@Test
@@ -58,45 +51,34 @@ class AttachmentValidationTest {
 		//given
 		String fileName = UUID.randomUUID() + ".invalid";
 		AttachmentType attachmentType = AttachmentType.values()[new Random().nextInt(AttachmentType.values().length)];
-		Attachment attachment = new Attachment(fileName,
-		                                       attachmentType,
-		                                       new ByteArrayResource(new byte[10]));
+		Attachment attachment = new Attachment(fileName, attachmentType, new ByteArrayResource(new byte[10]));
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatThrownBy(() -> attachmentValidation.validateAttachments(attachments))
-				.isInstanceOf(RuntimeException.class)
-				.hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
 	}
 
 	@Test
 	void shouldThrowExceptionWhenAttachmentTypeInvalid() {
 		//given
 		String fileName = UUID.randomUUID() + ".pdf";
-		Attachment attachment = new Attachment(fileName,
-		                                       null,
-		                                       new ByteArrayResource(new byte[10]));
+		Attachment attachment = new Attachment(fileName, null, new ByteArrayResource(new byte[10]));
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatThrownBy(() -> attachmentValidation.validateAttachments(attachments))
-				.isInstanceOf(RuntimeException.class)
-				.hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
 	}
 
 	@Test
-	void shouldThrowExceptionWhenAttachmentSizeToLarge(){
+	void shouldThrowExceptionWhenAttachmentSizeToLarge() {
 		//given
 		AttachmentType attachmentType = AttachmentType.values()[new Random().nextInt(AttachmentType.values().length)];
 		String fileName = UUID.randomUUID() + "." + attachmentType.getExtension();
-		Attachment attachment = new Attachment(fileName,
-		                                       AttachmentType.PDF,
+		Attachment attachment = new Attachment(fileName, AttachmentType.PDF,
 		                                       new ByteArrayResource(new byte[100 * 1024 * 1024]));
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatThrownBy(() -> attachmentValidation.validateAttachments(attachments))
-				.isInstanceOf(RuntimeException.class)
-				.hasMessage(ExceptionType.ATTACHMENT_TOO_LARGE.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.ATTACHMENT_TOO_LARGE.getMessage());
 	}
 }

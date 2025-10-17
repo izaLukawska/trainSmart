@@ -1,6 +1,6 @@
 package org.lukawska.trainSmart.mailing.application.validation;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.RestException;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-@RequiredArgsConstructor
+@AllArgsConstructor
 public final class AttachmentValidation {
 
 	@Value("${mail.attachments.max-size}")
@@ -24,23 +24,16 @@ public final class AttachmentValidation {
 
 	public void validateAttachments(List<Attachment> attachments) {
 		for (Attachment att : attachments) {
+			validateAttachmentType(att);
 			validateAttachmentFileName(att);
 			validateAttachmentExtension(att);
-			validateAttachmentType(att);
 			validateAttachmentSize(att);
 		}
 	}
 
-	private void validateAttachmentExtension(Attachment att) {
-		String extension = StringUtils.substringAfterLast(att.fileName(), ".");
-		if (StringUtils.isBlank(extension) || !isValidExtension(extension)) {
-			throw new RestException(ExceptionType.INVALID_ATTACHMENT);
-		}
-	}
-
 	private void validateAttachmentType(Attachment att) {
-		if(Objects.isNull(att) || Objects.isNull(att.attachmentType())){
-			throw new RestException(ExceptionType.INVALID_ATTACHMENT);
+		if (Objects.isNull(att) || Objects.isNull(att.attachmentType())) {
+			throw new RestException(ExceptionType.MISSING_ATTACHMENT);
 		}
 
 		if (Arrays.stream(AttachmentType.values())
@@ -52,6 +45,13 @@ public final class AttachmentValidation {
 	private void validateAttachmentFileName(Attachment att) {
 		if (StringUtils.isBlank(att.fileName())) {
 			throw new RestException(ExceptionType.INVALID_ATTACHMENT_NAME);
+		}
+	}
+
+	private void validateAttachmentExtension(Attachment att) {
+		String extension = StringUtils.substringAfterLast(att.fileName(), ".");
+		if (StringUtils.isBlank(extension) || !isValidExtension(extension)) {
+			throw new RestException(ExceptionType.INVALID_ATTACHMENT_EXTENSION);
 		}
 	}
 
@@ -67,11 +67,11 @@ public final class AttachmentValidation {
 	}
 
 	private boolean isValidExtension(String extension) {
-        for (AttachmentType type : AttachmentType.values()) {
-            if (type.getExtension().equalsIgnoreCase(extension)) {
-                return true;
-            }
-        }
-        return false;
-    }
+		for (AttachmentType type : AttachmentType.values()) {
+			if (type.getExtension().equalsIgnoreCase(extension)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

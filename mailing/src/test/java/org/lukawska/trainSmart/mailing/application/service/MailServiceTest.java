@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +51,7 @@ class MailServiceTest {
 		when(mailMapper.mapToResponse(mailEntity)).thenReturn(expectedResponse);
 
 		//when
-		MailResponse actualResponse = mailService.getMailById(id);
+		MailResponse actualResponse = mailService.getMailResponseById(id);
 
 		//then
 		assertThat(actualResponse.id().equals(expectedResponse.id()));
@@ -65,9 +64,7 @@ class MailServiceTest {
 		when(mailRepository.findById(id)).thenReturn(Optional.empty());
 
 		//when && then
-		assertThatThrownBy(() -> mailService.getMailById(id))
-				.isInstanceOf(RuntimeException.class)
-				.hasMessage(ExceptionType.MAIL_NOT_FOUND.getMessage());
+		assertThatThrownBy(() -> mailService.getMailResponseById(id)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.MAIL_NOT_FOUND.getMessage());
 	}
 
 	@Test
@@ -109,67 +106,6 @@ class MailServiceTest {
 	}
 
 	@Test
-	void shouldGetAllMailsByCc() {
-		//given
-		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		final List<MailEntity> mailEntities = List.of(mailEntity);
-		final String cc = mailEntity.getCc().getFirst();
-
-		final MailResponse response = MailTestData.mapToResponse(mailEntity);
-		final List<MailResponse> expectedResponse = List.of(response);
-
-		when(mailRepository.findAllByCcContaining(cc)).thenReturn(mailEntities);
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(response);
-
-		//when
-		List<MailResponse> actualResponse = mailService.getAllMailsByCc(cc);
-
-		//then
-		assertEquals(expectedResponse, actualResponse);
-	}
-
-	@Test
-	void shouldGetAllMailsByBcc() {
-		//given
-		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		final List<MailEntity> mailEntities = List.of(mailEntity);
-		final String bcc = mailEntity.getBcc().getFirst();
-
-		final MailResponse response = MailTestData.mapToResponse(mailEntity);
-		final List<MailResponse> expectedResponse = List.of(response);
-
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(response);
-		when(mailRepository.findAllByBccContaining(bcc)).thenReturn(mailEntities);
-
-		//when
-		List<MailResponse> actualResponse = mailService.getAllMailsByBcc(bcc);
-
-		//then
-		assertEquals(expectedResponse, actualResponse);
-	}
-
-	@Test
-	void shouldGetAllMailsBySentAtBetween() {
-		//given
-		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		final List<MailEntity> mailEntities = List.of(mailEntity);
-
-		final MailResponse response = MailTestData.mapToResponse(mailEntity);
-		final List<MailResponse> expectedResponse = List.of(response);
-		final String from = "2024-01-01T00:00:00Z";
-		final String to = "2024-12-31T23:59:59Z";
-
-		when(mailRepository.findAllBySentAtBetween(Instant.parse(from), Instant.parse(to))).thenReturn(mailEntities);
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(response);
-
-		//when
-		List<MailResponse> actualResponse = mailService.getAllMailsBySentAtBetween(from, to);
-
-		//then
-		assertEquals(expectedResponse, actualResponse);
-	}
-
-	@Test
 	void shouldGetAllMailsBySubjectContaining() {
 		//given
 		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
@@ -183,25 +119,6 @@ class MailServiceTest {
 
 		//when
 		List<MailResponse> actualResponse = mailService.getAllMailsBySubjectContaining(mailEntity.getSubject());
-
-		//then
-		assertEquals(expectedResponse, actualResponse);
-	}
-
-	@Test
-	void shouldGetAllMailsByIsHtml() {
-		//given
-		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		final List<MailEntity> mailEntities = List.of(mailEntity);
-
-		final MailResponse response = MailTestData.mapToResponse(mailEntity);
-		final List<MailResponse> expectedResponse = List.of(response);
-
-		when(mailRepository.findAllByIsHtml(mailEntity.isHtml())).thenReturn(mailEntities);
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(response);
-
-		//when
-		List<MailResponse> actualResponse = mailService.getAllMailsByIsHtml(mailEntity.isHtml());
 
 		//then
 		assertEquals(expectedResponse, actualResponse);

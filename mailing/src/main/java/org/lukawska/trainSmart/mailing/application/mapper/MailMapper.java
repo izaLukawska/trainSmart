@@ -29,15 +29,14 @@ public final class MailMapper {
 	}
 
 	public MailResponse mapToResponse(MailEntity mail) {
-		return new MailResponse(
-				mail.getId(),
-				defaultListIfNull(mail.getRecipients()),
-				defaultListIfNull(mail.getCc()),
-				defaultListIfNull(mail.getBcc()),
-				mail.getSubject(),
-				mailFrom,
-				replyTo,
-				mail.getSentAt());
+		return new MailResponse(mail.getId(),
+		                        defaultListIfNull(mail.getRecipients()),
+		                        defaultListIfNull(mail.getCc()),
+		                        defaultListIfNull(mail.getBcc()),
+		                        mail.getSubject(),
+		                        mailFrom,
+		                        replyTo,
+		                        mail.getSentAt());
 	}
 
 	private static <T> List<T> defaultListIfNull(List<T> list) {

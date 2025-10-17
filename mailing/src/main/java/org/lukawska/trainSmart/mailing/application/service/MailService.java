@@ -14,7 +14,6 @@ import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,58 +49,30 @@ public class MailService {
 		}
 	}
 
-	public MailResponse getMailById(Long id){
+	public MailResponse getMailResponseById(Long id) {
 		return mailRepository.findById(id)
-				.map(mailMapper::mapToResponse)
-				.orElseThrow(() -> new RestException(ExceptionType.MAIL_NOT_FOUND));
+		                     .map(mailMapper::mapToResponse)
+		                     .orElseThrow(() -> new RestException(ExceptionType.MAIL_NOT_FOUND));
 	}
 
-	public List<MailResponse> getAllMails(){
+	public List<MailResponse> getAllMails() {
 		return mailRepository.findAll()
-				.stream()
-				.map(mailMapper::mapToResponse)
-				.toList();
+		                     .stream()
+		                     .map(mailMapper::mapToResponse)
+		                     .toList();
 	}
 
-	public List<MailResponse> getAllMailsByRecipient(String recipient){
+	public List<MailResponse> getAllMailsByRecipient(String recipient) {
 		return mailRepository.findAllByRecipient(recipient)
-				.stream()
-				.map(mailMapper::mapToResponse)
-				.toList();
+		                     .stream()
+		                     .map(mailMapper::mapToResponse)
+		                     .toList();
 	}
 
-	public List<MailResponse> getAllMailsByCc(String cc){
-		return mailRepository.findAllByCcContaining(cc)
-				.stream()
-				.map(mailMapper::mapToResponse)
-				.toList();
-	}
-
-	public List<MailResponse> getAllMailsByBcc(String bcc){
-		return mailRepository.findAllByBccContaining(bcc)
-				.stream()
-				.map(mailMapper::mapToResponse)
-				.toList();
-	}
-
-	public List<MailResponse> getAllMailsBySentAtBetween(String from, String to){
-		return mailRepository.findAllBySentAtBetween(Instant.parse(from), Instant.parse(to))
-				.stream()
-				.map(mailMapper::mapToResponse)
-				.toList();
-	}
-
-	public List<MailResponse> getAllMailsBySubjectContaining(String keyword){
+	public List<MailResponse> getAllMailsBySubjectContaining(String keyword) {
 		return mailRepository.findAllBySubjectContaining(keyword)
-				.stream()
-				.map(mailMapper::mapToResponse)
-				.toList();
-	}
-
-	public List<MailResponse> getAllMailsByIsHtml(boolean isHtml){
-		return mailRepository.findAllByIsHtml(isHtml)
-				.stream()
-				.map(mailMapper::mapToResponse)
-				.toList();
+		                     .stream()
+		                     .map(mailMapper::mapToResponse)
+		                     .toList();
 	}
 }

@@ -28,7 +28,7 @@ public class MailController {
 	@GetMapping("/get/{id}")
 	public ResponseEntity<MailResponse> getMailById(@PathVariable Long id) {
 		log.info("Searching for mail with id: {}", id);
-		return ResponseEntity.ok(mailService.getMailById(id));
+		return ResponseEntity.ok(mailService.getMailResponseById(id));
 	}
 
 	@GetMapping
@@ -43,34 +43,9 @@ public class MailController {
 		return ResponseEntity.ok(mailService.getAllMailsByRecipient(recipient));
 	}
 
-	@GetMapping("/cc")
-	public ResponseEntity<List<MailResponse>> getAllMailsByCc(@RequestParam String cc) {
-		log.debug("Fetching mails with CC containing: {}", cc);
-		return ResponseEntity.ok(mailService.getAllMailsByCc(cc));
-	}
-
-	@GetMapping("/bcc")
-	public ResponseEntity<List<MailResponse>> getAllMailsByBcc(@RequestParam String bcc) {
-		log.debug("Fetching mails with BCC containing: {}", bcc);
-		return ResponseEntity.ok(mailService.getAllMailsByBcc(bcc));
-	}
-
-	@GetMapping("/sent-between")
-	public ResponseEntity<List<MailResponse>> getAllMailsBySentAtBetween(@RequestParam String from,
-	                                                                     @RequestParam String to) {
-		log.info("Fetching mails sent between: {} and {}", from, to);
-		return ResponseEntity.ok(mailService.getAllMailsBySentAtBetween(from, to));
-	}
-
 	@GetMapping("/subject")
 	public ResponseEntity<List<MailResponse>> getAllMailsBySubjectContaining(@RequestParam String keyword) {
 		log.info("Fetching mails with subject containing: {}", keyword);
 		return ResponseEntity.ok(mailService.getAllMailsBySubjectContaining(keyword));
-	}
-
-	@GetMapping("/is-html")
-	public ResponseEntity<List<MailResponse>> getAllMailsByIsHtml(@RequestParam boolean isHtml) {
-		log.info("Fetching html emails: {}", isHtml);
-		return ResponseEntity.ok(mailService.getAllMailsByIsHtml(isHtml));
 	}
 }
