@@ -1,10 +1,7 @@
 package org.lukawska.trainSmart.mailing.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -12,6 +9,7 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 @Table(name = "mails")
 public class MailEntity {
@@ -44,7 +42,6 @@ public class MailEntity {
 
 	private boolean isHtml;
 
-	@Builder.ObtainVia(field = "sentAt")
 	private Instant sentAt;
 
 	@Builder

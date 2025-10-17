@@ -4,7 +4,7 @@ import lombok.NoArgsConstructor;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 
-import java.time.Instant;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -15,17 +15,24 @@ final class MailTestData {
 
 	private static final Random RANDOM = new Random(1L);
 
-	static MailEntity randomMailEntity(int recipientCount, int ccCount, int bccCount) {
-		return MailEntity.builder()
-		                 .id(RANDOM.nextLong(1, 10))
-		                 .recipients(randomEmails(recipientCount))
-		                 .cc(randomEmails(ccCount))
-		                 .bcc(randomEmails(bccCount))
-		                 .subject(randomSubject())
-		                 .body(randomBody())
-		                 .isHtml(RANDOM.nextBoolean())
-		                 .sentAt(Instant.now().minusSeconds(RANDOM.nextInt(3600)))
-		                 .build();
+	static MailEntity randomMailEntity(int recipientCount, int ccCount, int bccCount) throws IllegalAccessException {
+		MailEntity mail = MailEntity.builder()
+		                            .recipients(randomEmails(recipientCount))
+		                            .cc(randomEmails(ccCount))
+		                            .bcc(randomEmails(bccCount))
+		                            .subject(randomSubject())
+		                            .body(randomBody())
+		                            .isHtml(RANDOM.nextBoolean())
+		                            .build();
+		try {
+			Field idField = MailEntity.class.getDeclaredField("id");
+			idField.setAccessible(true);
+			idField.set(mail, RANDOM.nextLong(1, 10));
+		} catch (Exception e) {
+			throw new IllegalAccessException("Invalid field access");
+		}
+
+		return mail;
 	}
 
 	static MailResponse mapToResponse(MailEntity entity) {
