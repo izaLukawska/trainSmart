@@ -16,12 +16,27 @@ final class MailTestData {
 	private static final Random RANDOM = new Random(1L);
 
 	static MailEntity randomMailEntity(int recipientCount, int ccCount, int bccCount) {
-		return MailEntity.builder().id(RANDOM.nextLong(1, 10)).recipients(randomEmails(recipientCount)).cc(randomEmails(ccCount)).bcc(randomEmails(bccCount)).subject(randomSubject()).body(randomBody()).isHtml(RANDOM.nextBoolean()).sentAt(Instant.now().minusSeconds(RANDOM.nextInt(3600))).build();
+		return MailEntity.builder()
+		                 .id(RANDOM.nextLong(1, 10))
+		                 .recipients(randomEmails(recipientCount))
+		                 .cc(randomEmails(ccCount))
+		                 .bcc(randomEmails(bccCount))
+		                 .subject(randomSubject())
+		                 .body(randomBody())
+		                 .isHtml(RANDOM.nextBoolean())
+		                 .sentAt(Instant.now().minusSeconds(RANDOM.nextInt(3600)))
+		                 .build();
 	}
 
 	static MailResponse mapToResponse(MailEntity entity) {
-		return new MailResponse(entity.getId(), entity.getRecipients(), entity.getCc(), entity.getBcc(),
-		                        entity.getSubject(), randomEmail(), randomEmail(), entity.getSentAt());
+		return new MailResponse(entity.getId(),
+		                        entity.getRecipients(),
+		                        entity.getCc(),
+		                        entity.getBcc(),
+		                        entity.getSubject(),
+		                        randomEmail(),
+		                        randomEmail(),
+		                        entity.getSentAt());
 	}
 
 	static List<String> randomEmails(int count) {

@@ -64,7 +64,9 @@ class MailServiceTest {
 		when(mailRepository.findById(id)).thenReturn(Optional.empty());
 
 		//when && then
-		assertThatThrownBy(() -> mailService.getMailResponseById(id)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.MAIL_NOT_FOUND.getMessage());
+		assertThatThrownBy(() -> mailService.getMailResponseById(id))
+				.isInstanceOf(RuntimeException.class)
+				.hasMessage(ExceptionType.MAIL_NOT_FOUND.getMessage());
 	}
 
 	@Test

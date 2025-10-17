@@ -43,7 +43,9 @@ class AttachmentValidationTest {
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.INVALID_ATTACHMENT_NAME.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments))
+				.isInstanceOf(RuntimeException.class)
+				.hasMessage(ExceptionType.INVALID_ATTACHMENT_NAME.getMessage());
 	}
 
 	@Test
@@ -55,7 +57,9 @@ class AttachmentValidationTest {
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments))
+				.isInstanceOf(RuntimeException.class)
+				.hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
 	}
 
 	@Test
@@ -66,7 +70,9 @@ class AttachmentValidationTest {
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments))
+				.isInstanceOf(RuntimeException.class)
+				.hasMessage(ExceptionType.INVALID_ATTACHMENT.getMessage());
 	}
 
 	@Test
@@ -79,6 +85,8 @@ class AttachmentValidationTest {
 		List<Attachment> attachments = List.of(attachment);
 
 		//when && then
-		assertThatCode(() -> attachmentValidation.validateAttachments(attachments)).isInstanceOf(RuntimeException.class).hasMessage(ExceptionType.ATTACHMENT_TOO_LARGE.getMessage());
+		assertThatCode(() -> attachmentValidation.validateAttachments(attachments))
+				.isInstanceOf(RuntimeException.class)
+				.hasMessage(ExceptionType.ATTACHMENT_TOO_LARGE.getMessage());
 	}
 }
