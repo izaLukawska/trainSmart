@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-@ConfigurationProperties(prefix = "")
+@ConfigurationProperties(prefix = "statements")
 @NoArgsConstructor
 @Getter
 @Setter

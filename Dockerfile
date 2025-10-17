@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY pom.xml .
 
-COPY app ./app
+COPY . .
 
 RUN mvn package -DskipTests
 
