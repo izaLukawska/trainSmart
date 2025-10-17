@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
-import org.lukawska.trainSmart.mailing.application.exception.RestException;
+import org.lukawska.trainSmart.mailing.application.exception.MailingException;
 import org.lukawska.trainSmart.mailing.application.mapper.MailMapper;
 import org.lukawska.trainSmart.mailing.application.validation.AttachmentValidation;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
@@ -45,14 +45,14 @@ public class MailService {
 			return mailMapper.mapToResponse(mailEntity);
 		} catch (MessagingException e) {
 			log.error("Error occurred while sending email for correlationId: {}", correlationId, e);
-			throw new RestException(ExceptionType.MAIL_SEND_ERROR);
+			throw new MailingException(ExceptionType.MAIL_SEND_ERROR);
 		}
 	}
 
 	public MailResponse getMailResponseById(Long id) {
 		return mailRepository.findById(id)
 		                     .map(mailMapper::mapToResponse)
-		                     .orElseThrow(() -> new RestException(ExceptionType.MAIL_NOT_FOUND));
+		                     .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
 	}
 
 	public List<MailResponse> getAllMails() {

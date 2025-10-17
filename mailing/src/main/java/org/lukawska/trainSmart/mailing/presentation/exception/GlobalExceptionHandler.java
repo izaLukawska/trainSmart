@@ -1,7 +1,7 @@
 package org.lukawska.trainSmart.mailing.presentation.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainSmart.mailing.application.exception.RestException;
+import org.lukawska.trainSmart.mailing.application.exception.MailingException;
 import org.lukawska.trainSmart.mailing.presentation.dto.ExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(RestException.class)
-	public ResponseEntity<ExceptionResponse> handleRestException(RestException ex) {
+	@ExceptionHandler(MailingException.class)
+	public ResponseEntity<ExceptionResponse> handleMailingException(MailingException ex) {
 		log.error("Handled RestException: {}", ex.getMessage(), ex);
 		return ResponseEntity.status(ex.getExceptionType().getHttpStatus())
 		                     .body(new ExceptionResponse(ex.getMessage(),

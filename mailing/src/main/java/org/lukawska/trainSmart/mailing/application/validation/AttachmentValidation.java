@@ -3,7 +3,7 @@ package org.lukawska.trainSmart.mailing.application.validation;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
-import org.lukawska.trainSmart.mailing.application.exception.RestException;
+import org.lukawska.trainSmart.mailing.application.exception.MailingException;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 import org.lukawska.trainSmart.mailing.domain.valueObject.AttachmentType;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,25 +33,25 @@ public final class AttachmentValidation {
 
 	private void validateAttachmentType(Attachment att) {
 		if (Objects.isNull(att) || Objects.isNull(att.attachmentType())) {
-			throw new RestException(ExceptionType.MISSING_ATTACHMENT);
+			throw new MailingException(ExceptionType.MISSING_ATTACHMENT);
 		}
 
 		if (Arrays.stream(AttachmentType.values())
 		          .noneMatch(type -> type.getMimeType().equals(att.attachmentType().getMimeType()))) {
-			throw new RestException(ExceptionType.INVALID_ATTACHMENT);
+			throw new MailingException(ExceptionType.INVALID_ATTACHMENT);
 		}
 	}
 
 	private void validateAttachmentFileName(Attachment att) {
 		if (StringUtils.isBlank(att.fileName())) {
-			throw new RestException(ExceptionType.INVALID_ATTACHMENT_NAME);
+			throw new MailingException(ExceptionType.INVALID_ATTACHMENT_NAME);
 		}
 	}
 
 	private void validateAttachmentExtension(Attachment att) {
 		String extension = StringUtils.substringAfterLast(att.fileName(), ".");
 		if (StringUtils.isBlank(extension) || !isValidExtension(extension)) {
-			throw new RestException(ExceptionType.INVALID_ATTACHMENT_EXTENSION);
+			throw new MailingException(ExceptionType.INVALID_ATTACHMENT_EXTENSION);
 		}
 	}
 
@@ -59,10 +59,10 @@ public final class AttachmentValidation {
 		try {
 			long size = att.source().getInputStream().transferTo(OutputStream.nullOutputStream());
 			if (size > maxAttachmentSize) {
-				throw new RestException(ExceptionType.ATTACHMENT_TOO_LARGE);
+				throw new MailingException(ExceptionType.ATTACHMENT_TOO_LARGE);
 			}
 		} catch (IOException e) {
-			throw new RestException(ExceptionType.ATTACHMENT_IO_ERROR);
+			throw new MailingException(ExceptionType.ATTACHMENT_IO_ERROR);
 		}
 	}
 
