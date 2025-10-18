@@ -77,7 +77,8 @@ public class UserAgreementService {
 			                                                  Statement required =
 					                                                  definitions.getRequiredStatementsMap()
 					                                                             .get(ua.getStatementCode());
-			                                                  return required != null && ua.getStatementVersion() != required.version();
+			                                                  return required != null &&
+					                                                  ua.getStatementVersion() != required.version();
 		                                                  })
 		                                                  .map(mapper::mapToResponse)
 		                                                  .collect(Collectors.toList());
