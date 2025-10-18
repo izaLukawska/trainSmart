@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
-import org.lukawska.trainsmart.statements.application.exception.RestException;
+import org.lukawska.trainsmart.statements.application.exception.StatementException;
 import org.lukawska.trainsmart.statements.application.mapper.UserAgreementMapper;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
@@ -15,9 +15,7 @@ import org.lukawska.trainsmart.statements.infra.config.StatementsDefinition;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,10 +33,10 @@ public class UserAgreementService {
 	public UserAgreementResponse signAgreement(Long userId, String statementCode, AgreementStatus decisionStatus) {
 		log.info("Fetching statement with code: {}", statementCode);
 		Statement statement = definitions.findStatementByCode(statementCode)
-		                                 .orElseThrow(() -> new RestException(ExceptionType.STATEMENT_NOT_FOUND));
+		                                 .orElseThrow(() -> new StatementException(ExceptionType.STATEMENT_NOT_FOUND));
 
 		if (statement.required() && decisionStatus == AgreementStatus.REJECTED) {
-			throw new RestException(ExceptionType.STATEMENT_ACCEPTANCE_REQUIRED);
+			throw new StatementException(ExceptionType.STATEMENT_ACCEPTANCE_REQUIRED);
 		}
 
 
@@ -66,32 +64,26 @@ public class UserAgreementService {
 		return mapper.mapToResponse(agreement);
 	}
 
-	public List<String> getRequiredStatementsToSign(Long userId) {
+	public List<UserAgreementResponse> getRequiredStatementsToSign(Long userId) {
 		log.info("Getting required statements to sign for userId: {}", userId);
-		Map<String, UserAgreement> userAgreements = getUserAgreementsByCode(userId);
-		List<String> found = definitions.getRequiredStatementsMap().entrySet().stream()
-		                                  .filter(entry -> {
-			                                  String code = entry.getKey();
-			                                  Statement statement = entry.getValue();
-			                                  UserAgreement agreement = userAgreements.get(code);
-			                                  return agreement == null ||
-					                                  agreement.getStatementVersion() != statement.version();
-		                                  })
-		                                  .map(Map.Entry::getKey)
-		                                  .toList();
-
-		log.info("Found required statements to sign count: {} for user with ID: {}", found.size(), userId);
-		return found;
-	}
-
-	private Map<String, UserAgreement> getUserAgreementsByCode(Long userId) {
 		List<UserAgreement> userAgreements = repository.findAllByUserId(userId);
 
 		if (userAgreements.isEmpty()) {
-			throw new RestException(ExceptionType.USER_NOT_FOUND);
+			throw new StatementException(ExceptionType.USER_NOT_FOUND);
 		}
 
-		return userAgreements.stream().collect(Collectors.toMap(UserAgreement::getStatementCode, Function.identity()));
+		List<UserAgreementResponse> found = userAgreements.stream()
+		                                                  .filter(ua -> {
+			                                                  Statement required =
+					                                                  definitions.getRequiredStatementsMap()
+					                                                             .get(ua.getStatementCode());
+			                                                  return required != null && ua.getStatementVersion() != required.version();
+		                                                  })
+		                                                  .map(mapper::mapToResponse)
+		                                                  .collect(Collectors.toList());
+
+		log.info("Found required statements to sign count: {} for user with ID: {}", found.size(), userId);
+		return found;
 	}
 
 	private boolean shouldSkipUpdate(UserAgreement agreement, AgreementStatus newStatus, Statement statement) {

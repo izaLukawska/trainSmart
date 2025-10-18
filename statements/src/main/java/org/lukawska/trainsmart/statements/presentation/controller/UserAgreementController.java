@@ -30,7 +30,7 @@ public class UserAgreementController {
 	}
 
 	@GetMapping("/{id}")
-	public List<String> getRequiredStatementsToSign(@PathVariable("id") @Positive Long userId){
+	public List<UserAgreementResponse> getRequiredStatementsToSign(@PathVariable("id") @Positive Long userId) {
 		log.debug("Retrieving required statements for user with ID: {}", userId);
 		return service.getRequiredStatementsToSign(userId);
 	}
