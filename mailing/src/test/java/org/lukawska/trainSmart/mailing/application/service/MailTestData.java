@@ -15,7 +15,7 @@ final class MailTestData {
 
 	private static final Random RANDOM = new Random(1L);
 
-	static MailEntity randomMailEntity(int recipientCount, int ccCount, int bccCount) throws IllegalAccessException {
+	static MailEntity randomMailEntity(int recipientCount, int ccCount, int bccCount) {
 		MailEntity mail = MailEntity.builder()
 		                            .recipients(randomEmails(recipientCount))
 		                            .cc(randomEmails(ccCount))
@@ -28,8 +28,8 @@ final class MailTestData {
 			Field idField = MailEntity.class.getDeclaredField("id");
 			idField.setAccessible(true);
 			idField.set(mail, RANDOM.nextLong(1, 10));
-		} catch (Exception e) {
-			throw new IllegalAccessException("Invalid field access");
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			throw new RuntimeException("Invalid field access");
 		}
 
 		return mail;

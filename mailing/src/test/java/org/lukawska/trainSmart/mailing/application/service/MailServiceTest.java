@@ -1,6 +1,5 @@
 package org.lukawska.trainSmart.mailing.application.service;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
@@ -42,7 +41,6 @@ class MailServiceTest {
 
 
 	@Test
-	@SneakyThrows
 	void shouldGetMailByIdSuccess() {
 		//given
 		final Long id = 1L;
@@ -72,7 +70,6 @@ class MailServiceTest {
 	}
 
 	@Test
-	@SneakyThrows
 	void shouldGetAllMails() {
 		//given
 		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
@@ -92,7 +89,6 @@ class MailServiceTest {
 	}
 
 	@Test
-	@SneakyThrows
 	void shouldGetAllMailsByRecipient() {
 		//given
 		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
@@ -112,7 +108,6 @@ class MailServiceTest {
 	}
 
 	@Test
-	@SneakyThrows
 	void shouldGetAllMailsBySubjectContaining() {
 		//given
 		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
