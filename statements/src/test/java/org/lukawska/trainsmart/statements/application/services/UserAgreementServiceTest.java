@@ -115,30 +115,41 @@ class UserAgreementServiceTest {
 	}
 
 	@Test
-	void shouldReturnRequiredUserAgreementToSign() {
+	void shouldReturnEmptyListWhenRequiredUserAgreementToSignNotFound() {
+		//given
+		final Long userId = new Random().nextLong();
+		final String statementCode = UUID.randomUUID().toString();
+		final AgreementStatus status = AgreementStatus.ACCEPTED;
+		final UserAgreement userAgreement = new UserAgreement(userId, statementCode, status);
+		when(repository.findAllByUserId(userId)).thenReturn(List.of(userAgreement));
+		when(definitions.getRequiredStatementsMap()).thenReturn(Map.of());
+
+		//when && then
+		assertThat(service.getRequiredStatementsToSign(userId)).isEmpty();
+	}
+
+	@Test
+	void shouldReturnRequiredUserAgreementToSignWhenFound() {
 		//given
 		final Long userId = new Random().nextLong();
 		final String statementCode = UUID.randomUUID().toString();
 		final AgreementStatus status = AgreementStatus.ACCEPTED;
 		final UserAgreement userAgreement = new UserAgreement(userId, statementCode, status);
 		final Statement required = new Statement(statementCode, 2, true, UUID.randomUUID().toString());
-		final UserAgreementResponse expectedResponse = new UserAgreementResponse(1L,
-		                                                                         userId,
-		                                                                         statementCode,
-		                                                                         1,
-		                                                                         status);
+		final UserAgreementResponse expectedUa = new UserAgreementResponse(1L,
+		                                                                   userId,
+		                                                                   statementCode,
+		                                                                   1,
+		                                                                   status);
 
 		when(repository.findAllByUserId(userId)).thenReturn(List.of(userAgreement));
 		when(definitions.getRequiredStatementsMap()).thenReturn(Map.of(statementCode, required));
-		doReturn(expectedResponse).when(mapper).mapToResponse(any(UserAgreement.class));
+		doReturn(expectedUa).when(mapper).mapToResponse(any(UserAgreement.class));
 
-		//when
-		List<UserAgreementResponse> actualResponse = service.getRequiredStatementsToSign(userId);
-
-		//then
-		assertThat(actualResponse)
+		//when && then
+		assertThat(service.getRequiredStatementsToSign(userId))
 				.hasSize(1)
-				.contains(expectedResponse);
+				.contains(expectedUa);
 	}
 
 	@Test

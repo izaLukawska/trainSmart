@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ExceptionType {
 
+	INVALID_STATUS("Status cannot be null.", HttpStatus.BAD_REQUEST),
 	INTERNAL_SERVER_ERROR("Server error", HttpStatus.INTERNAL_SERVER_ERROR),
 	USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND),
 	INVALID_USER_ID("User ID not valid", HttpStatus.BAD_REQUEST),

@@ -3,9 +3,9 @@ package org.lukawska.trainsmart.statements.domain.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
+import org.lukawska.trainsmart.statements.application.exception.StatementException;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
-
-import java.util.Objects;
 
 @Entity
 @Table(name = "user_agreements")
@@ -37,12 +37,10 @@ public class UserAgreement {
 	}
 
 	public void changeStatus(AgreementStatus newStatus) {
-		if (Objects.isNull(newStatus)) {
-			throw new IllegalArgumentException("Status cannot be null");
+		if (newStatus == null) {
+			throw new StatementException(ExceptionType.INVALID_STATUS);
 		}
-		if (this.status == newStatus) {
-			return;
-		}
+
 		this.status = newStatus;
 	}
 }
