@@ -24,9 +24,7 @@ public class UserAgreementController {
 	public ResponseEntity<UserAgreementResponse> signAgreement(@Valid @RequestBody UserAgreementRequest request) {
 		log.debug("Signing agreement for user with ID: {} for statement {} with status {}",
 		          request.userId(), request.statementCode(), request.status());
-		return ResponseEntity.ok(service.signAgreement(request.userId(),
-		                                               request.statementCode(),
-		                                               request.status()));
+		return ResponseEntity.ok(service.signAgreement(request));
 	}
 
 	@GetMapping("/{id}")

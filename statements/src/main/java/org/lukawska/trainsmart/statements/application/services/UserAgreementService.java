@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.statements.application.services;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
@@ -30,30 +31,32 @@ public class UserAgreementService {
 	private final UserAgreementMapper mapper;
 
 	@Transactional
-	public UserAgreementResponse signAgreement(Long userId, String statementCode, AgreementStatus decisionStatus) {
-		log.info("Fetching statement with code: {}", statementCode);
-		Statement statement = definitions.findStatementByCode(statementCode)
+	public UserAgreementResponse signAgreement(UserAgreementRequest request) {
+		log.info("Fetching statement with code: {}", request.statementCode());
+		Statement statement = definitions.findStatementByCode(request.statementCode())
 		                                 .orElseThrow(() -> new StatementException(ExceptionType.STATEMENT_NOT_FOUND));
 
-		if (statement.required() && decisionStatus == AgreementStatus.REJECTED) {
+		if (statement.required() && request.status() == AgreementStatus.REJECTED) {
 			throw new StatementException(ExceptionType.STATEMENT_ACCEPTANCE_REQUIRED);
 		}
 
-
-		Optional<UserAgreement> found = repository.findByUserIdAndStatementCode(userId, statementCode);
+		Optional<UserAgreement> found = repository.findByUserIdAndStatementCode(request.userId(),
+		                                                                        request.statementCode());
 		if (found.isEmpty()) {
-			log.info("No user found for id {} and code {}. Creating and saving new agreement.", userId, statementCode);
-			return mapper.mapToResponse(repository.save(new UserAgreement(userId,
-			                                                              statementCode,
-			                                                              decisionStatus)));
+			log.info("No user found for id {} and code {}. Creating and saving new agreement.",
+			         request.userId(), request.statementCode());
+			UserAgreement userAgreement = mapper.mapToEntity(request);
+			return mapper.mapToResponse(repository.save(userAgreement));
 		}
 
-		log.info("User with id {} and code {} exists. Checking if update is needed...", userId, statementCode);
+		log.info("User with id {} and code {} exists. Checking if update is needed...",
+		         request.userId(), request.statementCode());
 		UserAgreement agreement = found.get();
-		if (!shouldSkipUpdate(agreement, decisionStatus, statement)) {
-			log.info("Updating record for user with id {} and statement {}", userId, statementCode);
+		if (!shouldSkipUpdate(agreement, request.status(), statement)) {
+			log.info("Updating record for user with id {} and statement {}",
+			         request.userId(), request.statementCode());
 			agreement.updateStatementVersion(statement.version());
-			agreement.changeStatus(decisionStatus);
+			agreement.changeStatus(request.status());
 			log.info("Updating changes for agreement code: {} version {} with new status {}",
 			         agreement.getStatementCode(), agreement.getStatementVersion(), agreement.getStatus());
 			UserAgreement saved = repository.save(agreement);

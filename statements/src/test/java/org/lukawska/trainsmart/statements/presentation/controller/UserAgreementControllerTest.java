@@ -43,7 +43,7 @@ class UserAgreementControllerTest {
 		when(request.status()).thenReturn(status);
 
 		UserAgreementResponse expectedResponse = mock(UserAgreementResponse.class);
-		when(service.signAgreement(userId, statementCode, status)).thenReturn(expectedResponse);
+		when(service.signAgreement(request)).thenReturn(expectedResponse);
 
 		//when
 		ResponseEntity<UserAgreementResponse> responseEntity = controller.signAgreement(request);

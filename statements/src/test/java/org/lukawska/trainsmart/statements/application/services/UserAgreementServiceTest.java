@@ -2,6 +2,7 @@ package org.lukawska.trainsmart.statements.application.services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
@@ -45,6 +46,7 @@ class UserAgreementServiceTest {
 		final String statementCode = UUID.randomUUID().toString();
 		final AgreementStatus status = AgreementStatus.ACCEPTED;
 		final Statement statement = new Statement(statementCode, 1, false, UUID.randomUUID().toString());
+		final UserAgreementRequest request = new UserAgreementRequest(userId, statementCode, status);
 		final UserAgreement userAgreement = new UserAgreement(userId, statementCode, AgreementStatus.REJECTED);
 		final UserAgreementResponse expectedResponse = new UserAgreementResponse(1L,
 		                                                                         userId,
@@ -58,7 +60,7 @@ class UserAgreementServiceTest {
 		doReturn(expectedResponse).when(mapper).mapToResponse(any(UserAgreement.class));
 
 		//when
-		UserAgreementResponse actualResponse = service.signAgreement(userId, statementCode, status);
+		UserAgreementResponse actualResponse = service.signAgreement(request);
 
 		//then
 		assertThat(actualResponse).isEqualTo(expectedResponse);
@@ -71,6 +73,7 @@ class UserAgreementServiceTest {
 		final String statementCode = UUID.randomUUID().toString();
 		final AgreementStatus status = AgreementStatus.ACCEPTED;
 		final Statement statement = new Statement(statementCode, 1, false, UUID.randomUUID().toString());
+		final UserAgreementRequest request = new UserAgreementRequest(userId, statementCode, status);
 		final UserAgreement userAgreement = new UserAgreement(userId, statementCode, status);
 		final UserAgreementResponse expectedResponse = new UserAgreementResponse(1L,
 		                                                                         userId,
@@ -83,7 +86,7 @@ class UserAgreementServiceTest {
 		when(mapper.mapToResponse(any(UserAgreement.class))).thenReturn(expectedResponse);
 
 		//when
-		UserAgreementResponse actualResponse = service.signAgreement(userId, statementCode, status);
+		UserAgreementResponse actualResponse = service.signAgreement(request);
 
 		//then
 		assertThat(actualResponse).isEqualTo(expectedResponse);
@@ -96,19 +99,21 @@ class UserAgreementServiceTest {
 		final String statementCode = UUID.randomUUID().toString();
 		final AgreementStatus status = AgreementStatus.ACCEPTED;
 		final Statement statement = new Statement(statementCode, 1, false, UUID.randomUUID().toString());
+		final UserAgreementRequest request = new UserAgreementRequest(userId, statementCode, status);
+		final UserAgreement userAgreement = new UserAgreement(userId, statementCode, status);
 		final UserAgreementResponse expectedResponse = new UserAgreementResponse(1L,
 		                                                                         userId,
 		                                                                         statementCode,
 		                                                                         1,
 		                                                                         status);
-
-		when(repository.findByUserIdAndStatementCode(userId, statementCode)).thenReturn(Optional.empty());
 		when(definitions.findStatementByCode(statementCode)).thenReturn(Optional.of(statement));
-		when(repository.save(any(UserAgreement.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(repository.findByUserIdAndStatementCode(userId, statementCode)).thenReturn(Optional.empty());
+		doReturn(userAgreement).when(mapper).mapToEntity(any(UserAgreementRequest.class));
+		when(repository.save(any(UserAgreement.class))).thenReturn(userAgreement);
 		doReturn(expectedResponse).when(mapper).mapToResponse(any(UserAgreement.class));
 
 		// when
-		UserAgreementResponse actualResponse = service.signAgreement(userId, statementCode, status);
+		UserAgreementResponse actualResponse = service.signAgreement(request);
 
 		// then
 		assertThat(actualResponse).isEqualTo(expectedResponse);
@@ -168,11 +173,12 @@ class UserAgreementServiceTest {
 	void shouldThrowExceptionWhenStatementNotFound() {
 		//given
 		final String statementCode = UUID.randomUUID().toString();
-		final Long id = new Random().nextLong();
+		final Long userId = new Random().nextLong();
+		final UserAgreementRequest request = new UserAgreementRequest(userId, statementCode, AgreementStatus.ACCEPTED);
 		when(definitions.findStatementByCode(statementCode)).thenReturn(Optional.empty());
 
 		//when && then
-		assertThatThrownBy(() -> service.signAgreement(id, statementCode, AgreementStatus.ACCEPTED))
+		assertThatThrownBy(() -> service.signAgreement(request))
 				.isInstanceOf(StatementException.class)
 				.hasMessage(ExceptionType.STATEMENT_NOT_FOUND.getMessage());
 	}
@@ -181,6 +187,8 @@ class UserAgreementServiceTest {
 	void shouldThrowExceptionWhenStatementRequiredButRejected() {
 		//given
 		final String statementCode = UUID.randomUUID().toString();
+		final UserAgreementRequest request = new UserAgreementRequest(new Random().nextLong(), statementCode,
+		                                                              AgreementStatus.REJECTED);
 		final Statement statement = new Statement(UUID.randomUUID().toString(),
 		                                          new Random().nextInt(),
 		                                          true,
@@ -188,9 +196,7 @@ class UserAgreementServiceTest {
 		when(definitions.findStatementByCode(statementCode)).thenReturn(Optional.of(statement));
 
 		//when && then
-		assertThatThrownBy(() -> service.signAgreement(new Random().nextLong(),
-		                                               statementCode,
-		                                               AgreementStatus.REJECTED))
+		assertThatThrownBy(() -> service.signAgreement(request))
 				.isInstanceOf(StatementException.class)
 				.hasMessage(ExceptionType.STATEMENT_ACCEPTANCE_REQUIRED.getMessage());
 	}
