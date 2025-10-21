@@ -3,8 +3,7 @@ package org.lukawska.trainsmart.statements.domain.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
-import org.lukawska.trainsmart.statements.application.exception.StatementException;
+import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 
 @Entity
@@ -13,34 +12,35 @@ import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 @NoArgsConstructor
 public class UserAgreement {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-	private String statementCode;
+    @Column(nullable = false)
+    private String statementCode;
 
-	private int statementVersion;
+    private int statementVersion;
 
-	@Enumerated(EnumType.STRING)
-	private AgreementStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AgreementStatus status;
 
-	public UserAgreement(Long userId, String statementCode, AgreementStatus status) {
-		this.userId = userId;
-		this.statementCode = statementCode;
-		this.status = status;
-	}
+    public UserAgreement(User user, String statementCode, int statementVersion, AgreementStatus status) {
+        this.user = user;
+        this.statementCode = statementCode;
+        this.statementVersion = statementVersion;
+        this.status = status;
+    }
 
-	public void updateStatementVersion(int version) {
-		this.statementVersion = version;
-	}
+    public void updateStatementVersion(int version) {
+        this.statementVersion = version;
+    }
 
-	public void changeStatus(AgreementStatus newStatus) {
-		if (newStatus == null) {
-			throw new StatementException(ExceptionType.INVALID_STATUS);
-		}
-
-		this.status = newStatus;
-	}
+    public void changeStatus(AgreementStatus newStatus) {
+        this.status = newStatus;
+    }
 }

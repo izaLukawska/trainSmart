@@ -24,59 +24,59 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UserAgreementControllerTest {
 
-	@Mock
-	private UserAgreementService service;
+    @Mock
+    private UserAgreementService service;
 
-	@InjectMocks
-	private UserAgreementController controller;
+    @InjectMocks
+    private UserAgreementController controller;
 
-	@Test
-	void shouldReturnResponseWhenSignAgreementSuccess() {
-		//given
-		UserAgreementRequest request = mock(UserAgreementRequest.class);
-		final Long userId = new Random().nextLong();
-		final String statementCode = UUID.randomUUID().toString();
-		final AgreementStatus status = AgreementStatus.ACCEPTED;
+    @Test
+    void shouldReturnResponseWhenSignAgreementSuccess() {
+        //given
+        UserAgreementRequest request = mock(UserAgreementRequest.class);
+        final Long userId = new Random().nextLong();
+        final String statementCode = UUID.randomUUID().toString();
+        final AgreementStatus status = AgreementStatus.ACCEPTED;
 
-		when(request.userId()).thenReturn(userId);
-		when(request.statementCode()).thenReturn(statementCode);
-		when(request.status()).thenReturn(status);
+        when(request.userId()).thenReturn(userId);
+        when(request.statementCode()).thenReturn(statementCode);
+        when(request.status()).thenReturn(status);
 
-		UserAgreementResponse expectedResponse = mock(UserAgreementResponse.class);
-		when(service.signAgreement(request)).thenReturn(expectedResponse);
+        UserAgreementResponse expectedResponse = mock(UserAgreementResponse.class);
+        when(service.signStatement(request)).thenReturn(expectedResponse);
 
-		//when
-		ResponseEntity<UserAgreementResponse> responseEntity = controller.signAgreement(request);
+        //when
+        ResponseEntity<UserAgreementResponse> responseEntity = controller.signAgreement(request);
 
-		//then
-		assertThat(responseEntity.getBody()).isNotNull().isEqualTo(expectedResponse);
-	}
+        //then
+        assertThat(responseEntity.getBody()).isNotNull().isEqualTo(expectedResponse);
+    }
 
-	@Test
-	void shouldReturnRequiredStatementsListWhenFound() {
-		//given
-		final Long userId = new Random().nextLong();
-		List<UserAgreementResponse> expectedList = List.of(mock(UserAgreementResponse.class));
-		when(service.getRequiredStatementsToSign(userId)).thenReturn(expectedList);
+    @Test
+    void shouldReturnRequiredStatementsListWhenFound() {
+        //given
+        final Long userId = new Random().nextLong();
+        List<UserAgreementResponse> expectedList = List.of(mock(UserAgreementResponse.class));
+        when(service.getRequiredStatementsToSign(userId)).thenReturn(expectedList);
 
-		//when
-		List<UserAgreementResponse> actualList = controller.getRequiredStatementsToSign(userId);
+        //when
+        List<UserAgreementResponse> actualList = controller.getRequiredStatementsToSign(userId);
 
-		//then
-		assertThat(expectedList.equals(actualList));
-	}
+        //then
+        assertThat(expectedList.equals(actualList));
+    }
 
-	@ParameterizedTest
-	@EmptySource
-	void shouldReturnEmptyRequiredStatementsList(List<UserAgreementResponse> emptyList) {
-		//given
-		final Long userId = new Random().nextLong();
-		when(service.getRequiredStatementsToSign(userId)).thenReturn(emptyList);
+    @ParameterizedTest
+    @EmptySource
+    void shouldReturnEmptyRequiredStatementsList(List<UserAgreementResponse> emptyList) {
+        //given
+        final Long userId = new Random().nextLong();
+        when(service.getRequiredStatementsToSign(userId)).thenReturn(emptyList);
 
-		//when
-		List<UserAgreementResponse> actualList = controller.getRequiredStatementsToSign(userId);
+        //when
+        List<UserAgreementResponse> actualList = controller.getRequiredStatementsToSign(userId);
 
-		//then
-		assertThat(actualList).isEmpty();
-	}
+        //then
+        assertThat(actualList).isEmpty();
+    }
 }

@@ -18,15 +18,16 @@ import java.util.stream.Collectors;
 @Setter
 public class StatementsDefinition {
 
-	private Map<String, Statement> statements = new HashMap<>();
+    private Map<String, Statement> statements = new HashMap<>();
 
-	public Optional<Statement> findStatementByCode(String code) {
-		return Optional.ofNullable(statements.get(code));
-	}
+    public Optional<Statement> findStatementByCode(String code) {
+        return Optional.ofNullable(statements.get(code));
+    }
 
-	public Map<String, Statement> getRequiredStatementsMap() {
-		return statements.entrySet().stream()
-		                 .filter(s -> s.getValue().required())
-		                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-	}
+    public Map<String, Statement> getRequiredStatementsMap() {
+        return statements.entrySet()
+                         .stream()
+                         .filter(s -> s.getValue().required())
+                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 }

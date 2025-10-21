@@ -1,13 +1,13 @@
 statements:
   MARKETING:
-     title: "Marketing Consent"
-     version: 1
-     required: false
-     content: |
-        Example Marketing Consent (Non-mandatory)
+    title: "Marketing Consent"
+    version: 1
+    required: false
+    content: |
+      Example Marketing Consent (Non-mandatory)
   RODO:
-     title: "RODO Consent"
-     version: 1
-     required: true
-     content: |
-        Example RODO Consent (Mandatory)
+    title: "RODO Consent"
+    version: 1
+    required: true
+    content: |
+      Example RODO Consent (Mandatory)

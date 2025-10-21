@@ -1,22 +1,18 @@
 package org.lukawska.trainsmart.statements.application.mapper;
 
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
-import org.springframework.stereotype.Component;
 
-@Component
-public class UserAgreementMapper {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UserAgreementMapper {
 
-	public UserAgreement mapToEntity(UserAgreementRequest request) {
-		return new UserAgreement(request.userId(), request.statementCode(), request.status());
-	}
-
-	public UserAgreementResponse mapToResponse(UserAgreement userAgreement) {
-		return new UserAgreementResponse(userAgreement.getId(),
-		                                 userAgreement.getUserId(),
-		                                 userAgreement.getStatementCode(),
-		                                 userAgreement.getStatementVersion(),
-		                                 userAgreement.getStatus());
-	}
+    public static UserAgreementResponse mapToResponse(UserAgreement userAgreement) {
+        return new UserAgreementResponse(userAgreement.getId(),
+                                         userAgreement.getUser().getId(),
+                                         userAgreement.getStatementCode(),
+                                         userAgreement.getStatementVersion(),
+                                         userAgreement.getStatus());
+    }
 }

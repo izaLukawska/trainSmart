@@ -24,6 +24,7 @@
     <modules>
         <module>app</module>
         <module>statements</module>
+        <module>shared-persistence</module>
     </modules>
     <scm>
         <connection/>

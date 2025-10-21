@@ -10,8 +10,8 @@ import java.util.Optional;
 @Repository
 public interface UserAgreementRepository extends JpaRepository<UserAgreement, Long> {
 
-	Optional<UserAgreement> findByUserIdAndStatementCode(Long userId, String statementCode);
+    Optional<UserAgreement> findByUserIdAndStatementCode(Long userId, String statementCode);
 
-	List<UserAgreement> findAllByUserId(Long userId);
+    List<UserAgreement> findAllByUserId(Long userId);
 
 }

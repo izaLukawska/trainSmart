@@ -18,18 +18,18 @@ import java.util.List;
 @Slf4j
 public class UserAgreementController {
 
-	private final UserAgreementService service;
+    private final UserAgreementService service;
 
-	@PostMapping("/sign")
-	public ResponseEntity<UserAgreementResponse> signAgreement(@Valid @RequestBody UserAgreementRequest request) {
-		log.debug("Signing agreement for user with ID: {} for statement {} with status {}",
-		          request.userId(), request.statementCode(), request.status());
-		return ResponseEntity.ok(service.signAgreement(request));
-	}
+    @PostMapping("/sign")
+    public ResponseEntity<UserAgreementResponse> signAgreement(@Valid @RequestBody UserAgreementRequest request) {
+        log.debug("Signing agreement for user with ID: {} for statement {} with status {}",
+                  request.userId(), request.statementCode(), request.status());
+        return ResponseEntity.ok(service.signStatement(request));
+    }
 
-	@GetMapping("/{id}")
-	public List<UserAgreementResponse> getRequiredStatementsToSign(@PathVariable("id") @Positive Long userId) {
-		log.debug("Retrieving required statements for user with ID: {}", userId);
-		return service.getRequiredStatementsToSign(userId);
-	}
+    @GetMapping("/{id}")
+    public List<UserAgreementResponse> getRequiredStatementsToSign(@PathVariable("id") @Positive Long userId) {
+        log.debug("Retrieving required statements for user with ID: {}", userId);
+        return service.getRequiredStatementsToSign(userId);
+    }
 }
