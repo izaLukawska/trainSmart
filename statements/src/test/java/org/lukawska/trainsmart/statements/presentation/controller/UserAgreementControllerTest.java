@@ -1,5 +1,6 @@
 package org.lukawska.trainsmart.statements.presentation.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,17 +31,19 @@ class UserAgreementControllerTest {
     @InjectMocks
     private UserAgreementController controller;
 
+    private Long userId;
+
+    @BeforeEach
+    void setUp() {
+        userId = new Random().nextLong(10);
+    }
+
     @Test
     void shouldReturnResponseWhenSignAgreementSuccess() {
         //given
-        UserAgreementRequest request = mock(UserAgreementRequest.class);
-        final Long userId = new Random().nextLong();
-        final String statementCode = UUID.randomUUID().toString();
-        final AgreementStatus status = AgreementStatus.ACCEPTED;
-
-        when(request.userId()).thenReturn(userId);
-        when(request.statementCode()).thenReturn(statementCode);
-        when(request.status()).thenReturn(status);
+        UserAgreementRequest request = new UserAgreementRequest(userId,
+                                                                UUID.randomUUID().toString(),
+                                                                AgreementStatus.ACCEPTED);
 
         UserAgreementResponse expectedResponse = mock(UserAgreementResponse.class);
         when(service.signStatement(request)).thenReturn(expectedResponse);
@@ -55,7 +58,6 @@ class UserAgreementControllerTest {
     @Test
     void shouldReturnRequiredStatementsListWhenFound() {
         //given
-        final Long userId = new Random().nextLong();
         List<UserAgreementResponse> expectedList = List.of(mock(UserAgreementResponse.class));
         when(service.getRequiredStatementsToSign(userId)).thenReturn(expectedList);
 
@@ -70,7 +72,6 @@ class UserAgreementControllerTest {
     @EmptySource
     void shouldReturnEmptyRequiredStatementsList(List<UserAgreementResponse> emptyList) {
         //given
-        final Long userId = new Random().nextLong();
         when(service.getRequiredStatementsToSign(userId)).thenReturn(emptyList);
 
         //when
