@@ -32,7 +32,7 @@ public class UserAgreementService {
     private final StatementsDefinition definitions;
 
     @Transactional
-    public UserAgreementResponse signStatement(UserAgreementRequest request) {
+    public UserAgreementResponse signNewAgreement(UserAgreementRequest request) {
         Statement statement = validateStatement(request);
 
         if (agreementRepository.findByUserIdAndStatementCode(request.userId(), request.statementCode())
@@ -55,7 +55,7 @@ public class UserAgreementService {
     }
 
     @Transactional
-    public UserAgreementResponse resignStatement(UserAgreementRequest request) {
+    public UserAgreementResponse reSignAgreement(UserAgreementRequest request) {
         Statement statement = validateStatement(request);
 
         UserAgreement ua = agreementRepository

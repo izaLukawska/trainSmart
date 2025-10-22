@@ -21,10 +21,17 @@ public class UserAgreementController {
     private final UserAgreementService service;
 
     @PostMapping("/sign")
-    public ResponseEntity<UserAgreementResponse> signAgreement(@Valid @RequestBody UserAgreementRequest request) {
+    public ResponseEntity<UserAgreementResponse> signNewAgreement(@Valid @RequestBody UserAgreementRequest request) {
         log.debug("Signing agreement for user with ID: {} for statement {} with status {}",
                   request.userId(), request.statementCode(), request.status());
-        return ResponseEntity.ok(service.signStatement(request));
+        return ResponseEntity.status(201).body(service.signNewAgreement(request));
+    }
+
+    @PutMapping("/re-sign")
+    public ResponseEntity<UserAgreementResponse> reSignAgreement(@Valid @RequestBody UserAgreementRequest request) {
+        log.debug("Updating statement for user with ID: {} and statement code: {}",
+                  request.userId(), request.statementCode());
+        return ResponseEntity.ok(service.reSignAgreement(request));
     }
 
     @GetMapping("/{id}")

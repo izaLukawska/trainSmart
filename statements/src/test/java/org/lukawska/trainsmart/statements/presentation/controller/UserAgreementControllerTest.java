@@ -3,8 +3,6 @@ package org.lukawska.trainsmart.statements.presentation.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.services.UserAgreementService;
@@ -33,32 +31,51 @@ class UserAgreementControllerTest {
 
     private Long userId;
 
+    private UserAgreementResponse expectedResponse;
+
     @BeforeEach
     void setUp() {
         userId = new Random().nextLong(10);
+        expectedResponse = mock(UserAgreementResponse.class);
     }
 
     @Test
-    void shouldReturnResponseWhenSignAgreementSuccess() {
+    void shouldReturnResponseWhenSignNewAgreementSuccess() {
         //given
         UserAgreementRequest request = new UserAgreementRequest(userId,
                                                                 UUID.randomUUID().toString(),
                                                                 AgreementStatus.ACCEPTED);
 
-        UserAgreementResponse expectedResponse = mock(UserAgreementResponse.class);
-        when(service.signStatement(request)).thenReturn(expectedResponse);
+        when(service.signNewAgreement(request)).thenReturn(expectedResponse);
 
         //when
-        ResponseEntity<UserAgreementResponse> responseEntity = controller.signAgreement(request);
+        ResponseEntity<UserAgreementResponse> responseEntity = controller.signNewAgreement(request);
 
         //then
         assertThat(responseEntity.getBody()).isNotNull().isEqualTo(expectedResponse);
     }
 
     @Test
+    void shouldReturnResponseWhenReSignAgreementSuccess() {
+        // given
+        UserAgreementRequest request = new UserAgreementRequest(userId,
+                                                                UUID.randomUUID().toString(),
+                                                                AgreementStatus.REJECTED);
+
+        when(service.reSignAgreement(request)).thenReturn(expectedResponse);
+
+        // when
+        ResponseEntity<UserAgreementResponse> responseEntity = controller.reSignAgreement(request);
+
+        // then
+        assertThat(responseEntity.getBody()).isNotNull().isEqualTo(expectedResponse);
+    }
+
+
+    @Test
     void shouldReturnRequiredStatementsListWhenFound() {
         //given
-        List<UserAgreementResponse> expectedList = List.of(mock(UserAgreementResponse.class));
+        List<UserAgreementResponse> expectedList = List.of(expectedResponse);
         when(service.getRequiredStatementsToSign(userId)).thenReturn(expectedList);
 
         //when
@@ -68,11 +85,10 @@ class UserAgreementControllerTest {
         assertThat(expectedList.equals(actualList));
     }
 
-    @ParameterizedTest
-    @EmptySource
-    void shouldReturnEmptyRequiredStatementsList(List<UserAgreementResponse> emptyList) {
+    @Test
+    void shouldReturnEmptyRequiredStatementsList() {
         //given
-        when(service.getRequiredStatementsToSign(userId)).thenReturn(emptyList);
+        when(service.getRequiredStatementsToSign(userId)).thenReturn(List.of());
 
         //when
         List<UserAgreementResponse> actualList = controller.getRequiredStatementsToSign(userId);
