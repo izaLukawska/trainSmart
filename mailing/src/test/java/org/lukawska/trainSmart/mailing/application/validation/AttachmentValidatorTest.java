@@ -70,7 +70,7 @@ class AttachmentValidatorTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage(ExceptionType.MISSING_ATTACHMENT.getMessage());
     }
-
+    
     @Test
     void shouldThrowExceptionWhenAttachmentSizeToLarge() {
         //given

@@ -6,17 +6,20 @@ import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 import org.lukawska.trainSmart.mailing.domain.valueObject.AttachmentType;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class AttachmentValidator {
 
     private final long maxAttachmentSize;
 
-    public AttachmentValidator(long maxAttachmentSize) {
+    public AttachmentValidator(@Value("${mail.attachments.max-size}") long maxAttachmentSize) {
         this.maxAttachmentSize = maxAttachmentSize;
     }
 
@@ -32,12 +35,6 @@ public class AttachmentValidator {
     private void validateAttachmentType(Attachment att) {
         if (att.attachmentType() == null) {
             throw new MailingException(ExceptionType.MISSING_ATTACHMENT);
-        }
-
-        if (Arrays.stream(AttachmentType.values())
-                  .map(AttachmentType::getMimeType)
-                  .noneMatch(t -> t.equals(att.attachmentType().getMimeType()))) {
-            throw new MailingException(ExceptionType.INVALID_ATTACHMENT);
         }
     }
 

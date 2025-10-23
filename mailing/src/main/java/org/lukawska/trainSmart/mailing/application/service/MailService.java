@@ -27,20 +27,18 @@ public class MailService {
 
     private final MailSender mailSender;
 
+    private final AttachmentValidator validator;
+
     @Value("${mail.from}")
     private String mailFrom;
 
     @Value("${mail.reply-to}")
     private String replyTo;
 
-    @Value("${mail.attachments.max-size}")
-    private long maxAttachmentSize;
-
     public MailResponse sendMail(MailRequest mailRequest) {
         String correlationId = UUID.randomUUID().toString();
         if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
             log.info("Validating attachments for correlationId: {}", correlationId);
-            AttachmentValidator validator = new AttachmentValidator(maxAttachmentSize);
             validator.validateAttachments(mailRequest.attachments());
         }
 

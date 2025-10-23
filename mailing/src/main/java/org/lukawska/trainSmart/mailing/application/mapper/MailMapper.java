@@ -17,7 +17,7 @@ public final class MailMapper {
                          .cc(defaultListIfNull(mailRequest.cc()))
                          .bcc(defaultListIfNull(mailRequest.bcc()))
                          .subject(mailRequest.subject())
-                         .body(mailRequest.body())
+                         .text(mailRequest.text())
                          .isHtml(mailRequest.isHtml())
                          .build();
     }

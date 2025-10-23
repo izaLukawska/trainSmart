@@ -1,13 +1,17 @@
 package org.lukawska.trainSmart.mailing.application.service;
 
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
+import org.lukawska.trainSmart.mailing.application.validation.AttachmentValidator;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
+import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,7 +23,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MailServiceTest {
@@ -29,6 +35,9 @@ class MailServiceTest {
 
     @Mock
     private MailSender mailSender;
+
+    @Mock
+    private AttachmentValidator attachmentValidator;
 
     @InjectMocks
     private MailService mailService;
@@ -41,6 +50,24 @@ class MailServiceTest {
                          .recipients(List.of(UUID.randomUUID().toString()))
                          .subject(UUID.randomUUID().toString())
                          .build();
+    }
+
+    @Test
+    void shouldSendMailWithAttachmentSuccess() throws MessagingException {
+        //given
+        MailRequest request = mock(MailRequest.class);
+        List<Attachment> attachments = List.of(mock(Attachment.class));
+
+        when(request.attachments()).thenReturn(attachments);
+        doNothing().when(attachmentValidator).validateAttachments(attachments);
+
+        //when
+        mailService.sendMail(request);
+
+        //then
+        verify(attachmentValidator).validateAttachments(attachments);
+        verify(mailSender).sendEmail(eq(request), anyString());
+        verify(mailRepository).save(any(MailEntity.class));
     }
 
     @Test
@@ -96,6 +123,25 @@ class MailServiceTest {
         //then
         assertThat(result).extracting(MailResponse::recipients, MailResponse::subject)
                           .contains(mail.getRecipients(), mail.getSubject());
+    }
+
+    @Test
+    void shouldThrowMessagingExceptionWhenSendMail() throws MessagingException {
+        //given
+        MailRequest mailRequest = new MailRequest(mail.getRecipients(),
+                                                  List.of(),
+                                                  List.of(),
+                                                  mail.getSubject(),
+                                                  UUID.randomUUID().toString(),
+                                                  new Random().nextBoolean(),
+                                                  List.of());
+        doThrow(new MessagingException("send failed"))
+                .when(mailSender).sendEmail(eq(mailRequest), anyString());
+
+        //when && then
+        assertThatThrownBy(() -> mailService.sendMail(mailRequest))
+                .isInstanceOf(MailingException.class)
+                .hasMessage(ExceptionType.MAIL_SEND_ERROR.getMessage());
     }
 
     @Test

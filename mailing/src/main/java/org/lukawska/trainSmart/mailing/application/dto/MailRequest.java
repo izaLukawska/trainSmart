@@ -12,6 +12,6 @@ public record MailRequest(
         @NotNull List<String> cc,
         @NotNull List<String> bcc,
         @NotBlank(message = "Subject cannot be blank.") String subject,
-        @NotBlank(message = "Body cannot be blank.") String body,
+        @NotBlank(message = "Body cannot be blank.") String text,
         boolean isHtml,
         @NotNull List<Attachment> attachments) {}

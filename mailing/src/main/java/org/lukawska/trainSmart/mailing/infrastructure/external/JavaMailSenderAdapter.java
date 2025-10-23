@@ -2,7 +2,6 @@ package org.lukawska.trainSmart.mailing.infrastructure.external;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.service.MailSender;
@@ -16,17 +15,22 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class JavaMailSenderAdapter implements MailSender {
 
     private final JavaMailSender mailSender;
 
-    @Value("${mail.from}")
-    private String mailFrom;
+    private final String mailFrom;
 
-    @Value("${mail.reply-to}")
-    private String replyTo;
+    private final String replyTo;
+
+    public JavaMailSenderAdapter(JavaMailSender mailSender,
+                                 @Value("${mail.from}") String mailFrom,
+                                 @Value("${mail.reply-to}") String replyTo) {
+        this.mailSender = mailSender;
+        this.mailFrom = mailFrom;
+        this.replyTo = replyTo;
+    }
 
     @Override
     @Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
@@ -52,7 +56,7 @@ public class JavaMailSenderAdapter implements MailSender {
     private void applyMailData(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
         helper.setTo(mailRequest.recipients().toArray(new String[0]));
         helper.setSubject(mailRequest.subject());
-        helper.setText(mailRequest.body(), mailRequest.isHtml());
+        helper.setText(mailRequest.text(), mailRequest.isHtml());
         helper.setFrom(mailFrom);
         helper.setReplyTo(replyTo);
         helper.setCc(mailRequest.cc().toArray(String[]::new));
