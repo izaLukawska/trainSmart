@@ -1,11 +1,11 @@
 package org.lukawska.trainSmart.mailing.application.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
-import org.lukawska.trainSmart.mailing.application.mapper.MailMapper;
-import org.lukawska.trainSmart.mailing.application.validation.AttachmentValidation;
+import org.lukawska.trainSmart.mailing.application.exception.MailingException;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
 import org.mockito.InjectMocks;
@@ -14,115 +14,99 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MailServiceTest {
 
-	@Mock
-	private MailRepository mailRepository;
+    @Mock
+    private MailRepository mailRepository;
 
-	@Mock
-	private MailSender mailSender;
+    @Mock
+    private MailSender mailSender;
 
-	@Mock
-	private MailMapper mailMapper;
+    @InjectMocks
+    private MailService mailService;
 
-	@Mock
-	private AttachmentValidation attachmentValidation;
+    private MailEntity mail;
 
-	@InjectMocks
-	private MailService mailService;
+    @BeforeEach
+    void setUp() {
+        mail = MailEntity.builder()
+                         .recipients(List.of(UUID.randomUUID().toString()))
+                         .subject(UUID.randomUUID().toString())
+                         .build();
+    }
 
+    @Test
+    void shouldReturnAllMailsContainingKeyword() {
+        //given
+        final String keyword = UUID.randomUUID().toString();
+        when(mailRepository.findAllBySubjectContaining(keyword)).thenReturn(List.of(mail));
 
-	@Test
-	void shouldGetMailByIdSuccess() {
-		//given
-		final Long id = 1L;
-		MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		MailResponse expectedResponse = MailTestData.mapToResponse(mailEntity);
+        //when
+        List<MailResponse> result = mailService.getAllMailsBySubjectContaining(keyword);
 
-		when(mailRepository.findById(id)).thenReturn(Optional.of(mailEntity));
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(expectedResponse);
+        //then
+        assertThat(result).singleElement().extracting(MailResponse::recipients, MailResponse::subject)
+                          .contains(mail.getRecipients(), mail.getSubject());
+    }
 
-		//when
-		MailResponse actualResponse = mailService.getMailResponseById(id);
+    @Test
+    void shouldReturnAllMailsByRecipient() {
+        //given
+        final String recipient = mail.getRecipients().getFirst();
+        when(mailRepository.findAllByRecipient(recipient)).thenReturn(List.of(mail));
 
-		//then
-		assertThat(actualResponse.id().equals(expectedResponse.id()));
-	}
+        //when
+        List<MailResponse> result = mailService.getAllMailsByRecipient(recipient);
 
-	@Test
-	void shouldThrowExceptionWhenMailNotFound() {
-		//given
-		final Long id = 1L;
-		when(mailRepository.findById(id)).thenReturn(Optional.empty());
+        //then
+        assertThat(result).singleElement().extracting(MailResponse::recipients, MailResponse::subject)
+                          .contains(mail.getRecipients(), mail.getSubject());
+    }
 
-		//when && then
-		assertThatThrownBy(() -> mailService.getMailResponseById(id))
-				.isInstanceOf(RuntimeException.class)
-				.hasMessage(ExceptionType.MAIL_NOT_FOUND.getMessage());
-	}
+    @Test
+    void shouldReturnAllMails() {
+        //given
+        when(mailRepository.findAll()).thenReturn(List.of(mail));
 
-	@Test
-	void shouldGetAllMails() {
-		//given
-		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		final List<MailEntity> mailEntities = List.of(mailEntity);
+        //when
+        List<MailResponse> result = mailService.getAllMails();
 
-		final MailResponse response = MailTestData.mapToResponse(mailEntity);
-		final List<MailResponse> expectedResponses = List.of(response);
+        //then
+        assertThat(result).singleElement().extracting(MailResponse::recipients, MailResponse::subject)
+                          .contains(mail.getRecipients(), mail.getSubject());
+    }
 
-		when(mailRepository.findAll()).thenReturn(mailEntities);
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(response);
+    @Test
+    void shouldReturnMailWhenGetMailByIdFound() {
+        //given
+        final Long id = new Random().nextLong();
+        when(mailRepository.findById(id)).thenReturn(Optional.of(mail));
 
-		//when
-		final List<MailResponse> actualResponses = mailService.getAllMails();
+        //when
+        MailResponse result = mailService.getMailResponseById(id);
 
-		//then
-		assertEquals(expectedResponses, actualResponses);
-	}
+        //then
+        assertThat(result).extracting(MailResponse::recipients, MailResponse::subject)
+                          .contains(mail.getRecipients(), mail.getSubject());
+    }
 
-	@Test
-	void shouldGetAllMailsByRecipient() {
-		//given
-		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		final String recipient = mailEntity.getRecipients().getFirst();
+    @Test
+    void shouldThrowExceptionWhenGetMailByIdNotFound() {
+        //given
+        final Long id = new Random().nextLong();
+        when(mailRepository.findById(id)).thenReturn(Optional.empty());
 
-		final MailResponse response = MailTestData.mapToResponse(mailEntity);
-		final List<MailResponse> expectedResponse = List.of(response);
-
-		when(mailRepository.findAllByRecipient(recipient)).thenReturn(List.of(mailEntity));
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(response);
-
-		//when
-		final List<MailResponse> actualResponse = mailService.getAllMailsByRecipient(recipient);
-
-		//then
-		assertEquals(expectedResponse, actualResponse);
-	}
-
-	@Test
-	void shouldGetAllMailsBySubjectContaining() {
-		//given
-		final MailEntity mailEntity = MailTestData.randomMailEntity(1, 1, 1);
-		final List<MailEntity> mailEntities = List.of(mailEntity);
-
-		final MailResponse response = MailTestData.mapToResponse(mailEntity);
-		final List<MailResponse> expectedResponse = List.of(response);
-
-		when(mailRepository.findAllBySubjectContaining(any())).thenReturn(mailEntities);
-		when(mailMapper.mapToResponse(mailEntity)).thenReturn(response);
-
-		//when
-		List<MailResponse> actualResponse = mailService.getAllMailsBySubjectContaining(mailEntity.getSubject());
-
-		//then
-		assertEquals(expectedResponse, actualResponse);
-	}
+        //when && then
+        assertThatThrownBy(() -> mailService.getMailResponseById(id))
+                .isInstanceOf(MailingException.class)
+                .hasMessage(ExceptionType.MAIL_NOT_FOUND.getMessage());
+    }
 }
