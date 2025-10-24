@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,6 +45,10 @@ public class MailEntity {
 
     private boolean isHtml;
 
+    @ElementCollection
+    @CollectionTable(name = "mail_attachments", joinColumns = @JoinColumn(name = "mail_id"))
+    private List<Attachment> attachments = new ArrayList<>();
+
     private Instant sentAt;
 
     @Builder
@@ -52,13 +57,15 @@ public class MailEntity {
                          List<String> bcc,
                          String subject,
                          String text,
-                         boolean isHtml) {
+                         boolean isHtml,
+                         List<Attachment> attachments) {
         this.recipients = recipients == null ? new ArrayList<>() : recipients;
         this.cc = cc == null ? new ArrayList<>() : cc;
         this.bcc = bcc == null ? new ArrayList<>() : bcc;
         this.subject = subject;
         this.text = text;
         this.isHtml = isHtml;
+        this.attachments = attachments == null ? new ArrayList<>() : attachments;
     }
 
     public void markAsSent() {

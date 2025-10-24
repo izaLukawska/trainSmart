@@ -8,10 +8,10 @@ import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
 import org.lukawska.trainSmart.mailing.application.mapper.MailMapper;
-import org.lukawska.trainSmart.mailing.application.validation.AttachmentValidator;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
-import org.springframework.beans.factory.annotation.Value;
+import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
+import org.lukawska.trainSmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -27,13 +27,9 @@ public class MailService {
 
     private final MailSender mailSender;
 
-    private final AttachmentValidator validator;
+    private final AttachmentValidatorAdapter validator;
 
-    @Value("${mail.from}")
-    private String mailFrom;
-
-    @Value("${mail.reply-to}")
-    private String replyTo;
+    private final MailingProperties mailingProperties;
 
     public MailResponse sendMail(MailRequest mailRequest) {
         String correlationId = UUID.randomUUID().toString();
@@ -47,7 +43,9 @@ public class MailService {
             mailSender.sendEmail(mailRequest, correlationId);
             mailEntity.markAsSent();
             mailRepository.save(mailEntity);
-            return MailMapper.mapToResponse(mailEntity, mailFrom, replyTo);
+            return MailMapper.mapToResponse(mailEntity,
+                                            mailingProperties.getFrom(),
+                                            mailingProperties.getReplyTo());
         } catch (MessagingException e) {
             log.error("Error occurred while sending email for correlationId: {}", correlationId, e);
             throw new MailingException(ExceptionType.MAIL_SEND_ERROR);
@@ -56,28 +54,36 @@ public class MailService {
 
     public MailResponse getMailResponseById(Long id) {
         return mailRepository.findById(id)
-                             .map(m -> MailMapper.mapToResponse(m, mailFrom, replyTo))
+                             .map(mail -> MailMapper.mapToResponse(mail,
+                                                                   mailingProperties.getFrom(),
+                                                                   mailingProperties.getReplyTo()))
                              .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
     }
 
     public List<MailResponse> getAllMails() {
         return mailRepository.findAll()
                              .stream()
-                             .map(m -> MailMapper.mapToResponse(m, mailFrom, replyTo))
+                             .map(mail -> MailMapper.mapToResponse(mail,
+                                                                   mailingProperties.getFrom(),
+                                                                   mailingProperties.getReplyTo()))
                              .toList();
     }
 
     public List<MailResponse> getAllMailsByRecipient(String recipient) {
         return mailRepository.findAllByRecipient(recipient)
                              .stream()
-                             .map(m -> MailMapper.mapToResponse(m, mailFrom, replyTo))
+                             .map(mail -> MailMapper.mapToResponse(mail,
+                                                                   mailingProperties.getFrom(),
+                                                                   mailingProperties.getReplyTo()))
                              .toList();
     }
 
     public List<MailResponse> getAllMailsBySubjectContaining(String keyword) {
         return mailRepository.findAllBySubjectContaining(keyword)
                              .stream()
-                             .map(m -> MailMapper.mapToResponse(m, mailFrom, replyTo))
+                             .map(mail -> MailMapper.mapToResponse(mail,
+                                                                   mailingProperties.getFrom(),
+                                                                   mailingProperties.getReplyTo()))
                              .toList();
     }
 }

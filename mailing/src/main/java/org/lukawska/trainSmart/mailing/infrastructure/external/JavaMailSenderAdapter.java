@@ -2,11 +2,13 @@ package org.lukawska.trainSmart.mailing.infrastructure.external;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.service.MailSender;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
-import org.springframework.beans.factory.annotation.Value;
+import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,21 +18,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class JavaMailSenderAdapter implements MailSender {
 
     private final JavaMailSender mailSender;
 
-    private final String mailFrom;
-
-    private final String replyTo;
-
-    public JavaMailSenderAdapter(JavaMailSender mailSender,
-                                 @Value("${mail.from}") String mailFrom,
-                                 @Value("${mail.reply-to}") String replyTo) {
-        this.mailSender = mailSender;
-        this.mailFrom = mailFrom;
-        this.replyTo = replyTo;
-    }
+    private final MailingProperties properties;
 
     @Override
     @Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
@@ -57,8 +50,8 @@ public class JavaMailSenderAdapter implements MailSender {
         helper.setTo(mailRequest.recipients().toArray(new String[0]));
         helper.setSubject(mailRequest.subject());
         helper.setText(mailRequest.text(), mailRequest.isHtml());
-        helper.setFrom(mailFrom);
-        helper.setReplyTo(replyTo);
+        helper.setFrom(properties.getFrom());
+        helper.setReplyTo(properties.getReplyTo());
         helper.setCc(mailRequest.cc().toArray(String[]::new));
         helper.setBcc(mailRequest.bcc().toArray(String[]::new));
 
@@ -68,9 +61,8 @@ public class JavaMailSenderAdapter implements MailSender {
 
     private void addAttachments(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
         for (Attachment attachment : mailRequest.attachments()) {
-            helper.addAttachment(attachment.fileName(),
-                                 attachment.source(),
-                                 attachment.attachmentType().getMimeType());
+            ByteArrayResource resource = new ByteArrayResource(attachment.getContent());
+            helper.addAttachment(attachment.getFileName(), resource);
         }
     }
 }

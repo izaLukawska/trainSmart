@@ -2,15 +2,14 @@ package org.lukawska.trainSmart.mailing.infrastructure.external;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
-import org.lukawska.trainSmart.mailing.domain.valueObject.AttachmentType;
+import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.List;
@@ -25,24 +24,24 @@ class JavaMailSenderAdapterTest {
     @Mock
     private JavaMailSender mailSender;
 
+    @Mock
+    private MailingProperties properties;
+
+    @InjectMocks
     private JavaMailSenderAdapter adapter;
 
-    @BeforeEach
-    void setUp() {
-        String TEST_MAIL_FROM = "sender@test.com";
-        String TEST_REPLY_TO = "reply@test.com";
-        adapter = new JavaMailSenderAdapter(mailSender, TEST_MAIL_FROM, TEST_REPLY_TO);
-    }
-
     @Test
-    void shouldSendMailWithoutAttachmentsSuccess() throws MessagingException {
+    void shouldSendMailWithAttachmentsSuccess() throws MessagingException {
         //given
+        final String randomMail = UUID.randomUUID() + "@test.com";
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(properties.getFrom()).thenReturn(randomMail);
+        when(properties.getReplyTo()).thenReturn(randomMail);
+
         Attachment attachment = new Attachment(UUID.randomUUID().toString().concat(".pdf"),
-                                               AttachmentType.PDF,
-                                               new ByteArrayResource(new byte[10]));
-        MailRequest request = new MailRequest(List.of(UUID.randomUUID().toString()),
+                                               new byte[10]);
+        MailRequest request = new MailRequest(List.of(randomMail),
                                               List.of(),
                                               List.of(),
                                               UUID.randomUUID().toString(),

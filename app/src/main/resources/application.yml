@@ -24,8 +24,15 @@ spring:
             timeout: 5000
             writetimeout: 5000
 
-mail:
-  attachments:
-    max-size: 5242880
+mailing:
   from: no-reply@trainsmart.com
   reply-to: support@trainsmart.com
+  mimeTypesByExt:
+    pdf:
+      - application/pdf
+      - application/x-pdf
+    xls:
+      - application/vnd.ms-excel
+    xlsx:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  maxSizeBytes: 10485760

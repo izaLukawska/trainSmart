@@ -8,10 +8,11 @@ import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
-import org.lukawska.trainSmart.mailing.application.validation.AttachmentValidator;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
+import org.lukawska.trainSmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,7 +38,10 @@ class MailServiceTest {
     private MailSender mailSender;
 
     @Mock
-    private AttachmentValidator attachmentValidator;
+    private AttachmentValidatorAdapter validator;
+
+    @Mock
+    private MailingProperties mailingProperties;
 
     @InjectMocks
     private MailService mailService;
@@ -58,14 +62,18 @@ class MailServiceTest {
         MailRequest request = mock(MailRequest.class);
         List<Attachment> attachments = List.of(mock(Attachment.class));
 
+        when(mailingProperties.getFrom()).thenReturn(UUID.randomUUID() + "@test.com");
+        when(mailingProperties.getReplyTo()).thenReturn(UUID.randomUUID() + "@test.com");
         when(request.attachments()).thenReturn(attachments);
-        doNothing().when(attachmentValidator).validateAttachments(attachments);
+        doNothing().when(validator).validateAttachments(attachments);
 
         //when
         mailService.sendMail(request);
 
         //then
-        verify(attachmentValidator).validateAttachments(attachments);
+        verify(mailingProperties).getFrom();
+        verify(mailingProperties).getReplyTo();
+        verify(validator).validateAttachments(attachments);
         verify(mailSender).sendEmail(eq(request), anyString());
         verify(mailRepository).save(any(MailEntity.class));
     }
@@ -135,7 +143,7 @@ class MailServiceTest {
                                                   UUID.randomUUID().toString(),
                                                   new Random().nextBoolean(),
                                                   List.of());
-        doThrow(new MessagingException("send failed"))
+        doThrow(new MessagingException(UUID.randomUUID().toString()))
                 .when(mailSender).sendEmail(eq(mailRequest), anyString());
 
         //when && then
