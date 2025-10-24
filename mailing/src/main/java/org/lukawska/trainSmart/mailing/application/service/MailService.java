@@ -3,6 +3,7 @@ package org.lukawska.trainSmart.mailing.application.service;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
@@ -12,6 +13,7 @@ import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
 import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainSmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -27,20 +29,24 @@ public class MailService {
 
     private final MailSender mailSender;
 
-    private final AttachmentValidatorAdapter validator;
+    private final AttachmentValidatorAdapter attachmentValidatorAdapter;
 
     private final MailingProperties mailingProperties;
 
     public MailResponse sendMail(MailRequest mailRequest) {
-        String correlationId = UUID.randomUUID().toString();
-        if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
-            log.info("Validating attachments for correlationId: {}", correlationId);
-            validator.validateAttachments(mailRequest.attachments());
+        String correlationId = MDC.get("correlationId");
+        if (StringUtils.isBlank(correlationId)) {
+            correlationId = UUID.randomUUID().toString();
         }
 
-        MailEntity mailEntity = MailMapper.mapToEntity(mailRequest);
+        if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
+            log.info("Validating attachments for correlationId: {}", correlationId);
+            attachmentValidatorAdapter.validateAttachments(mailRequest.attachments());
+        }
+
         try {
-            mailSender.sendEmail(mailRequest, correlationId);
+            mailSender.sendEmail(mailRequest);
+            MailEntity mailEntity = MailMapper.mapToEntity(mailRequest);
             mailEntity.markAsSent();
             mailRepository.save(mailEntity);
             return MailMapper.mapToResponse(mailEntity,

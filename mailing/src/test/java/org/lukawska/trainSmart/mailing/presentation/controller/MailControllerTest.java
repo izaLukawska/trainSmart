@@ -1,6 +1,5 @@
 package org.lukawska.trainSmart.mailing.presentation.controller;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
@@ -11,9 +10,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.lukawska.trainSmart.mailing.testdata.MailingTestData.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,82 +26,77 @@ class MailControllerTest {
     @InjectMocks
     private MailController mailController;
 
-    private MailResponse response;
-
-    @BeforeEach
-    void setUp() {
-        response = mock(MailResponse.class);
-    }
-
     @Test
     void shouldReturnMailResponseSent() {
         // given
         MailRequest request = mock(MailRequest.class);
-        when(mailService.sendMail(any(MailRequest.class))).thenReturn(response);
+        MailResponse expectedResponse = randomMailResponse();
+        when(mailService.sendMail(any(MailRequest.class))).thenReturn(expectedResponse);
 
         // when
         MailResponse result = mailController.sendMail(request);
 
         // then
-        assertSame(response, result);
+        assertThat(result).isEqualTo(expectedResponse);
         verify(mailService, times(1)).sendMail(request);
     }
 
     @Test
     void shouldReturnMailResponseById() {
         // given
-        Long id = 42L;
-        when(mailService.getMailResponseById(id)).thenReturn(response);
+        final Long id = new Random().nextLong();
+        final MailResponse expectedResponse = randomMailResponse();
+        when(mailService.getMailResponseById(id)).thenReturn(expectedResponse);
 
         // when
         MailResponse result = mailController.getMailById(id);
 
         // then
-        assertSame(response, result);
+        assertThat(result).isEqualTo(expectedResponse);
         verify(mailService, times(1)).getMailResponseById(id);
     }
 
     @Test
     void shouldReturnAllMails() {
         // given
-        List<MailResponse> expected = List.of(response);
-        when(mailService.getAllMails()).thenReturn(expected);
+        final List<MailResponse> expectedResponse = List.of(randomMailResponse());
+        when(mailService.getAllMails()).thenReturn(expectedResponse);
 
         // when
         List<MailResponse> result = mailController.getAllMails();
 
         // then
-        assertSame(expected, result);
+        assertThat(result).isEqualTo(expectedResponse);
         verify(mailService, times(1)).getAllMails();
     }
 
     @Test
     void shouldReturnAllMailsByRecipient() {
         // given
-        String recipient = UUID.randomUUID().toString().concat("@test.com");
-        List<MailResponse> expected = List.of(response);
-        when(mailService.getAllMailsByRecipient(recipient)).thenReturn(expected);
+        final String recipient = randomMail();
+        final List<MailResponse> expectedResponse = List.of(randomMailResponse());
+        when(mailService.getAllMailsByRecipient(recipient)).thenReturn(expectedResponse);
 
         // when
         List<MailResponse> result = mailController.getAllMailsByRecipient(recipient);
 
         // then
-        assertSame(expected, result);
+        assertThat(result).isEqualTo(expectedResponse);
         verify(mailService, times(1)).getAllMailsByRecipient(recipient);
     }
 
     @Test
     void shouldReturnAllMailsBySubjectContaining() {
         // given
-        String keyword = UUID.randomUUID().toString();
-        List<MailResponse> expected = List.of(response);
-        when(mailService.getAllMailsBySubjectContaining(keyword)).thenReturn(expected);
+        final String keyword = randomText();
+        final List<MailResponse> expectedResponse = List.of(randomMailResponse());
+        when(mailService.getAllMailsBySubjectContaining(keyword)).thenReturn(expectedResponse);
 
         // when
         List<MailResponse> result = mailController.getAllMailsBySubjectContaining(keyword);
 
         // then
-        assertSame(expected, result);
+        assertThat(result).isEqualTo(expectedResponse);
         verify(mailService, times(1)).getAllMailsBySubjectContaining(keyword);
     }
 }

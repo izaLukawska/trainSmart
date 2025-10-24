@@ -19,13 +19,13 @@ import java.util.List;
 @Slf4j
 public class AttachmentValidatorAdapter implements AttachmentValidator {
 
-    private final MailingProperties properties;
+    private final MailingProperties mailingProperties;
 
     private final Tika tika;
 
     @Override
     public void validateAttachments(List<Attachment> attachments) {
-        long maxSizeBytes = properties.getMaxSizeBytes();
+        long maxSizeBytes = mailingProperties.getMaxSizeBytes();
 
         for (Attachment att : attachments) {
             validateExtension(att);
@@ -37,7 +37,7 @@ public class AttachmentValidatorAdapter implements AttachmentValidator {
     private void validateExtension(Attachment attachment) {
         String fileName = attachment.getFileName().toLowerCase();
         String ext = FilenameUtils.getExtension(fileName);
-        if (!properties.getMimeTypesByExt().containsKey(ext)) {
+        if (!mailingProperties.getMimeTypesByExt().containsKey(ext)) {
             log.warn("Attachment '{}' has unsupported extension: {}", fileName, ext);
             throw new MailingException(ExceptionType.INVALID_ATTACHMENT_EXTENSION);
         }
@@ -52,7 +52,7 @@ public class AttachmentValidatorAdapter implements AttachmentValidator {
     private void validateMimeType(Attachment attachment) {
         String fileName = attachment.getFileName().toLowerCase();
         String ext = FilenameUtils.getExtension(fileName);
-        List<String> mimeTypes = properties.getMimeTypesByExt().get(ext);
+        List<String> mimeTypes = mailingProperties.getMimeTypesByExt().get(ext);
 
         String detected = tika.detect(attachment.getContent(), fileName);
         if (CollectionUtils.isEmpty(mimeTypes) || !mimeTypes.contains(detected)) {
