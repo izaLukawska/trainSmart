@@ -1,56 +1,50 @@
 package org.lukawska.trainsmart.statements.infra.config;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.statements.testutil.StatementTestData;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.lukawska.trainsmart.statements.testutil.StatementTestData.*;
 
 @ExtendWith(MockitoExtension.class)
 class StatementsDefinitionTest {
 
-    private StatementsDefinition def;
-
-    private String statementCode;
-
-    @BeforeEach
-    void setUp() {
-        def = new StatementsDefinition();
-        statementCode = UUID.randomUUID().toString();
-    }
+    private StatementsDefinition statementsDefinition;
 
     @Test
     void shouldReturnStatementWhenPresent() {
         //given
-        Statement statement = StatementTestData.randomStatement();
+        final String statementCode = randomStatementCode();
+        statementsDefinition = new StatementsDefinition();
+        Statement statement = randomRequiredStatement();
         Map<String, Statement> defMap = Map.of(statementCode, statement);
-        def.setStatements(defMap);
+        statementsDefinition.setStatements(defMap);
 
         //when
-        Optional<Statement> found = def.findStatementByCode(statementCode);
+        Optional<Statement> found = statementsDefinition.findStatementByCode(statementCode);
 
         //then
-        assertThat(found).isPresent().contains(statement);
+        assertThat(found).isPresent()
+                         .contains(statement);
     }
 
     @Test
     void shouldReturnOnlyRequiredStatementsMap() {
         // given
-        final String optionalStatementCode = UUID.randomUUID().toString();
-        final Statement requiredStatement = StatementTestData.statement(true);
-        final Statement optionalStatement = StatementTestData.statement(false);
-        Map<String, Statement> defMap = Map.of(statementCode, requiredStatement,
-                                               optionalStatementCode, optionalStatement);
-        def.setStatements(defMap);
+        final String statementCode = randomStatementCode();
+        statementsDefinition = new StatementsDefinition();
+        final String optionalStatementCode = randomStatementCode();
+        final Statement requiredStatement = randomRequiredStatement();
+        Map<String, Statement> statementsDefinitionMap = Map.of(statementCode, requiredStatement,
+                                                                optionalStatementCode, randomOptionalStatement());
+        statementsDefinition.setStatements(statementsDefinitionMap);
 
         // when
-        Map<String, Statement> required = def.getRequiredStatementsMap();
+        Map<String, Statement> required = statementsDefinition.getRequiredStatementsMap();
 
         // then
         assertThat(required).hasSize(1)
@@ -61,11 +55,11 @@ class StatementsDefinitionTest {
     @Test
     void shouldReturnEmptyRequiredStatementsMapWhenNoRequiredStatementsPresent() {
         // given
-        Statement optionalStatement = StatementTestData.statement(false);
-        Map<String, Statement> defMap = Map.of(statementCode, optionalStatement);
-        def.setStatements(defMap);
+        statementsDefinition = new StatementsDefinition();
+        Map<String, Statement> statementsDefinitionMap = Map.of(randomStatementCode(), randomOptionalStatement());
+        statementsDefinition.setStatements(statementsDefinitionMap);
 
         //when && then
-        assertThat(def.getRequiredStatementsMap()).isEmpty();
+        assertThat(statementsDefinition.getRequiredStatementsMap()).isEmpty();
     }
 }

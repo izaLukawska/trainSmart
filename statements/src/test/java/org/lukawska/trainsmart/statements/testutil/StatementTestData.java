@@ -1,26 +1,36 @@
 package org.lukawska.trainsmart.statements.testutil;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.statements.infra.config.Statement;
 
 import java.util.Random;
 import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public final class StatementTestData {
 
-    public static Statement randomStatement() {
+    public static Statement statementWithVersion(int version) {
         return new Statement(UUID.randomUUID().toString(),
-                             new Random().nextInt(10),
-                             new Random().nextBoolean(),
+                             version,
+                             true,
                              UUID.randomUUID().toString());
     }
 
-    public static Statement statement(boolean required) {
+    public static Statement randomRequiredStatement() {
         return new Statement(UUID.randomUUID().toString(),
                              new Random().nextInt(10),
-                             required,
+                             true,
                              UUID.randomUUID().toString());
+    }
+
+    public static Statement randomOptionalStatement() {
+        return new Statement(UUID.randomUUID().toString(),
+                             new Random().nextInt(10),
+                             false,
+                             UUID.randomUUID().toString());
+    }
+
+    public static String randomStatementCode() {
+        return UUID.randomUUID().toString();
     }
 }

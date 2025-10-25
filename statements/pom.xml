@@ -12,9 +12,7 @@
     <artifactId>statements</artifactId>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <module.version>0.0.1-SNAPSHOT</module.version>
     </properties>
 
     <dependencies>
@@ -22,11 +20,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>shared-persistence</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${module.version}</version>
         </dependency>
     </dependencies>
 
