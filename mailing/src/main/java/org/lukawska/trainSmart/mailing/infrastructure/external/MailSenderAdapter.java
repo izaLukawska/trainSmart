@@ -30,16 +30,16 @@ public class MailSenderAdapter implements MailSender {
     @Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
     public void sendEmail(MailRequest mailRequest) throws MessagingException {
         String correlationId = MDC.get("correlationId");
-        log.debug("Sending email with correlation id: {}", correlationId);
+        log.info("Sending email with correlation id: {}", correlationId);
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
 
-        log.debug("Applying mail data for correlation id: {}", correlationId);
+        log.info("Applying mail data for correlation id: {}", correlationId);
         applyMailData(mailRequest, messageHelper);
 
         mailSender.send(message);
-        log.debug("Successfully send email with correlation id: {}", correlationId);
+        log.info("Successfully send email with correlation id: {}", correlationId);
     }
 
     private MimeMessageHelper createMimeMessageHelper(MailRequest mailRequest, MimeMessage message)
