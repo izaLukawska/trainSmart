@@ -16,29 +16,29 @@ import static org.lukawska.trainSmart.mailing.testdata.MailingTestData.randomMai
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class JavaMailSenderAdapterTest {
+class MailSenderAdapterTest {
 
     @Mock
     private JavaMailSender mailSender;
 
     @Mock
-    private MailingProperties properties;
+    private MailingProperties mailingProperties;
 
     @InjectMocks
-    private JavaMailSenderAdapter adapter;
+    private MailSenderAdapter mailSenderAdapter;
 
     @Test
     void shouldSendMailWithAttachmentsSuccess() throws MessagingException {
         //given
         final MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        when(properties.getFrom()).thenReturn(randomMail());
-        when(properties.getReplyTo()).thenReturn(randomMail());
+        when(mailingProperties.getFrom()).thenReturn(randomMail());
+        when(mailingProperties.getReplyTo()).thenReturn(randomMail());
 
-        final MailRequest request = randomMailRequest();
+        final MailRequest mailRequest = randomMailRequest(true);
 
         //when
-        adapter.sendEmail(request);
+        mailSenderAdapter.sendEmail(mailRequest);
 
         //then
         verify(mailSender).send(mimeMessage);

@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(MailingException.class)
-	public ResponseEntity<ExceptionResponse> handleMailingException(MailingException ex) {
-		log.error("Handled RestException: {}", ex.getMessage(), ex);
-		return ResponseEntity.status(ex.getExceptionType().getHttpStatus())
-		                     .body(new ExceptionResponse(ex.getMessage(),
-		                                                 ex.getExceptionType().getHttpStatus().value()));
-	}
+    @ExceptionHandler(MailingException.class)
+    public ResponseEntity<ExceptionResponse> handleMailingException(MailingException ex) {
+        log.error("Handling mailing Exception: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(ex.getExceptionType().getHttpStatus())
+                             .body(new ExceptionResponse(ex.getMessage(),
+                                                         ex.getExceptionType().getHttpStatus().value()));
+    }
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ExceptionResponse> handleGenericException(Exception ex) {
-		log.error("Unexpected error: {}", ex.getMessage(), ex);
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-		                     .body(new ExceptionResponse(ex.getMessage(),
-		                                                 HttpStatus.INTERNAL_SERVER_ERROR.value()));
-	}
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionResponse> handleGenericException(Exception ex) {
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body(new ExceptionResponse(ex.getMessage(),
+                                                         HttpStatus.INTERNAL_SERVER_ERROR.value()));
+    }
 }

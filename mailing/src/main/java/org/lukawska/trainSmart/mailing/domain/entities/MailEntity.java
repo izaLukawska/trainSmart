@@ -21,12 +21,12 @@ public class MailEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "mail_recipients", joinColumns = @JoinColumn(name = "mail_id"))
     @Column(name = "recipient")
     private List<String> recipients = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "mail_cc", joinColumns = @JoinColumn(name = "mail_id"))
     @Column(name = "cc")
     private List<String> cc = new ArrayList<>();
@@ -45,7 +45,7 @@ public class MailEntity {
 
     private boolean isHtml;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "mail_attachments", joinColumns = @JoinColumn(name = "mail_id"))
     private List<Attachment> attachments = new ArrayList<>();
 

@@ -35,9 +35,8 @@ class AttachmentValidatorAdapterTest {
     @Test
     void shouldValidateAttachmentSuccess() {
         //given
-        final String ext = "pdf";
-        final Attachment attachment = new Attachment(randomText() + "." + ext, new byte[20]);
-        when(mailingProperties.getMimeTypesByExt()).thenReturn(Map.of(ext, List.of("application/pdf")));
+        final Attachment attachment = new Attachment(randomText() + ".pdf", new byte[20]);
+        when(mailingProperties.getValidMimeTypes()).thenReturn(Map.of("pdf", List.of("application/pdf")));
         when(mailingProperties.getMaxSizeBytes()).thenReturn(30L);
         when(tika.detect(attachment.getContent(), attachment.getFileName())).thenReturn("application/pdf");
 
@@ -61,9 +60,8 @@ class AttachmentValidatorAdapterTest {
     @Test
     void shouldThrowExceptionWhenAttachmentTooLarge() {
         //given
-        final String ext = "pdf";
-        final Attachment attachment = new Attachment(randomText() + "." + ext, new byte[20]);
-        when(mailingProperties.getMimeTypesByExt()).thenReturn(Map.of(ext, List.of(randomText())));
+        final Attachment attachment = new Attachment(randomText() + ".pdf", new byte[20]);
+        when(mailingProperties.getValidMimeTypes()).thenReturn(Map.of("pdf", List.of(randomText())));
         when(mailingProperties.getMaxSizeBytes()).thenReturn(1L);
 
         //when && then
@@ -75,9 +73,8 @@ class AttachmentValidatorAdapterTest {
     @Test
     void shouldThrowExceptionWhenInvalidMimeType() {
         //given
-        final String ext = "pdf";
-        final Attachment attachment = new Attachment(randomText() + "." + ext, new byte[20]);
-        when(mailingProperties.getMimeTypesByExt()).thenReturn(Map.of(ext, List.of("application/pdf")));
+        final Attachment attachment = new Attachment(randomText() + ".pdf", new byte[20]);
+        when(mailingProperties.getValidMimeTypes()).thenReturn(Map.of("pdf", List.of("application/pdf")));
         when(mailingProperties.getMaxSizeBytes()).thenReturn(30L);
         when(tika.detect(attachment.getContent(), attachment.getFileName())).thenReturn(randomText());
 

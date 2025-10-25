@@ -19,7 +19,7 @@ public class MailingProperties {
 
     private String replyTo;
 
-    private Map<String, List<String>> mimeTypesByExt = new HashMap<>();
+    private Map<String, List<String>> validMimeTypes = new HashMap<>();
 
     private long maxSizeBytes = 0;
 

@@ -8,6 +8,10 @@ import org.lukawska.trainSmart.mailing.application.service.MailService;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Random;
@@ -29,15 +33,22 @@ class MailControllerTest {
     @Test
     void shouldReturnMailResponseSent() {
         // given
-        MailRequest request = mock(MailRequest.class);
-        MailResponse expectedResponse = randomMailResponse();
+        final MailRequest request = randomMailRequest(true);
+        final MailResponse expectedResponse = randomMailResponse();
         when(mailService.sendMail(any(MailRequest.class))).thenReturn(expectedResponse);
 
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest("POST", "/api/mail/send");
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest));
+
         // when
-        MailResponse result = mailController.sendMail(request);
+        ResponseEntity<MailResponse> result = mailController.sendMail(request);
 
         // then
-        assertThat(result).isEqualTo(expectedResponse);
+        assertThat(result.getBody()).isEqualTo(expectedResponse);
+        assertThat(result.getStatusCode().value()).isEqualTo(201);
+        assertThat(result.getHeaders().getLocation()).isNotNull();
+        assertThat(result.getHeaders().getLocation().toString())
+                .isEqualTo("http://localhost/api/mail/send/" + expectedResponse.id());
         verify(mailService, times(1)).sendMail(request);
     }
 

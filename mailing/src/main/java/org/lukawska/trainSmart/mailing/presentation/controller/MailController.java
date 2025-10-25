@@ -6,8 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.service.MailService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -19,14 +22,19 @@ public class MailController {
     private final MailService mailService;
 
     @PostMapping("/send")
-    public MailResponse sendMail(@Valid @RequestBody MailRequest mailRequest) {
+    public ResponseEntity<MailResponse> sendMail(@Valid @RequestBody MailRequest mailRequest) {
         log.debug("Sending mail with subject: {}", mailRequest.subject());
-        return mailService.sendMail(mailRequest);
+        MailResponse response = mailService.sendMail(mailRequest);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                                                  .path("/{id}")
+                                                  .buildAndExpand(response.id())
+                                                  .toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public MailResponse getMailById(@PathVariable Long id) {
-        log.info("Searching for mail with id: {}", id);
+        log.debug("Searching for mail with id: {}", id);
         return mailService.getMailResponseById(id);
     }
 
@@ -44,7 +52,7 @@ public class MailController {
 
     @GetMapping("/subject")
     public List<MailResponse> getAllMailsBySubjectContaining(@RequestParam String keyword) {
-        log.info("Fetching mails with subject containing: {}", keyword);
+        log.debug("Fetching mails with subject containing: {}", keyword);
         return mailService.getAllMailsBySubjectContaining(keyword);
     }
 }

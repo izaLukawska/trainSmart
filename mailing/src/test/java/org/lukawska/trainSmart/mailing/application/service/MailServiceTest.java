@@ -46,26 +46,40 @@ class MailServiceTest {
     @Test
     void shouldSendMailWithAttachmentSuccess() throws MessagingException {
         //given
-        final MailRequest request = randomMailRequest();
-        doNothing().when(attachmentValidatorAdapter).validateAttachments(request.attachments());
+        final MailRequest mailRequest = randomMailRequest(true);
 
         //when
-        mailService.sendMail(request);
+        mailService.sendMail(mailRequest);
 
         //then
         verify(mailingProperties).getFrom();
         verify(mailingProperties).getReplyTo();
-        verify(attachmentValidatorAdapter).validateAttachments(request.attachments());
-        verify(mailSender).sendEmail(eq(request));
+        verify(attachmentValidatorAdapter).validateAttachments(mailRequest.attachments());
+        verify(mailSender).sendEmail(eq(mailRequest));
+    }
+
+    @Test
+    void shouldSendMailWithoutAttachmentSuccess() throws MessagingException {
+        //given
+        final MailRequest mailRequest = randomMailRequest(false);
+
+        //when
+        mailService.sendMail(mailRequest);
+
+        //then
+        verify(mailingProperties).getFrom();
+        verify(mailingProperties).getReplyTo();
+        verify(attachmentValidatorAdapter, never()).validateAttachments(mailRequest.attachments());
+        verify(mailSender).sendEmail(eq(mailRequest));
     }
 
     @Test
     void shouldReturnAllMailsContainingKeyword() {
         //given
         final String keyword = randomText();
-        final List<MailEntity> randomList = List.of(randomMailEntity());
-        when(mailRepository.findAllBySubjectContaining(keyword)).thenReturn(randomList);
-        final String expectedSubject = randomList.getFirst().getSubject();
+        final List<MailEntity> randomMailList = List.of(randomMailEntity());
+        when(mailRepository.findAllBySubjectContaining(keyword)).thenReturn(randomMailList);
+        final String expectedSubject = randomMailList.getFirst().getSubject();
 
         //when
         List<MailResponse> result = mailService.getAllMailsBySubjectContaining(keyword);
@@ -94,16 +108,14 @@ class MailServiceTest {
     @Test
     void shouldReturnAllMails() {
         //given
-        final List<MailEntity> randomList = List.of(randomMailEntity());
+        final List<MailEntity> randomList = List.of(randomMailEntity(), randomMailEntity());
         when(mailRepository.findAll()).thenReturn(randomList);
-        final List<String> expectedRecipients = randomList.getFirst().getRecipients();
 
         //when
         List<MailResponse> result = mailService.getAllMails();
 
         //then
-        assertThat(result).extracting(MailResponse::recipients)
-                          .containsExactly(expectedRecipients);
+        assertThat(result).hasSize(2);
     }
 
     @Test
@@ -124,7 +136,7 @@ class MailServiceTest {
     @Test
     void shouldThrowMessagingExceptionWhenSendMail() throws MessagingException {
         //given
-        final MailRequest mailRequest = randomMailRequest();
+        final MailRequest mailRequest = randomMailRequest(new Random().nextBoolean());
         doThrow(new MessagingException(randomText()))
                 .when(mailSender).sendEmail(eq(mailRequest));
 

@@ -4,7 +4,6 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.service.MailSender;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
@@ -18,12 +17,10 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class JavaMailSenderAdapter implements MailSender {
+public class MailSenderAdapter implements MailSender {
 
     private final JavaMailSender mailSender;
 
@@ -33,10 +30,6 @@ public class JavaMailSenderAdapter implements MailSender {
     @Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
     public void sendEmail(MailRequest mailRequest) throws MessagingException {
         String correlationId = MDC.get("correlationId");
-        if (StringUtils.isBlank(correlationId)) {
-            correlationId = UUID.randomUUID().toString();
-        }
-
         log.debug("Sending email with correlation id: {}", correlationId);
 
         MimeMessage message = mailSender.createMimeMessage();

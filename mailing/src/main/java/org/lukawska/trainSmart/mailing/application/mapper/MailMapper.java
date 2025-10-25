@@ -1,7 +1,6 @@
 package org.lukawska.trainSmart.mailing.application.mapper;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.lukawska.trainSmart.mailing.application.dto.AttachmentMeta;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
@@ -10,7 +9,7 @@ import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@UtilityClass
 public final class MailMapper {
 
     public static MailEntity mapToEntity(MailRequest mailRequest) {

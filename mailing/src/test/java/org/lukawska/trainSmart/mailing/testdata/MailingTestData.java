@@ -15,14 +15,15 @@ import java.util.UUID;
 @UtilityClass
 public final class MailingTestData {
 
-    public static MailRequest randomMailRequest() {
+    public static MailRequest randomMailRequest(boolean hasAttachments) {
+        List<Attachment> attachments = hasAttachments ? List.of(randomValidAttachment()) : List.of();
         return new MailRequest(List.of(randomMail()),
                                List.of(randomMail()),
                                List.of(randomMail()),
                                randomText(),
                                randomText(),
                                new Random().nextBoolean(),
-                               List.of(randomValidAttachment()));
+                               attachments);
     }
 
     public static MailEntity randomMailEntity() {

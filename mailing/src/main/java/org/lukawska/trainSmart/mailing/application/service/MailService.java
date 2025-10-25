@@ -3,7 +3,6 @@ package org.lukawska.trainSmart.mailing.application.service;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +33,6 @@ public class MailService {
 
     public MailResponse sendMail(MailRequest mailRequest) {
         String correlationId = MDC.get("correlationId");
-        if (StringUtils.isBlank(correlationId)) {
-            correlationId = UUID.randomUUID().toString();
-        }
 
         if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
             log.info("Validating attachments for correlationId: {}", correlationId);
