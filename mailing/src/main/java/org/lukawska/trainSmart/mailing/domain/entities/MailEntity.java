@@ -40,7 +40,7 @@ public class MailEntity {
     private String subject;
 
     @Lob
-    @Column(nullable = false)
+    @Column(name = "body", nullable = false)
     private String text;
 
     private boolean isHtml;

@@ -8,9 +8,7 @@ import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.service.MailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -24,12 +22,7 @@ public class MailController {
     @PostMapping("/send")
     public ResponseEntity<MailResponse> sendMail(@Valid @RequestBody MailRequest mailRequest) {
         log.debug("Sending mail with subject: {}", mailRequest.subject());
-        MailResponse response = mailService.sendMail(mailRequest);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                                                  .path("/{id}")
-                                                  .buildAndExpand(response.id())
-                                                  .toUri();
-        return ResponseEntity.created(location).body(response);
+        return ResponseEntity.status(201).body(mailService.sendMail(mailRequest));
     }
 
     @GetMapping("/{id}")
@@ -38,7 +31,7 @@ public class MailController {
         return mailService.getMailResponseById(id);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<MailResponse> getAllMails() {
         log.info("Fetching all mails");
         return mailService.getAllMails();

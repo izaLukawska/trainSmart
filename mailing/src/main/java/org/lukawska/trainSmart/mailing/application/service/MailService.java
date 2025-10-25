@@ -1,6 +1,7 @@
 package org.lukawska.trainSmart.mailing.application.service;
 
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
@@ -31,6 +32,7 @@ public class MailService {
 
     private final MailingProperties mailingProperties;
 
+    @Transactional
     public MailResponse sendMail(MailRequest mailRequest) {
         String correlationId = MDC.get("correlationId");
 
@@ -53,6 +55,7 @@ public class MailService {
         }
     }
 
+    @Transactional
     public MailResponse getMailResponseById(Long id) {
         return mailRepository.findById(id)
                              .map(mail -> MailMapper.mapToResponse(mail,
@@ -61,6 +64,7 @@ public class MailService {
                              .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
     }
 
+    @Transactional
     public List<MailResponse> getAllMails() {
         return mailRepository.findAll()
                              .stream()
@@ -70,6 +74,7 @@ public class MailService {
                              .toList();
     }
 
+    @Transactional
     public List<MailResponse> getAllMailsByRecipient(String recipient) {
         return mailRepository.findAllByRecipient(recipient)
                              .stream()
@@ -79,6 +84,7 @@ public class MailService {
                              .toList();
     }
 
+    @Transactional
     public List<MailResponse> getAllMailsBySubjectContaining(String keyword) {
         return mailRepository.findAllBySubjectContaining(keyword)
                              .stream()

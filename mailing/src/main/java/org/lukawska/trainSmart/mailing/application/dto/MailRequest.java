@@ -1,5 +1,6 @@
 package org.lukawska.trainSmart.mailing.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ public record MailRequest(
         @NotNull List<String> cc,
         @NotNull List<String> bcc,
         @NotBlank(message = "Subject cannot be blank.") String subject,
+        @JsonProperty("body")
         @NotBlank(message = "Body cannot be blank.") String text,
         boolean isHtml,
         @NotNull List<Attachment> attachments) {}
