@@ -7,7 +7,6 @@ import org.lukawska.trainsmart.shared_persistence.domain.repositories.UserReposi
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
-import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 import org.lukawska.trainsmart.statements.infra.config.Statement;
 import org.lukawska.trainsmart.statements.infra.config.StatementsDefinition;
@@ -20,14 +19,11 @@ public class UserAgreementValidator {
 
     private final UserRepository userRepository;
 
-    private final UserAgreementRepository agreementRepository;
-
     private final StatementsDefinition statementsDefinition;
 
     public Statement validateStatement(UserAgreementRequest request) {
         Statement statement = validateAndGetStatement(request);
         validateRequiredAcceptance(statement.required(), request);
-        validateNotDuplicateAgreement(request);
         return statement;
     }
 
@@ -47,13 +43,6 @@ public class UserAgreementValidator {
         log.debug("Checking if required statement with code: {} is accepted", request.statementCode());
         if (required && request.status() == AgreementStatus.REJECTED) {
             throw new StatementException(ExceptionType.STATEMENT_ACCEPTANCE_REQUIRED);
-        }
-    }
-
-    private void validateNotDuplicateAgreement(UserAgreementRequest request) {
-        if (agreementRepository.findByUserIdAndStatementCode(request.userId(), request.statementCode())
-                               .isPresent()) {
-            throw new StatementException(ExceptionType.USER_AGREEMENT_ALREADY_EXISTS);
         }
     }
 }

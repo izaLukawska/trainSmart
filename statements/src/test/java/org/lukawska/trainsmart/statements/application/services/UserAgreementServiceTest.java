@@ -110,7 +110,22 @@ class UserAgreementServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserAgreementNotFound() {
+    void shouldThrowUserAgreementAlreadyExistsExceptionWhenSignNewAgreement() {
+        //given
+        final Statement statement = randomRequiredStatement();
+        final UserAgreementRequest request = randomUserAgreementRequest();
+        when(userAgreementValidator.validateStatement(request)).thenReturn(statement);
+        when(agreementRepository.findByUserIdAndStatementCode(request.userId(), request.statementCode()))
+                .thenReturn(Optional.of(mock(UserAgreement.class)));
+
+        //when && then
+        assertThatThrownBy(() -> userAgreementService.signNewAgreement(request))
+                .isInstanceOf(StatementException.class)
+                .hasMessage(ExceptionType.USER_AGREEMENT_ALREADY_EXISTS.getMessage());
+    }
+
+    @Test
+    void shouldThrowUserAgreementNotFoundExceptionWhenReSignAgreement() {
         //given
         final Statement statement = randomRequiredStatement();
         final UserAgreementRequest request = randomUserAgreementRequest();

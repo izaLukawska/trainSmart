@@ -17,6 +17,7 @@ import org.lukawska.trainsmart.statements.infra.config.StatementsDefinition;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,10 @@ public class UserAgreementService {
     @Transactional
     public UserAgreementResponse signNewAgreement(UserAgreementRequest request) {
         Statement statement = userAgreementValidator.validateStatement(request);
+        if (getUserAgreement(request).isPresent()) {
+            throw new StatementException(ExceptionType.USER_AGREEMENT_ALREADY_EXISTS);
+        }
+
         User existingUser = userAgreementValidator.validateAndGetUser(request);
 
         UserAgreement agreementRecord = new UserAgreement(existingUser,
@@ -48,8 +53,7 @@ public class UserAgreementService {
     public UserAgreementResponse reSignAgreement(UserAgreementRequest request) {
         Statement statement = userAgreementValidator.validateStatement(request);
 
-        UserAgreement userAgreement = agreementRepository
-                .findByUserIdAndStatementCode(request.userId(), request.statementCode())
+        UserAgreement userAgreement = getUserAgreement(request)
                 .orElseThrow(() -> new StatementException(ExceptionType.USER_AGREEMENT_NOT_FOUND));
 
         log.info("Updating version and changing status to: {} for agreement with ID: {}",
@@ -79,5 +83,9 @@ public class UserAgreementService {
         log.info("Found required statements to sign count: {} for user with ID: {}",
                  outdatedUserAgreements.size(), userId);
         return outdatedUserAgreements;
+    }
+
+    private Optional<UserAgreement> getUserAgreement(UserAgreementRequest request) {
+        return agreementRepository.findByUserIdAndStatementCode(request.userId(), request.statementCode());
     }
 }

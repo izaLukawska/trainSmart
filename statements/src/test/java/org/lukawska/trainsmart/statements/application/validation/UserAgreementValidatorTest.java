@@ -6,8 +6,6 @@ import org.lukawska.trainsmart.shared_persistence.domain.repositories.UserReposi
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
-import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
-import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 import org.lukawska.trainsmart.statements.infra.config.StatementsDefinition;
 import org.mockito.InjectMocks;
@@ -21,7 +19,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.lukawska.trainsmart.statements.testutil.StatementTestData.*;
 import static org.lukawska.trainsmart.statements.testutil.UserAgreementTestData.randomUserAgreementRequest;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,9 +26,6 @@ class UserAgreementValidatorTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private UserAgreementRepository userAgreementRepository;
 
     @Mock
     private StatementsDefinition statementsDefinition;
@@ -47,8 +41,6 @@ class UserAgreementValidatorTest {
 
         when(statementsDefinition.findStatementByCode(statementCode))
                 .thenReturn(Optional.of(randomOptionalStatement()));
-        when(userAgreementRepository.findByUserIdAndStatementCode(request.userId(), statementCode))
-                .thenReturn(Optional.empty());
 
         //when && then
         assertThatCode(() -> userAgreementValidator.validateStatement(request)).doesNotThrowAnyException();
@@ -68,23 +60,6 @@ class UserAgreementValidatorTest {
         assertThatThrownBy(() -> userAgreementValidator.validateStatement(request))
                 .isInstanceOf(StatementException.class)
                 .hasMessage(ExceptionType.STATEMENT_ACCEPTANCE_REQUIRED.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserAgreementExists() {
-        //given
-        final UserAgreementRequest request = randomUserAgreementRequest();
-        final String statementCode = request.statementCode();
-
-        when(statementsDefinition.findStatementByCode(statementCode))
-                .thenReturn(Optional.of(randomOptionalStatement()));
-        when(userAgreementRepository.findByUserIdAndStatementCode(request.userId(), statementCode))
-                .thenReturn(Optional.of(mock(UserAgreement.class)));
-
-        //when && then
-        assertThatThrownBy(() -> userAgreementValidator.validateStatement(request))
-                .isInstanceOf(StatementException.class)
-                .hasMessage(ExceptionType.USER_AGREEMENT_ALREADY_EXISTS.getMessage());
     }
 
     @Test
