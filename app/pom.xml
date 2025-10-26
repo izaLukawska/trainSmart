@@ -12,16 +12,14 @@
     <artifactId>app</artifactId>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.version>0.0.1-SNAPSHOT</project.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>statements</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

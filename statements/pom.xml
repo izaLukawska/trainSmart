@@ -12,7 +12,7 @@
     <artifactId>statements</artifactId>
 
     <properties>
-        <module.version>0.0.1-SNAPSHOT</module.version>
+        <project.version>0.0.1-SNAPSHOT</project.version>
     </properties>
 
     <dependencies>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>shared-persistence</artifactId>
-            <version>${module.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
