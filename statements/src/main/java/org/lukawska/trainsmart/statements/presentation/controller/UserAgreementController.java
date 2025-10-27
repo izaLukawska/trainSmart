@@ -8,6 +8,7 @@ import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.services.UserAgreementService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api/agreements")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class UserAgreementController {
 
     private final UserAgreementService service;
