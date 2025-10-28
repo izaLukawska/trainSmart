@@ -9,3 +9,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  ai:
+    openai:
+      api-key: key
+      chat:
+        options:
+          model: gpt-4o-mini
+          max-tokens: 500
+          response-format: json_object
