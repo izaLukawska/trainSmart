@@ -5,11 +5,9 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
 import org.lukawska.trainSmart.mailing.presentation.dto.ExceptionResponse;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +17,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler exceptionHandler;
@@ -60,12 +58,12 @@ class GlobalExceptionHandlerTest {
                                                                                         bindingResult);
 
         //when
-        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleValidationException(exception);
+        ResponseEntity<ExceptionResponse> result = exceptionHandler.handleValidationException(exception);
 
         //then
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().message()).isEqualTo(expectedMessage);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertNotNull(result.getBody());
+        assertThat(result.getBody().message()).isEqualTo(expectedMessage);
     }
 
     @Test
@@ -84,19 +82,20 @@ class GlobalExceptionHandlerTest {
         final String expectedMessage = field + ": " + message;
 
         //when
-        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleConstraintViolationException(exception);
+        ResponseEntity<ExceptionResponse> result = exceptionHandler.handleConstraintViolationException(exception);
 
         //then
-        Assertions.assertNotNull(response.getBody());
-        assertThat(response.getBody().message()).isEqualTo(expectedMessage);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Assertions.assertNotNull(result.getBody());
+        assertThat(result.getBody().message()).isEqualTo(expectedMessage);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void shouldReturn500WithMessageWhenUnexpectedError() {
         //given
         exceptionHandler = new GlobalExceptionHandler();
-        final Exception exception = new Exception("unknown");
+        final Exception exception = new Exception(UUID.randomUUID().toString());
+
         //when
         ResponseEntity<ExceptionResponse> result = exceptionHandler.handleGenericException(exception);
 

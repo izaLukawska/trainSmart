@@ -1,6 +1,8 @@
 package org.lukawska.trainSmart.mailing.presentation.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
@@ -28,7 +30,7 @@ public class MailController {
     }
 
     @GetMapping("/{id}")
-    public MailResponse getMailById(@PathVariable Long id) {
+    public MailResponse getMailById(@PathVariable @NotNull Long id) {
         log.debug("Searching for mail with id: {}", id);
         return mailService.getMailResponseById(id);
     }
@@ -40,13 +42,13 @@ public class MailController {
     }
 
     @GetMapping("/recipient")
-    public List<MailResponse> getAllMailsByRecipient(@RequestParam String recipient) {
+    public List<MailResponse> getAllMailsByRecipient(@RequestParam @NotBlank String recipient) {
         log.debug("Fetching mails for recipient: {}", recipient);
         return mailService.getAllMailsByRecipient(recipient);
     }
 
     @GetMapping("/subject")
-    public List<MailResponse> getAllMailsBySubjectContaining(@RequestParam String keyword) {
+    public List<MailResponse> getAllMailsBySubjectContaining(@RequestParam @NotBlank String keyword) {
         log.debug("Fetching mails with subject containing: {}", keyword);
         return mailService.getAllMailsBySubjectContaining(keyword);
     }

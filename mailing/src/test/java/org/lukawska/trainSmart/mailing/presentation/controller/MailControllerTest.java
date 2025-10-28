@@ -46,7 +46,6 @@ class MailControllerTest {
         // then
         assertThat(result.getBody()).isEqualTo(expectedResponse);
         assertThat(result.getStatusCode().value()).isEqualTo(201);
-
         verify(mailService, times(1)).sendMail(request);
     }
 
