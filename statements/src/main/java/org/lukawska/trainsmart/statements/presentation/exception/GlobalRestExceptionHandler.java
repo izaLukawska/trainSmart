@@ -33,6 +33,7 @@ public class GlobalRestExceptionHandler {
                                 .collect(Collectors.joining(", "));
 
         log.error("Validation error occurred: {}", errorMessage);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(new ExceptionResponse(errorMessage,
                                                          HttpStatus.BAD_REQUEST.value()));
@@ -43,7 +44,9 @@ public class GlobalRestExceptionHandler {
         String errorMessage = ex.getConstraintViolations().stream()
                                 .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
                                 .collect(Collectors.joining(", "));
+
         log.error("Constraint violations: {}", errorMessage);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(new ExceptionResponse(errorMessage,
                                                          HttpStatus.BAD_REQUEST.value()));

@@ -31,7 +31,7 @@ class GlobalRestExceptionHandlerTest {
     void shouldReturn404ForUserNotFoundWhenHandleRestException() {
         // given
         handler = new GlobalRestExceptionHandler();
-        StatementException exception = new StatementException(ExceptionType.USER_NOT_FOUND);
+        final StatementException exception = new StatementException(ExceptionType.USER_NOT_FOUND);
 
         // when
         ResponseEntity<ExceptionResponse> response = handler.handleRestException(exception);
@@ -46,7 +46,7 @@ class GlobalRestExceptionHandlerTest {
     @Test
     void shouldReturn500WhenHandleUnexpectedException_() {
         handler = new GlobalRestExceptionHandler();
-        Exception exception = new RuntimeException(UUID.randomUUID().toString());
+        final Exception exception = new RuntimeException(UUID.randomUUID().toString());
 
         // WHEN
         ResponseEntity<ExceptionResponse> response = handler.handleUnexpectedException(exception);
@@ -58,11 +58,11 @@ class GlobalRestExceptionHandlerTest {
     }
 
     @Test
-    void shouldReturn400AndFormattedMessageWhenHandleValidationException_() {
+    void shouldReturn400WithMessageWhenHandleValidationException_() {
         //given
         handler = new GlobalRestExceptionHandler();
-        BindingResult bindingResult = mock(BindingResult.class);
-        FieldError fieldError = new FieldError("objectName", "fieldName", "is required");
+        final BindingResult bindingResult = mock(BindingResult.class);
+        final FieldError fieldError = new FieldError("objectName", "fieldName", "is required");
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
 
         String expectedMessage = "fieldName: is required";
@@ -79,11 +79,11 @@ class GlobalRestExceptionHandlerTest {
     }
 
     @Test
-    void _shouldReturn400AndFormattedMessageWhenHandleConstraintViolation() {
+    void _shouldReturn400WithMessageWhenHandleConstraintViolation() {
         //given
         handler = new GlobalRestExceptionHandler();
-        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
-        Path path = mock(Path.class);
+        final ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+        final Path path = mock(Path.class);
         final String field = "field";
         final String message = "invalid value";
         when(violation.getPropertyPath()).thenReturn(path);
