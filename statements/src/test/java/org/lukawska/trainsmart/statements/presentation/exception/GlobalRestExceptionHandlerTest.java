@@ -25,16 +25,16 @@ import static org.mockito.Mockito.when;
 
 class GlobalRestExceptionHandlerTest {
 
-    private GlobalRestExceptionHandler handler;
+    private GlobalExceptionHandler exceptionHandler;
 
     @Test
-    void shouldReturn404ForUserNotFoundWhenHandleRestException() {
+    void shouldReturn404UserNotFoundWhenHandleRestException() {
         // given
-        handler = new GlobalRestExceptionHandler();
+        exceptionHandler = new GlobalExceptionHandler();
         final StatementException exception = new StatementException(ExceptionType.USER_NOT_FOUND);
 
         // when
-        ResponseEntity<ExceptionResponse> response = handler.handleRestException(exception);
+        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleRestException(exception);
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -44,12 +44,12 @@ class GlobalRestExceptionHandlerTest {
     }
 
     @Test
-    void shouldReturn500WhenHandleUnexpectedException_() {
-        handler = new GlobalRestExceptionHandler();
+    void shouldReturn500WithMessageWhenHandleUnexpectedException() {
+        exceptionHandler = new GlobalExceptionHandler();
         final Exception exception = new RuntimeException(UUID.randomUUID().toString());
 
         // WHEN
-        ResponseEntity<ExceptionResponse> response = handler.handleUnexpectedException(exception);
+        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleUnexpectedException(exception);
 
         // THEN
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -58,9 +58,9 @@ class GlobalRestExceptionHandlerTest {
     }
 
     @Test
-    void shouldReturn400WithMessageWhenHandleValidationException_() {
+    void shouldReturn400WithMessageWhenHandleValidationException() {
         //given
-        handler = new GlobalRestExceptionHandler();
+        exceptionHandler = new GlobalExceptionHandler();
         final BindingResult bindingResult = mock(BindingResult.class);
         final FieldError fieldError = new FieldError("objectName", "fieldName", "is required");
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
@@ -70,7 +70,7 @@ class GlobalRestExceptionHandlerTest {
                                                                                         bindingResult);
 
         //when
-        ResponseEntity<ExceptionResponse> response = handler.handleValidationException(exception);
+        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleValidationException(exception);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -79,9 +79,9 @@ class GlobalRestExceptionHandlerTest {
     }
 
     @Test
-    void _shouldReturn400WithMessageWhenHandleConstraintViolation() {
+    void shouldReturn400WithMessageWhenHandleConstraintViolation() {
         //given
-        handler = new GlobalRestExceptionHandler();
+        exceptionHandler = new GlobalExceptionHandler();
         final ConstraintViolation<?> violation = mock(ConstraintViolation.class);
         final Path path = mock(Path.class);
         final String field = "field";
@@ -94,7 +94,7 @@ class GlobalRestExceptionHandlerTest {
         final String expectedMessage = field + ": " + message;
 
         //when
-        ResponseEntity<ExceptionResponse> response = handler.handleConstraintViolation(exception);
+        ResponseEntity<ExceptionResponse> response = exceptionHandler.handleConstraintViolationException(exception);
 
         //then
         Assertions.assertNotNull(response.getBody());

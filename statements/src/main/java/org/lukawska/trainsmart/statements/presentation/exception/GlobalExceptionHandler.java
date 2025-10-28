@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
-public class GlobalRestExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(StatementException.class)
     public ResponseEntity<ExceptionResponse> handleRestException(StatementException exception) {
@@ -40,7 +40,7 @@ public class GlobalRestExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ExceptionResponse> handleConstraintViolation(ConstraintViolationException ex) {
+    public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException ex) {
         String errorMessage = ex.getConstraintViolations().stream()
                                 .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
                                 .collect(Collectors.joining(", "));
