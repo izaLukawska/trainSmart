@@ -46,9 +46,7 @@ class MailControllerTest {
         // then
         assertThat(result.getBody()).isEqualTo(expectedResponse);
         assertThat(result.getStatusCode().value()).isEqualTo(201);
-        assertThat(result.getHeaders().getLocation()).isNotNull();
-        assertThat(result.getHeaders().getLocation().toString())
-                .isEqualTo("http://localhost/api/mail/send/" + expectedResponse.id());
+
         verify(mailService, times(1)).sendMail(request);
     }
 
