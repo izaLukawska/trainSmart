@@ -10,10 +10,19 @@ spring:
     hibernate:
       ddl-auto: update
   ai:
+    retry:
+      max-attempts: 3
+      backoff:
+        initial-interval: 2000ms
+        multiplier: 2
+        max-interval: 2000ms
+      on-client-errors: false
+      exclude-on-http-codes: [ 400, 401, 403 ]
+      on-http-codes: [ 429, 500, 503, 502, 504 ]
     openai:
-      api-key: key
+      api-key: ${OPEN_AI_KEY}
       chat:
         options:
           model: gpt-4o-mini
           max-tokens: 500
-          response-format: json_object
+          temperature: 0.0
