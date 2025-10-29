@@ -20,7 +20,7 @@ public class OpenAiAdapter implements ChatClientPort<ChatRolesRequest, String> {
         ChatClient.ChatClientRequestSpec prompt = chatClient.prompt();
 
         if (StringUtils.isNotBlank(request.systemPrompt())) {
-            prompt.system(request.userPrompt());
+            prompt.system(request.systemPrompt());
         }
 
         return prompt.user(request.userPrompt()).call().content();
