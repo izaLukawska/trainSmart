@@ -29,6 +29,7 @@ class OpenAiAdapterTest {
         final String systemPrompt = UUID.randomUUID().toString();
         final String userPrompt = UUID.randomUUID().toString();
         final String content = UUID.randomUUID().toString();
+        
         ChatClient.ChatClientRequestSpec requestSpec = mock(ChatClient.ChatClientRequestSpec.class);
         ChatClient.CallResponseSpec callResponseSpec = mock(ChatClient.CallResponseSpec.class);
 
