@@ -6,4 +6,4 @@ import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 
 public record UserAgreementRequest(@NotNull Long userId,
                                    @NotBlank String statementCode,
-                                   @NotNull AgreementStatus status) {}
+                                   @NotNull AgreementStatus agreementStatus) {}

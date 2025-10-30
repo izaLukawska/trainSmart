@@ -28,9 +28,15 @@ public class UserAgreementValidator {
     }
 
     public User validateAndGetUser(UserAgreementRequest request) {
-        log.debug("Checking if user with ID {} exists.", request.userId());
+        log.debug("Fetching user with ID: {}", request.userId());
         return userRepository.findById(request.userId())
                              .orElseThrow(() -> new StatementException(ExceptionType.USER_NOT_FOUND));
+    }
+
+    public void validateUserExistence(Long userId) {
+        log.debug("Checking if user with ID: {} exists.", userId);
+        userRepository.findById(userId)
+                      .orElseThrow(() -> new StatementException(ExceptionType.USER_NOT_FOUND));
     }
 
     private Statement validateAndGetStatement(UserAgreementRequest request) {
@@ -41,7 +47,7 @@ public class UserAgreementValidator {
 
     private void validateRequiredAcceptance(boolean required, UserAgreementRequest request) {
         log.debug("Checking if required statement with code: {} is accepted", request.statementCode());
-        if (required && request.status() == AgreementStatus.REJECTED) {
+        if (required && request.agreementStatus() == AgreementStatus.REJECTED) {
             throw new StatementException(ExceptionType.STATEMENT_ACCEPTANCE_REQUIRED);
         }
     }

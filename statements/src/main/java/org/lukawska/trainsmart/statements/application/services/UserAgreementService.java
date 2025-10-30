@@ -42,10 +42,11 @@ public class UserAgreementService {
         UserAgreement agreementRecord = new UserAgreement(existingUser,
                                                           request.statementCode(),
                                                           statement.version(),
-                                                          request.status());
+                                                          request.agreementStatus());
 
         log.info("Saving agreement with user ID: {} and statement code: {}",
                  request.userId(), request.statementCode());
+
         return UserAgreementMapper.mapToResponse(agreementRepository.save(agreementRecord));
     }
 
@@ -57,16 +58,19 @@ public class UserAgreementService {
                 .orElseThrow(() -> new StatementException(ExceptionType.USER_AGREEMENT_NOT_FOUND));
 
         log.info("Updating version and changing status to: {} for agreement with ID: {}",
-                 request.status(), userAgreement.getId());
+                 request.agreementStatus(), userAgreement.getId());
 
-        userAgreement.changeStatus(request.status());
+        userAgreement.changeStatus(request.agreementStatus());
         userAgreement.updateStatementVersion(statement.version());
 
         return UserAgreementMapper.mapToResponse(userAgreement);
     }
 
     public List<UserAgreementResponse> getRequiredStatementsToSign(Long userId) {
+        userAgreementValidator.validateUserExistence(userId);
+
         log.debug("Getting required statements to sign for userId: {}", userId);
+
         List<UserAgreementResponse> outdatedUserAgreements = agreementRepository
                 .findAllByUserId(userId)
                 .stream()
@@ -82,6 +86,7 @@ public class UserAgreementService {
 
         log.info("Found required statements to sign count: {} for user with ID: {}",
                  outdatedUserAgreements.size(), userId);
+
         return outdatedUserAgreements;
     }
 
