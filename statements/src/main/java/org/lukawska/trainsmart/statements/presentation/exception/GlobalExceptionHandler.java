@@ -5,7 +5,10 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,9 +16,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.toProblemDetail;
+import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.toProblemDetailWithDetail;
 
 @Slf4j
 @RestControllerAdvice
@@ -23,38 +28,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(StatementException.class)
     public ProblemDetail handleStatementException(StatementException exception) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(exception.getExceptionType().getStatus());
-
-        problemDetail.setDetail(exception.getMessage());
-        problemDetail.setType(URI.create(String.format("/errors/%s", exception.getExceptionType()
-                                                                              .name()
-                                                                              .toLowerCase()
-                                                                              .replaceAll("_", "-"))));
-
-        return problemDetail;
+        return toProblemDetail(exception);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("Validation Failure");
-        problemDetail.setType(URI.create("/errors/constraint-violation"));
-        problemDetail.setDetail("Some fields violate the constraints.");
-        problemDetail.setProperty("error", getConstraintViolation(ex));
-
+        ProblemDetail problemDetail = toProblemDetail(ProblemType.VALIDATION_ERROR);
+        problemDetail.setProperty("violation", getConstraintViolation(ex));
         return problemDetail;
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception exception) {
         log.error("Unexpected error: {}", exception.getMessage(), exception);
-
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        problemDetail.setTitle("Internal Server Error");
-        problemDetail.setType(URI.create("/errors/internal-server-error"));
-        problemDetail.setDetail("Unexpected error. Please contact the admin.");
-
-        return problemDetail;
+        String message = "Unexpected error occurred";
+        return toProblemDetailWithDetail(ProblemType.INTERNAL_ERROR, message);
     }
 
     @Override
@@ -63,13 +51,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
 
+        ProblemDetail problemDetail = toProblemDetail(ProblemType.METHOD_ARGUMENT_NOT_VALID);
+        problemDetail.setProperty("Filed errors", getFieldErrors(ex));
 
-        ProblemDetail problem = ex.getBody();
-        problem.setType(URI.create("/errors/method-argument-not-valid"));
-        problem.setDetail("Request contains invalid fields");
-        problem.setProperty("errors", getFieldErrors(ex));
-
-        return ResponseEntity.status(status).headers(headers).body(problem);
+        return ResponseEntity.status(status).headers(headers).body(problemDetail);
     }
 
     private Map<String, String> getConstraintViolation(ConstraintViolationException ex) {
