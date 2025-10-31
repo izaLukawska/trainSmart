@@ -1,5 +1,6 @@
 package org.lukawska.trainsmart.statements.presentation.exception;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,16 +36,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problem.setTitle("Validation Failed");
-        problem.setType(URI.create("/errors/constraint-violation"));
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Validation Failure");
+        problemDetail.setType(URI.create("/errors/constraint-violation"));
+        problemDetail.setDetail("Some fields violate the constraints.");
+        problemDetail.setProperty("error", getConstraintViolation(ex));
 
-        String details = ex.getConstraintViolations().stream()
-                           .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
-                           .collect(Collectors.joining("; "));
-        problem.setDetail(details);
-
-        return problem;
+        return problemDetail;
     }
 
     @ExceptionHandler(Exception.class)
@@ -66,29 +63,31 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
 
-        ProblemDetail problem = (ProblemDetail) Objects.requireNonNull(
-                                                               super.handleMethodArgumentNotValid(ex,
-                                                                                                  headers,
-                                                                                                  status,
-                                                                                                  request))
-                                                       .getBody();
 
-        if (problem != null) {
-            problem.setType(URI.create("/errors/method-argument-not-valid"));
-
-            Map<String, String> fieldErrors = ex.getBindingResult()
-                                                .getFieldErrors()
-                                                .stream()
-                                                .collect(Collectors.toMap(
-                                                        FieldError::getField,
-                                                        fieldError -> {
-                                                            String msg = fieldError.getDefaultMessage();
-                                                            return StringUtils.isNotBlank(msg) ? msg : "invalid value";
-                                                        }, (existing, replacement) -> existing));
-            problem.setProperty("errors", fieldErrors);
-            problem.setDetail("Request contains invalid fields");
-        }
+        ProblemDetail problem = ex.getBody();
+        problem.setType(URI.create("/errors/method-argument-not-valid"));
+        problem.setDetail("Request contains invalid fields");
+        problem.setProperty("errors", getFieldErrors(ex));
 
         return ResponseEntity.status(status).headers(headers).body(problem);
+    }
+
+    private Map<String, String> getConstraintViolation(ConstraintViolationException ex) {
+        return ex.getConstraintViolations()
+                 .stream()
+                 .collect(Collectors.toMap(constraintViolation -> constraintViolation.getPropertyPath().toString(),
+                                           ConstraintViolation::getMessage,
+                                           (oldMessage, newMessage) -> String.format("%s, %s",
+                                                                                     oldMessage, newMessage)));
+    }
+
+    private Map<String, String> getFieldErrors(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult()
+                 .getFieldErrors()
+                 .stream()
+                 .collect(Collectors.toMap(FieldError::getField, fieldError -> {
+                     String message = fieldError.getDefaultMessage();
+                     return StringUtils.isNotBlank(message) ? message : "invalid value";
+                 }, (existing, replacement) -> existing));
     }
 }
