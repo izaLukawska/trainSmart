@@ -9,32 +9,27 @@ import java.net.URI;
 @UtilityClass
 class ProblemDetailMapper {
 
+    private static final String BASE_MESSAGE = "Unexpected error occurred";
+
     static ProblemDetail toProblemDetail(ProblemType problemType) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(problemType.getStatus());
         problemDetail.setTitle(problemType.getTitle());
         problemDetail.setType(URI.create(problemType.getTypeUri()));
 
-        return problemDetail;
-    }
-
-    static ProblemDetail toProblemDetailWithDetail(ProblemType problemType, String detail) {
-        ProblemDetail problemDetail = toProblemDetail(problemType);
-        problemDetail.setDetail(detail);
+        if (problemType == ProblemType.INTERNAL_ERROR) {
+            problemDetail.setDetail(BASE_MESSAGE);
+        }
 
         return problemDetail;
     }
 
-    static ProblemDetail toProblemDetail(StatementException exception) {
+    static ProblemDetail statementExceptionToProblemDetail(StatementException exception) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(exception.getExceptionType().getStatus(),
                                                                        exception.getMessage());
 
-        String path = "/errors/" + toKebabCase(exception.getExceptionType().name());
+        String path = "/errors/" + exception.getExceptionType().name().toLowerCase().replace('_', '-');
         problemDetail.setType(URI.create(path));
         problemDetail.setTitle("Statement exception");
         return problemDetail;
-    }
-
-    private static String toKebabCase(String name) {
-        return name.toLowerCase().replace('_', '-');
     }
 }

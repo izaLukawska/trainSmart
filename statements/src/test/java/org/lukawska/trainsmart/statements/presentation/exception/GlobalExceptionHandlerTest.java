@@ -1,6 +1,8 @@
 package org.lukawska.trainsmart.statements.presentation.exception;
 
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
@@ -13,11 +15,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.lukawska.trainsmart.statements.testutil.ExceptionTestData.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,29 +43,50 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleConstraintViolation() {
-        //given
+        // given
+        final ConstraintViolation<?> violation1 = mockViolation(randomText());
+        final ConstraintViolation<?> violation2 = mockViolation(randomText());
+        final ConstraintViolationException ex = new ConstraintViolationException(Set.of(violation1, violation2));
 
-        //when
+        // when
+        ProblemDetail result = exceptionHandler.handleConstraintViolation(ex);
 
-        //then
+        // then
+        String violationProperty = GlobalExceptionHandler.VIOLATION_PROPERTY;
+        @SuppressWarnings("unchecked")
+        Map<String, String> violations = (Map<String, String>) Objects.requireNonNull(result.getProperties())
+                                                                      .get(violationProperty);
+
+        assertThat(violations).isNotNull()
+                              .hasSize(2)
+                              .containsEntry(violation1.getPropertyPath().toString(), violation1.getMessage())
+                              .containsEntry(violation2.getPropertyPath().toString(), violation2.getMessage());
     }
 
     @Test
     void shouldHandleGenericException() {
-        //given
+        // given
+        final Exception ex = new RuntimeException(UUID.randomUUID().toString());
 
-        //when
+        // when
+        ProblemDetail result = exceptionHandler.handleGenericException(ex);
 
-        //then
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(ProblemType.INTERNAL_ERROR.getStatus().value());
+        assertThat(result.getTitle()).isEqualTo(ProblemType.INTERNAL_ERROR.getTitle());
+        assertThat(result.getType().getPath()).isEqualTo(ProblemType.INTERNAL_ERROR.getTypeUri());
+        assertThat(result.getDetail()).isEqualTo("Unexpected error occurred");
     }
 
     @Test
     void shouldHandleMethodArgumentNotValid() {
         // given
-        ProblemType problemType = ProblemType.METHOD_ARGUMENT_NOT_VALID;
-        FieldError fieldError1 = new FieldError("object", "username", "must not be blank");
-        FieldError fieldError2 = new FieldError("object", "lastname", "must be null");
-        BindingResult bindingResult = mock(BindingResult.class);
+        final ProblemType problemType = ProblemType.METHOD_ARGUMENT_NOT_VALID;
+        final String fieldErrorsProperty = GlobalExceptionHandler.FIELD_ERRORS_PROPERTY;
+        final FieldError fieldError1 = randomFieldError();
+        final FieldError fieldError2 = randomFieldError();
+        final BindingResult bindingResult = mock(BindingResult.class);
         when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError1, fieldError2));
 
         MethodArgumentNotValidException ex = new MethodArgumentNotValidException(mock(MethodParameter.class),
@@ -83,15 +105,15 @@ class GlobalExceptionHandlerTest {
         assertThat(result.getStatus()).isEqualTo(problemType.getStatus().value());
         assertThat(result.getTitle()).isEqualTo(problemType.getTitle());
         assertThat(result.getType().getPath()).isEqualTo(problemType.getTypeUri());
-        assertThat(result.getProperties()).hasFieldOrProperty("field errors");
+        assertThat(result.getProperties()).hasFieldOrProperty(fieldErrorsProperty);
 
         @SuppressWarnings("unchecked")
         Map<String, String> fieldErrors = Objects.requireNonNull(
-                (Map<String, String>) Objects.requireNonNull(result.getProperties()).get("field errors"));
+                (Map<String, String>) Objects.requireNonNull(result.getProperties()).get(fieldErrorsProperty));
 
         assertThat(fieldErrors).isNotNull()
                                .hasSize(2)
-                               .containsEntry("username", "must not be blank")
-                               .containsEntry("lastname", "must be null");
+                               .containsEntry(fieldError1.getField(), fieldError1.getDefaultMessage())
+                               .containsEntry(fieldError2.getField(), fieldError2.getDefaultMessage());
     }
 }

@@ -19,30 +19,34 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.statementExceptionToProblemDetail;
 import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.toProblemDetail;
-import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.toProblemDetailWithDetail;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    static final String FIELD_ERRORS_PROPERTY = "Field errors";
+
+    static final String VIOLATION_PROPERTY = "Violations";
+
     @ExceptionHandler(StatementException.class)
     public ProblemDetail handleStatementException(StatementException exception) {
-        return toProblemDetail(exception);
+        return statementExceptionToProblemDetail(exception);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
         ProblemDetail problemDetail = toProblemDetail(ProblemType.VALIDATION_ERROR);
-        problemDetail.setProperty("violation", getConstraintViolation(ex));
+        problemDetail.setProperty(VIOLATION_PROPERTY, getConstraintViolation(ex));
         return problemDetail;
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception exception) {
         log.error("Unexpected error: {}", exception.getMessage(), exception);
-        String message = "Unexpected error occurred";
-        return toProblemDetailWithDetail(ProblemType.INTERNAL_ERROR, message);
+
+        return toProblemDetail(ProblemType.INTERNAL_ERROR);
     }
 
     @Override
@@ -52,7 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   WebRequest request) {
 
         ProblemDetail problemDetail = toProblemDetail(ProblemType.METHOD_ARGUMENT_NOT_VALID);
-        problemDetail.setProperty("Filed errors", getFieldErrors(ex));
+        problemDetail.setProperty(FIELD_ERRORS_PROPERTY, getFieldErrors(ex));
 
         return ResponseEntity.status(status).headers(headers).body(problemDetail);
     }
