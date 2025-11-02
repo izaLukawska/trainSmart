@@ -8,8 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.lukawska.trainsmart.health_survey.domain.exception.InvalidInjuryException;
 import org.lukawska.trainsmart.health_survey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 
@@ -64,39 +62,12 @@ public class HealthSurvey {
         this.weight = weight;
     }
 
+    public void updateInjuries(List<String> injuries) {
+        this.injuries = injuries;
+    }
+
     @Transient
     public int getAge() {
         return Period.between(birthDate, LocalDate.now()).getYears();
-    }
-
-    public void addInjury(String injury) {
-        validateInjury(injury);
-        if (!injuries.contains(injury)) {
-            injuries.add(injury);
-        }
-    }
-
-    public void addInjuries(List<String> newInjuries) {
-        if (newInjuries == null) {
-            return;
-        }
-
-        newInjuries.stream()
-                   .distinct()
-                   .forEach(this::addInjury);
-    }
-
-    public void removeInjury(String injury) {
-        this.injuries.remove(injury);
-    }
-
-    public void removeAllInjuries() {
-        this.injuries.clear();
-    }
-
-    private void validateInjury(String injury) {
-        if (StringUtils.isBlank(injury)) {
-            throw new InvalidInjuryException("Invalid injury input");
-        }
     }
 }
