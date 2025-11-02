@@ -2,6 +2,8 @@ package org.lukawska.trainsmart.openai.infra.adapter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.lukawska.trainsmart.openai.application.exception.ExceptionType;
+import org.lukawska.trainsmart.openai.application.exception.OpenAiException;
 import org.lukawska.trainsmart.openai.infra.dto.ChatRolesRequest;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -11,6 +13,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -24,12 +27,12 @@ class OpenAiAdapterTest {
     private OpenAiAdapter openAiAdapter;
 
     @Test
-    void sendPrompt() {
+    void shouldSendPromptWithSystemPrompt() {
         //given
         final String systemPrompt = UUID.randomUUID().toString();
         final String userPrompt = UUID.randomUUID().toString();
         final String content = UUID.randomUUID().toString();
-        
+
         ChatClient.ChatClientRequestSpec requestSpec = mock(ChatClient.ChatClientRequestSpec.class);
         ChatClient.CallResponseSpec callResponseSpec = mock(ChatClient.CallResponseSpec.class);
 
@@ -49,7 +52,7 @@ class OpenAiAdapterTest {
     }
 
     @Test
-    void sendPrompt_withoutSystemPrompt_doesNotCallSystemAndReturnsContent() {
+    void shouldSendPromptWithoutSystemPrompt() {
         //given
         final String userPrompt = UUID.randomUUID().toString();
         final String content = UUID.randomUUID().toString();
@@ -69,5 +72,21 @@ class OpenAiAdapterTest {
         assertThat(result).isEqualTo(content);
         verify(requestSpec, never()).system(anyString());
         verify(requestSpec).user(userPrompt);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSendPromptFail() {
+        //given
+        final String userPrompt = UUID.randomUUID().toString();
+        ChatClient.ChatClientRequestSpec requestSpec = mock(ChatClient.ChatClientRequestSpec.class);
+
+        when(chatClient.prompt()).thenReturn(requestSpec);
+        doReturn(requestSpec).when(requestSpec).user(userPrompt);
+        when(requestSpec.call()).thenThrow(new RuntimeException(UUID.randomUUID().toString()));
+
+        //when && then
+        assertThatThrownBy(() -> openAiAdapter.sendPrompt(new ChatRolesRequest(null, userPrompt)))
+                .isInstanceOf(OpenAiException.class)
+                .hasMessage(ExceptionType.OPENAI_CLIENT_ERROR.getMessage());
     }
 }

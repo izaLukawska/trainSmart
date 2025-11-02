@@ -15,7 +15,7 @@ spring:
       backoff:
         initial-interval: 2000ms
         multiplier: 2
-        max-interval: 2000ms
+        max-interval: 10000ms
       on-client-errors: false
       exclude-on-http-codes: [ 400, 401, 403 ]
       on-http-codes: [ 429, 500, 503, 502, 504 ]
