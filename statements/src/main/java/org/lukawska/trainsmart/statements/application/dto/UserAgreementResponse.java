@@ -6,4 +6,4 @@ public record UserAgreementResponse(Long id,
                                     Long userId,
                                     String statementCode,
                                     int version,
-                                    AgreementStatus status) {}
+                                    AgreementStatus agreementStatus) {}

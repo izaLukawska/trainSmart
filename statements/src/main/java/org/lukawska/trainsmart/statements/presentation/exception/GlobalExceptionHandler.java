@@ -16,29 +16,34 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.statementExceptionToProblemDetail;
-import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.toProblemDetail;
+import static org.lukawska.trainsmart.statements.presentation.exception.ProblemDetailMapper.toProblemDetailFromProblemType;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    static final String FIELD_ERRORS_PROPERTY = "Field errors";
-
-    static final String VIOLATION_PROPERTY = "Violations";
-
     @ExceptionHandler(StatementException.class)
     public ProblemDetail handleStatementException(StatementException exception) {
-        return statementExceptionToProblemDetail(exception);
+        log.warn("Handling statement exception: {}", exception.getExceptionType().name());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(exception.getExceptionType().getStatus(),
+                                                                       exception.getMessage());
+
+        String path = "/errors/" + exception.getExceptionType().name().toLowerCase().replace('_', '-');
+        problemDetail.setType(URI.create(path));
+        problemDetail.setTitle("Statement exception");
+        return problemDetail;
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        ProblemDetail problemDetail = toProblemDetail(ProblemType.VALIDATION_ERROR);
-        problemDetail.setProperty(VIOLATION_PROPERTY, getConstraintViolation(ex));
+        log.warn("Handling constraint violation exception: {}", ex.getMessage(), ex);
+
+        ProblemDetail problemDetail = toProblemDetailFromProblemType(ProblemType.VALIDATION_ERROR);
+        problemDetail.setProperties(getConstraintViolation(ex));
         return problemDetail;
     }
 
@@ -46,7 +51,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleGenericException(Exception exception) {
         log.error("Unexpected error: {}", exception.getMessage(), exception);
 
-        return toProblemDetail(ProblemType.INTERNAL_ERROR);
+        return toProblemDetailFromProblemType(ProblemType.INTERNAL_ERROR);
     }
 
     @Override
@@ -55,13 +60,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
 
-        ProblemDetail problemDetail = toProblemDetail(ProblemType.METHOD_ARGUMENT_NOT_VALID);
-        problemDetail.setProperty(FIELD_ERRORS_PROPERTY, getFieldErrors(ex));
+        log.warn("Handling method argument not valid exception: {}", ex.getMessage(), ex);
 
-        return ResponseEntity.status(status).headers(headers).body(problemDetail);
+        ProblemDetail problemDetail = toProblemDetailFromProblemType(ProblemType.METHOD_ARGUMENT_NOT_VALID);
+        problemDetail.setProperties(getFieldErrors(ex));
+
+        return ResponseEntity.status(status)
+                             .headers(headers)
+                             .body(problemDetail);
     }
 
-    private Map<String, String> getConstraintViolation(ConstraintViolationException ex) {
+    private Map<String, Object> getConstraintViolation(ConstraintViolationException ex) {
         return ex.getConstraintViolations()
                  .stream()
                  .collect(Collectors.toMap(constraintViolation -> constraintViolation.getPropertyPath().toString(),
@@ -70,7 +79,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                                      oldMessage, newMessage)));
     }
 
-    private Map<String, String> getFieldErrors(MethodArgumentNotValidException ex) {
+    private Map<String, Object> getFieldErrors(MethodArgumentNotValidException ex) {
         return ex.getBindingResult()
                  .getFieldErrors()
                  .stream()
