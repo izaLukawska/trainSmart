@@ -11,6 +11,7 @@ import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.lukawska.trainsmart.shared_persistence.domain.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.lukawska.trainsmart.health_survey.application.mapper.HealthSurveyMapper.mapToEntity;
@@ -45,6 +46,12 @@ public class HealthSurveyService {
                 .orElseThrow(() -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
 
         return mapToHealthSurveyResponse(existingHeathSurvey);
+    }
+
+    public List<String> getAllInjuriesByUserId(Long userId) {
+        return healthSurveyRepository.findByUserId(userId)
+                                     .map(HealthSurvey::getInjuries)
+                                     .orElseGet(Collections::emptyList);
     }
 
     public HealthSurveyResponse updateInjuries(Long userId, List<String> newInjuries) {
