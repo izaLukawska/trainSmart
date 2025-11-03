@@ -11,15 +11,7 @@
 
     <artifactId>statements</artifactId>
 
-    <properties>
-        <project.version>0.0.1-SNAPSHOT</project.version>
-    </properties>
-
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>shared-persistence</artifactId>

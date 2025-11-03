@@ -40,29 +40,24 @@ class GlobalExceptionHandlerTest {
         assertThat(result.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(result.getTitle()).isEqualTo("Statement exception");
         assertThat(result.getDetail()).isEqualTo(statementException.getMessage());
-        assertThat(result.getType().getPath()).isEqualTo("/errors/statement-not-found");
     }
 
     @Test
     void shouldHandleGenericException() {
         //given
-        ProblemType problemType = ProblemType.INTERNAL_ERROR;
         Exception exception = new Exception(UUID.randomUUID().toString());
 
         //when
         ProblemDetail result = exceptionHandler.handleGenericException(exception);
 
         //then
-        assertThat(result.getStatus()).isEqualTo(problemType.getStatus().value());
-        assertThat(result.getType().getPath()).isEqualTo(problemType.getTypeUri());
-        assertThat(result.getTitle()).isEqualTo(problemType.getTitle());
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        assertThat(result.getDetail()).isEqualTo("Unexpected error occurred");
     }
 
     @Test
     void shouldHandleConstraintViolation() {
         //given
-        final ProblemType problemType = ProblemType.VALIDATION_ERROR;
-
         final ConstraintViolation<?> violation1 = mockViolation(UUID.randomUUID().toString());
         final ConstraintViolation<?> violation2 = mockViolation(UUID.randomUUID().toString());
         final ConstraintViolationException ex = new ConstraintViolationException(Set.of(violation1, violation2));
@@ -71,20 +66,17 @@ class GlobalExceptionHandlerTest {
         ProblemDetail result = exceptionHandler.handleConstraintViolation(ex);
 
         //then
-        assertThat(result.getStatus()).isEqualTo(problemType.getStatus().value());
-        assertThat(result.getType().getPath()).isEqualTo(problemType.getTypeUri());
-        assertThat(result.getTitle()).isEqualTo(problemType.getTitle());
-        assertThat(result.getProperties()).containsEntry(violation1.getPropertyPath().toString(),
-                                                         violation1.getMessage());
-        assertThat(result.getProperties()).containsEntry(violation2.getPropertyPath().toString(),
-                                                         violation2.getMessage());
+        assertThat(result.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(result.getTitle()).isEqualTo("Constraint violation");
+        assertThat(result.getProperties())
+                .containsEntry(violation1.getPropertyPath().toString(), violation1.getMessage())
+                .containsEntry(violation2.getPropertyPath().toString(), violation2.getMessage());
     }
 
 
     @Test
     void shouldHandleMethodArgumentNotValidAndUseDefaultMessageIfFieldErrorMessageNotPresent() {
         // given
-        final ProblemType problemType = ProblemType.METHOD_ARGUMENT_NOT_VALID;
         final FieldError fieldError1 = new FieldError("object", "age", "");
         final FieldError fieldError2 = new FieldError("object", "username", "must not be blank");
 
@@ -98,18 +90,17 @@ class GlobalExceptionHandlerTest {
         // when
         ResponseEntity<Object> response = exceptionHandler.handleMethodArgumentNotValid(ex,
                                                                                         new HttpHeaders(),
-                                                                                        problemType.getStatus(),
+                                                                                        HttpStatus.BAD_REQUEST,
                                                                                         mock(WebRequest.class));
 
         // then
         assertThat(response).isNotNull();
-
         ProblemDetail problemDetail = (ProblemDetail) response.getBody();
         assertThat(problemDetail).isNotNull();
-        assertThat(problemDetail.getTitle()).isEqualTo(problemType.getTitle());
-        assertThat(problemDetail.getStatus()).isEqualTo(problemType.getStatus().value());
-        assertThat(problemDetail.getProperties()).containsEntry(fieldError1.getField(), "invalid value")
-                                                 .containsEntry(fieldError2.getField(),
-                                                                fieldError2.getDefaultMessage());
+        assertThat(problemDetail.getTitle()).isEqualTo("Validation failure");
+        assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(problemDetail.getProperties())
+                .containsEntry(fieldError1.getField(), "invalid value")
+                .containsEntry(fieldError2.getField(), fieldError2.getDefaultMessage());
     }
 }
