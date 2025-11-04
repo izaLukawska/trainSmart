@@ -16,7 +16,7 @@ import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.lukawska.trainsmart.statements.testutil.StatementTestData.randomStatementCode;
-import static org.lukawska.trainsmart.statements.testutil.UserAgreementTestData.randomUserAgreementRequest;
+import static org.lukawska.trainsmart.statements.testutil.UserAgreementTestData.acceptedUserAgreementRequest;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +31,7 @@ class UserAgreementControllerTest {
     @Test
     void shouldReturnResponseWhenSignNewAgreementSuccess() {
         //given
-        UserAgreementRequest request = randomUserAgreementRequest();
+        UserAgreementRequest request = acceptedUserAgreementRequest();
         UserAgreementResponse expectedResponse = new UserAgreementResponse(null,
                                                                            request.userId(),
                                                                            request.statementCode(),
@@ -50,7 +50,7 @@ class UserAgreementControllerTest {
     @Test
     void shouldReturnResponseWhenReSignAgreementSuccess() {
         // given
-        UserAgreementRequest request = randomUserAgreementRequest();
+        UserAgreementRequest request = acceptedUserAgreementRequest();
         UserAgreementResponse expectedResponse = new UserAgreementResponse(null,
                                                                            request.userId(),
                                                                            request.statementCode(),

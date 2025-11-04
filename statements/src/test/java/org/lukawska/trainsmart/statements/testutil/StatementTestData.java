@@ -9,21 +9,21 @@ import java.util.UUID;
 @UtilityClass
 public final class StatementTestData {
 
-    public static Statement statementWithVersion(int version) {
+    public static Statement requiredStatement(int version) {
         return new Statement(UUID.randomUUID().toString(),
                              version,
                              true,
                              UUID.randomUUID().toString());
     }
 
-    public static Statement randomRequiredStatement() {
+    public static Statement requiredStatement() {
         return new Statement(UUID.randomUUID().toString(),
                              new Random().nextInt(10),
                              true,
                              UUID.randomUUID().toString());
     }
 
-    public static Statement randomOptionalStatement() {
+    public static Statement optionalStatement() {
         return new Statement(UUID.randomUUID().toString(),
                              new Random().nextInt(10),
                              false,

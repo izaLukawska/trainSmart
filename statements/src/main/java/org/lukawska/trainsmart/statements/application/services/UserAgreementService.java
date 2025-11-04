@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.statements.application.services;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.shared_persistence.application.service.UserService;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
@@ -13,32 +14,26 @@ import org.lukawska.trainsmart.statements.application.validation.UserAgreementVa
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
 import org.lukawska.trainsmart.statements.infra.config.Statement;
-import org.lukawska.trainsmart.statements.infra.config.StatementsDefinition;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserAgreementService {
 
-    private final UserAgreementRepository agreementRepository;
+    private final UserAgreementRepository userAgreementRepository;
 
     private final UserAgreementValidator userAgreementValidator;
 
-    private final StatementsDefinition statementsDefinition;
+    private final UserService userService;
 
     @Transactional
     public UserAgreementResponse signNewAgreement(UserAgreementRequest request) {
-        Statement statement = userAgreementValidator.validateStatement(request);
-        if (getUserAgreement(request).isPresent()) {
-            throw new StatementException(ExceptionType.USER_AGREEMENT_ALREADY_EXISTS);
-        }
+        Statement statement = userAgreementValidator.validateNewUserAgreement(request);
 
-        User existingUser = userAgreementValidator.validateAndGetUser(request);
-
+        User existingUser = userService.getUserById(request.userId());
         UserAgreement agreementRecord = new UserAgreement(existingUser,
                                                           request.statementCode(),
                                                           statement.version(),
@@ -47,14 +42,15 @@ public class UserAgreementService {
         log.info("Saving agreement with user ID: {} and statement code: {}",
                  request.userId(), request.statementCode());
 
-        return UserAgreementMapper.mapToResponse(agreementRepository.save(agreementRecord));
+        return UserAgreementMapper.mapToResponse(userAgreementRepository.save(agreementRecord));
     }
 
     @Transactional
     public UserAgreementResponse reSignAgreement(UserAgreementRequest request) {
-        Statement statement = userAgreementValidator.validateStatement(request);
+        Statement statement = userAgreementValidator.validateUserAgreement(request);
 
-        UserAgreement userAgreement = getUserAgreement(request)
+        UserAgreement userAgreement = userAgreementRepository
+                .findByUserIdAndStatementCode(request.userId(), request.statementCode())
                 .orElseThrow(() -> new StatementException(ExceptionType.USER_AGREEMENT_NOT_FOUND));
 
         log.info("Updating version and changing status to: {} for agreement with ID: {}",
@@ -67,20 +63,14 @@ public class UserAgreementService {
     }
 
     public List<UserAgreementResponse> getRequiredStatementsToSign(Long userId) {
-        userAgreementValidator.validateUserExistence(userId);
+        userService.validateUserExistence(userId);
 
         log.debug("Getting required statements to sign for userId: {}", userId);
 
-        List<UserAgreementResponse> outdatedUserAgreements = agreementRepository
+        List<UserAgreementResponse> outdatedUserAgreements = userAgreementRepository
                 .findAllByUserId(userId)
                 .stream()
-                .filter(userAgreement -> {
-                    Statement required = statementsDefinition
-                            .getRequiredStatementsMap()
-                            .get(userAgreement.getStatementCode());
-                    return required != null &&
-                            userAgreement.getStatementVersion() != required.version();
-                })
+                .filter(userAgreementValidator::outdatedUserAgreement)
                 .map(UserAgreementMapper::mapToResponse)
                 .toList();
 
@@ -88,9 +78,5 @@ public class UserAgreementService {
                  outdatedUserAgreements.size(), userId);
 
         return outdatedUserAgreements;
-    }
-
-    private Optional<UserAgreement> getUserAgreement(UserAgreementRequest request) {
-        return agreementRepository.findByUserIdAndStatementCode(request.userId(), request.statementCode());
     }
 }

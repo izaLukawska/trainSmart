@@ -20,7 +20,7 @@ class StatementsDefinitionTest {
         //given
         final String statementCode = randomStatementCode();
         statementsDefinition = new StatementsDefinition();
-        Statement statement = randomRequiredStatement();
+        Statement statement = requiredStatement();
         Map<String, Statement> defMap = Map.of(statementCode, statement);
         statementsDefinition.setStatements(defMap);
 
@@ -38,9 +38,9 @@ class StatementsDefinitionTest {
         final String statementCode = randomStatementCode();
         statementsDefinition = new StatementsDefinition();
         final String optionalStatementCode = randomStatementCode();
-        final Statement requiredStatement = randomRequiredStatement();
+        final Statement requiredStatement = requiredStatement();
         Map<String, Statement> statementsDefinitionMap = Map.of(statementCode, requiredStatement,
-                                                                optionalStatementCode, randomOptionalStatement());
+                                                                optionalStatementCode, optionalStatement());
         statementsDefinition.setStatements(statementsDefinitionMap);
 
         // when
@@ -56,7 +56,7 @@ class StatementsDefinitionTest {
     void shouldReturnEmptyRequiredStatementsMapWhenNoRequiredStatementsPresent() {
         // given
         statementsDefinition = new StatementsDefinition();
-        Map<String, Statement> statementsDefinitionMap = Map.of(randomStatementCode(), randomOptionalStatement());
+        Map<String, Statement> statementsDefinitionMap = Map.of(randomStatementCode(), optionalStatement());
         statementsDefinition.setStatements(statementsDefinitionMap);
 
         //when && then
