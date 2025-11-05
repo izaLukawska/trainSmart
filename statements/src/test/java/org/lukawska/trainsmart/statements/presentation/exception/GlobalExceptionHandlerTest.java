@@ -37,9 +37,12 @@ class GlobalExceptionHandlerTest {
         ProblemDetail result = exceptionHandler.handleStatementException(statementException);
 
         //then
-        assertThat(result.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        assertThat(result.getTitle()).isEqualTo("Statement exception");
-        assertThat(result.getDetail()).isEqualTo(statementException.getMessage());
+        ProblemDetailAssert.then(result)
+                           .isNotNull()
+                           .hasStatus(HttpStatus.NOT_FOUND)
+                           .hasDetail(statementException.getMessage())
+                           .hasTitle("Statement exception");
+
     }
 
     @Test
@@ -51,8 +54,10 @@ class GlobalExceptionHandlerTest {
         ProblemDetail result = exceptionHandler.handleGenericException(exception);
 
         //then
-        assertThat(result.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        assertThat(result.getDetail()).isEqualTo("Unexpected error occurred");
+        ProblemDetailAssert.then(result)
+                           .isNotNull()
+                           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                           .hasTitle("Internal Server Error");
     }
 
     @Test
@@ -66,18 +71,19 @@ class GlobalExceptionHandlerTest {
         ProblemDetail result = exceptionHandler.handleConstraintViolation(ex);
 
         //then
-        assertThat(result.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(result.getTitle()).isEqualTo("Constraint violation");
-        assertThat(result.getProperties())
-                .containsEntry(violation1.getPropertyPath().toString(), violation1.getMessage())
-                .containsEntry(violation2.getPropertyPath().toString(), violation2.getMessage());
+        ProblemDetailAssert.then(result)
+                           .isNotNull()
+                           .hasStatus(HttpStatus.BAD_REQUEST)
+                           .hasTitle("Constraint violation")
+                           .hasConstraintViolation(violation1)
+                           .hasConstraintViolation(violation2);
     }
 
 
     @Test
     void shouldHandleMethodArgumentNotValidAndUseDefaultMessageIfFieldErrorMessageNotPresent() {
         // given
-        final FieldError fieldError1 = new FieldError("object", "age", "");
+        final FieldError fieldError1 = new FieldError("object", "age", "must be 18");
         final FieldError fieldError2 = new FieldError("object", "username", "must not be blank");
 
         final BindingResult bindingResult = mock(BindingResult.class);
@@ -96,11 +102,11 @@ class GlobalExceptionHandlerTest {
         // then
         assertThat(response).isNotNull();
         ProblemDetail problemDetail = (ProblemDetail) response.getBody();
-        assertThat(problemDetail).isNotNull();
-        assertThat(problemDetail.getTitle()).isEqualTo("Validation failure");
-        assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(problemDetail.getProperties())
-                .containsEntry(fieldError1.getField(), "invalid value")
-                .containsEntry(fieldError2.getField(), fieldError2.getDefaultMessage());
+        ProblemDetailAssert.then(problemDetail)
+                           .isNotNull()
+                           .hasStatus(HttpStatus.BAD_REQUEST)
+                           .hasTitle("Validation failure")
+                           .hasFieldErrorProperty(fieldError1)
+                           .hasFieldErrorProperty(fieldError2);
     }
 }
