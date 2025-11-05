@@ -2,106 +2,102 @@ package org.lukawska.trainSmart.mailing.presentation.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Path;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
-import org.lukawska.trainSmart.mailing.presentation.dto.ExceptionResponse;
-import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.lukawska.trainSmart.mailing.testdata.ExceptionTestData.mockViolation;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class GlobalExceptionHandlerTest {
 
-    private GlobalExceptionHandler exceptionHandler;
+    private final GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
 
     @Test
-    void shouldThrow404UserNotFoundWhenHandleMailingException() {
+    void shouldReturn404WithProblemDetailWhenHandleMailingException() {
         //given
-        exceptionHandler = new GlobalExceptionHandler();
-        final MailingException exception = mock(MailingException.class);
-
-        when(exception.getMessage()).thenReturn("Mail not found");
-        when(exception.getExceptionType()).thenReturn(ExceptionType.MAIL_NOT_FOUND);
+        final MailingException exception = new MailingException(ExceptionType.MAIL_NOT_FOUND);
 
         //when
-        ResponseEntity<ExceptionResponse> result = exceptionHandler.handleMailingException(exception);
+        ProblemDetail result = exceptionHandler.handleMailingException(exception);
 
         //then
-        assertThat(result.getStatusCode().value()).isEqualTo(HttpStatus.NOT_FOUND.value());
-        Assertions.assertNotNull(result.getBody());
-        assertThat(result.getBody().message()).isEqualTo("Mail not found");
+        ProblemDetailAssert.then(result)
+                           .hasStatus(HttpStatus.NOT_FOUND)
+                           .hasDetail(exception.getMessage())
+                           .hasTitle("Mailing exception");
     }
 
     @Test
-    void shouldReturn400WithMessageWhenHandleValidationException() {
-        //given
-        exceptionHandler = new GlobalExceptionHandler();
+    void shouldReturn500WithProblemDetailWhenUnexpectedError() {
+        //when
+        ProblemDetail result = exceptionHandler.handleGenericException(mock(Exception.class));
+
+        //then
+        ProblemDetailAssert.then(result)
+                           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                           .hasDetail("Unexpected error occurred");
+    }
+
+    @Test
+    void shouldReturn400WithProblemDetailWhenMethodArgumentNotValidException() {
+        // given
+        final FieldError fieldError1 = new FieldError("object", "age", "must be 18");
+        final FieldError fieldError2 = new FieldError("object", "username", "must not be blank");
+
         final BindingResult bindingResult = mock(BindingResult.class);
-        final FieldError fieldError = new FieldError("objectName", "fieldName", "is required");
-        when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError));
+        when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError1, fieldError2));
 
-        String expectedMessage = "fieldName: is required";
-        MethodArgumentNotValidException exception = new MethodArgumentNotValidException(mock(MethodParameter.class),
-                                                                                        bindingResult);
+        final MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
+        when(ex.getBindingResult()).thenReturn(bindingResult);
+        when(ex.getMessage()).thenReturn("Validation failed");
 
-        //when
-        ResponseEntity<ExceptionResponse> result = exceptionHandler.handleValidationException(exception);
+        // when
+        ResponseEntity<Object> response = exceptionHandler.handleMethodArgumentNotValid(ex,
+                                                                                        new HttpHeaders(),
+                                                                                        HttpStatus.BAD_REQUEST,
+                                                                                        mock(WebRequest.class));
 
-        //then
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        Assertions.assertNotNull(result.getBody());
-        assertThat(result.getBody().message()).isEqualTo(expectedMessage);
+        // then
+        assertThat(response).isNotNull();
+        ProblemDetail problemDetail = (ProblemDetail) response.getBody();
+        ProblemDetailAssert.then(problemDetail)
+                           .isNotNull()
+                           .hasTitle("Validation failure")
+                           .hasStatus(HttpStatus.BAD_REQUEST)
+                           .hasFieldErrorProperty(fieldError1)
+                           .hasFieldErrorProperty(fieldError2);
     }
 
     @Test
-    void shouldReturn400WithMessageWhenHandleConstraintViolation() {
+    void shouldReturn400WithProblemDetailWhenConstraintViolation() {
         //given
-        exceptionHandler = new GlobalExceptionHandler();
-        final ConstraintViolation<?> violation = mock(ConstraintViolation.class);
-        final Path path = mock(Path.class);
-        final String field = "field";
-        final String message = "invalid value";
-        when(violation.getPropertyPath()).thenReturn(path);
-        when(path.toString()).thenReturn(field);
-        when(violation.getMessage()).thenReturn(message);
-
-        ConstraintViolationException exception = new ConstraintViolationException(Set.of(violation));
-        final String expectedMessage = field + ": " + message;
+        final ConstraintViolation<?> violation1 = mockViolation(UUID.randomUUID().toString());
+        final ConstraintViolation<?> violation2 = mockViolation(UUID.randomUUID().toString());
+        final ConstraintViolationException ex = new ConstraintViolationException(Set.of(violation1, violation2));
 
         //when
-        ResponseEntity<ExceptionResponse> result = exceptionHandler.handleConstraintViolationException(exception);
+        ProblemDetail result = exceptionHandler.handleConstraintViolation(ex);
 
         //then
-        Assertions.assertNotNull(result.getBody());
-        assertThat(result.getBody().message()).isEqualTo(expectedMessage);
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    void shouldReturn500WithMessageWhenUnexpectedError() {
-        //given
-        exceptionHandler = new GlobalExceptionHandler();
-        final Exception exception = new Exception(UUID.randomUUID().toString());
-
-        //when
-        ResponseEntity<ExceptionResponse> result = exceptionHandler.handleGenericException(exception);
-
-        //then
-        Assertions.assertNotNull(result.getBody());
-        assertThat(result.getBody().message()).isEqualTo(exception.getMessage());
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        ProblemDetailAssert.then(result)
+                           .hasStatus(HttpStatus.BAD_REQUEST)
+                           .hasTitle("Constraint violation")
+                           .hasConstraintViolation(violation1)
+                           .hasConstraintViolation(violation2);
     }
 }

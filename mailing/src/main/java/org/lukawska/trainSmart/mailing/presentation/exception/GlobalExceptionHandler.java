@@ -1,59 +1,87 @@
 package org.lukawska.trainSmart.mailing.presentation.exception;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
-import org.lukawska.trainSmart.mailing.presentation.dto.ExceptionResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(MailingException.class)
-    public ResponseEntity<ExceptionResponse> handleMailingException(MailingException ex) {
+    public ProblemDetail handleMailingException(MailingException ex) {
         log.error("Caught mailing exception: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(ex.getExceptionType().getHttpStatus())
-                             .body(new ExceptionResponse(ex.getMessage(),
-                                                         ex.getExceptionType().getHttpStatus().value()));
-    }
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getExceptionType().getHttpStatus(),
+                                                                       ex.getMessage());
+        problemDetail.setTitle("Mailing exception");
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException ex) {
-        String message = ex.getConstraintViolations()
-                           .stream()
-                           .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
-                           .collect(Collectors.joining(", "));
-
-        log.error("Constraint violation: {}", message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(new ExceptionResponse(message, HttpStatus.BAD_REQUEST.value()));
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult()
-                           .getFieldErrors()
-                           .stream()
-                           .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
-                           .collect(Collectors.joining(", "));
-
-        log.error("Invalid request: {}", message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(new ExceptionResponse(message, HttpStatus.BAD_REQUEST.value()));
+        return problemDetail;
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResponse> handleGenericException(Exception ex) {
-        log.error("Unexpected error: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(new ExceptionResponse(ex.getMessage(),
-                                                         HttpStatus.INTERNAL_SERVER_ERROR.value()));
+    public ProblemDetail handleGenericException(Exception exception) {
+        log.error("Unexpected error: {}", exception.getMessage(), exception);
+
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred");
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
+        log.warn("Handling constraint violation exception: {}", ex.getMessage(), ex);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Constraint violation");
+        problemDetail.setProperties(getConstraintViolation(ex));
+
+        return problemDetail;
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatusCode status,
+                                                                  WebRequest request) {
+
+        log.warn("Handling method argument not valid exception: {}", ex.getMessage(), ex);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Validation failure");
+        problemDetail.setProperties(getFieldErrors(ex));
+
+        return ResponseEntity.status(status)
+                             .headers(headers)
+                             .body(problemDetail);
+    }
+
+    private Map<String, Object> getConstraintViolation(ConstraintViolationException ex) {
+        return ex.getConstraintViolations()
+                 .stream()
+                 .collect(Collectors.toMap(constraintViolation -> constraintViolation.getPropertyPath().toString(),
+                                           ConstraintViolation::getMessage,
+                                           (oldMessage, newMessage) -> String.format("%s, %s",
+                                                                                     oldMessage,
+                                                                                     newMessage)));
+    }
+
+    private Map<String, Object> getFieldErrors(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult()
+                 .getFieldErrors()
+                 .stream()
+                 .collect(Collectors.toMap(FieldError::getField, fieldError -> {
+                     String message = fieldError.getDefaultMessage();
+                     return StringUtils.isNotBlank(message) ? message : "invalid value";
+                 }, (oldMessage, newMessage) -> String.format("%s, %s", oldMessage, newMessage)));
     }
 }
