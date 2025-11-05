@@ -88,6 +88,7 @@ class UserAgreementServiceTest {
         final Long userId = new Random().nextLong(10);
         List<UserAgreement> userAgreements = List.of(acceptedUserAgreement(), acceptedUserAgreement());
 
+        when(userService.getUserById(userId)).thenReturn(mock(User.class));
         when(userAgreementRepository.findAllByUserId(userId)).thenReturn(userAgreements);
         when(userAgreementValidator.outdatedUserAgreement(any())).thenReturn(true);
 
