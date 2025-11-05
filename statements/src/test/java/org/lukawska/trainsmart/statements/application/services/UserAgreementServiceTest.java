@@ -99,7 +99,6 @@ class UserAgreementServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.getFirst().statementCode()).isEqualTo(userAgreements.getFirst().getStatementCode());
         assertThat(result.getLast().statementCode()).isEqualTo(userAgreements.getLast().getStatementCode());
-
     }
 
     @Test
