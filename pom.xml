@@ -23,7 +23,7 @@
     </developers>
     <modules>
         <module>app</module>
-        <module>health_survey</module>
+        <module>health-survey</module>
         <module>shared-persistence</module>
     </modules>
     <scm>
