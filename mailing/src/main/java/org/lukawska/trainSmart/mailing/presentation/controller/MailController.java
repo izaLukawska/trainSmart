@@ -1,6 +1,7 @@
 package org.lukawska.trainSmart.mailing.presentation.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,9 @@ public class MailController {
     }
 
     @GetMapping("/recipient")
-    public List<MailResponse> getAllMailsByRecipient(@RequestParam @NotBlank String recipient) {
+    public List<MailResponse> getAllMailsByRecipient(@RequestParam
+                                                     @NotBlank
+                                                     @Email String recipient) {
         log.debug("Fetching mails for recipient: {}", recipient);
         return mailService.getAllMailsByRecipient(recipient);
     }
