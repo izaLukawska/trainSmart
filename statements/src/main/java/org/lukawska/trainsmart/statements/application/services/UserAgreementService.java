@@ -33,6 +33,7 @@ public class UserAgreementService {
     public UserAgreementResponse signNewAgreement(UserAgreementRequest request) {
         Statement statement = userAgreementValidator.validateNewUserAgreement(request);
 
+        log.info("Checking if user with ID: {} exists", request.userId());
         User existingUser = userService.getUserById(request.userId());
         UserAgreement agreementRecord = new UserAgreement(existingUser,
                                                           request.statementCode(),
@@ -63,9 +64,9 @@ public class UserAgreementService {
     }
 
     public List<UserAgreementResponse> getRequiredStatementsToSign(Long userId) {
-        userService.validateUserExistence(userId);
+        User existingUser = userService.getUserById(userId);
 
-        log.debug("Getting required statements to sign for userId: {}", userId);
+        log.info("Getting required statements to sign for user with ID: {}", existingUser.getId());
 
         List<UserAgreementResponse> outdatedUserAgreements = userAgreementRepository
                 .findAllByUserId(userId)
@@ -74,8 +75,8 @@ public class UserAgreementService {
                 .map(UserAgreementMapper::mapToResponse)
                 .toList();
 
-        log.info("Found required statements to sign count: {} for user with ID: {}",
-                 outdatedUserAgreements.size(), userId);
+        log.debug("Found required statements to sign count: {} for user with ID: {}",
+                  outdatedUserAgreements.size(), userId);
 
         return outdatedUserAgreements;
     }
