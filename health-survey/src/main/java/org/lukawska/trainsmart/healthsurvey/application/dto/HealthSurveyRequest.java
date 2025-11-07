@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.healthsurvey.application.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -28,5 +27,4 @@ public record HealthSurveyRequest(@NotNull
 
                                   @NotNull
                                   @Size(max = 10)
-                                  @Valid
                                   List<@NotBlank String> injuries) {}

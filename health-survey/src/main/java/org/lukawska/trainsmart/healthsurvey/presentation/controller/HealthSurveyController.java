@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.healthsurvey.presentation;
+package org.lukawska.trainsmart.healthsurvey.presentation.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/health-survey")
 @RequiredArgsConstructor
@@ -23,6 +25,11 @@ public class HealthSurveyController {
     @GetMapping("/{userId}")
     public HealthSurveyResponse getHealthSurveyByUserId(@PathVariable @Positive Long userId) {
         return healthSurveyService.getHealthSurveyByUserIdResponse(userId);
+    }
+
+    @GetMapping("/{userId}")
+    public List<String> getAllInjuriesByUserId(@PathVariable @Positive Long userId) {
+        return healthSurveyService.getAllInjuriesByUserId(userId);
     }
 
     @PostMapping("/submit")

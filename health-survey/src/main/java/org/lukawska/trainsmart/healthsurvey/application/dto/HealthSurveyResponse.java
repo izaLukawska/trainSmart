@@ -6,4 +6,5 @@ public record HealthSurveyResponse(Long id,
                                    Long userId,
                                    Gender gender,
                                    Integer age,
-                                   Integer weight) {}
+                                   Integer weight,
+                                   int injuriesCount) {}

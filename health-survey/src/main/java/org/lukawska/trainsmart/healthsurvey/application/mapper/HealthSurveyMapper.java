@@ -24,6 +24,7 @@ public class HealthSurveyMapper {
                                         healthSurvey.getUser().getId(),
                                         healthSurvey.getGender(),
                                         healthSurvey.getAge(),
-                                        healthSurvey.getWeight());
+                                        healthSurvey.getWeight(),
+                                        healthSurvey.getInjuries().size());
     }
 }
