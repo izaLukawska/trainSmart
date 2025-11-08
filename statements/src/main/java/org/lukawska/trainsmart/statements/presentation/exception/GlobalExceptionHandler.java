@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.lukawska.trainsmart.shared_persistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;
@@ -19,6 +20,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFoundException(UserNotFoundException exception) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        problemDetail.setTitle("User not found");
+
+        return problemDetail;
+    }
 
     @ExceptionHandler(StatementException.class)
     public ProblemDetail handleStatementException(StatementException exception) {
