@@ -45,7 +45,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void shouldReturn500WithProblemDetailWhenUnexpectedError() {
         //when
-        ProblemDetail result = exceptionHandler.handleGenericException(mock(Exception.class));
+        ProblemDetail result = exceptionHandler.handleGenericException();
 
         //then
         ProblemDetailAssert.then(result)
@@ -67,10 +67,8 @@ class GlobalExceptionHandlerTest {
         when(ex.getMessage()).thenReturn("Validation failed");
 
         // when
-        ResponseEntity<Object> response = exceptionHandler.handleMethodArgumentNotValid(ex,
-                                                                                        new HttpHeaders(),
-                                                                                        HttpStatus.BAD_REQUEST,
-                                                                                        mock(WebRequest.class));
+        ResponseEntity<Object> response = exceptionHandler.handleMethodArgumentNotValid(
+                ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
 
         // then
         assertThat(response).isNotNull();

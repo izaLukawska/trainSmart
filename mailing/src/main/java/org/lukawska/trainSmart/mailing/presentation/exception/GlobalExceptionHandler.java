@@ -30,7 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGenericException(Exception exception) {
+    public ProblemDetail handleGenericException() {
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred");
     }
 
@@ -48,7 +48,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
-
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Validation failure");
         problemDetail.setProperties(getFieldErrors(ex));
