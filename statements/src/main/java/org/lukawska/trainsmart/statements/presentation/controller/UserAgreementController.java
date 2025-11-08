@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/agreements")
+@RequestMapping("/api/users/agreements")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
@@ -22,18 +22,11 @@ public class UserAgreementController {
 
     private final UserAgreementService service;
 
-    @PostMapping("/sign")
-    public ResponseEntity<UserAgreementResponse> signNewAgreement(@Valid @RequestBody UserAgreementRequest request) {
-        log.debug("Signing agreement for user with ID: {} for statement {} with status {}",
-                  request.userId(), request.statementCode(), request.agreementStatus());
-        return ResponseEntity.status(201).body(service.signNewAgreement(request));
-    }
-
-    @PutMapping("/re-sign")
+    @PutMapping("/sign")
     public ResponseEntity<UserAgreementResponse> reSignAgreement(@Valid @RequestBody UserAgreementRequest request) {
-        log.debug("Updating statement for user with ID: {} and statement code: {}",
+        log.debug("Signing statement for user with ID: {} and statement code: {}",
                   request.userId(), request.statementCode());
-        return ResponseEntity.ok(service.reSignAgreement(request));
+        return ResponseEntity.ok(service.signAgreement(request));
     }
 
     @GetMapping("/{id}")

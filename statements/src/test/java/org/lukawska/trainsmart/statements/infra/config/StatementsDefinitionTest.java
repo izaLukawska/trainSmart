@@ -21,15 +21,13 @@ class StatementsDefinitionTest {
         final String statementCode = randomStatementCode();
         statementsDefinition = new StatementsDefinition();
         Statement statement = requiredStatement();
-        Map<String, Statement> defMap = Map.of(statementCode, statement);
-        statementsDefinition.setStatements(defMap);
+        statementsDefinition.getStatements().put(statementCode, statement);
 
         //when
         Optional<Statement> found = statementsDefinition.findStatementByCode(statementCode);
 
         //then
-        assertThat(found).isPresent()
-                         .contains(statement);
+        assertThat(found).isPresent().contains(statement);
     }
 
     @Test
@@ -41,7 +39,7 @@ class StatementsDefinitionTest {
         final Statement requiredStatement = requiredStatement();
         Map<String, Statement> statementsDefinitionMap = Map.of(statementCode, requiredStatement,
                                                                 optionalStatementCode, optionalStatement());
-        statementsDefinition.setStatements(statementsDefinitionMap);
+        statementsDefinition.getStatements().putAll(statementsDefinitionMap);
 
         // when
         Map<String, Statement> required = statementsDefinition.getRequiredStatementsMap();
@@ -57,7 +55,7 @@ class StatementsDefinitionTest {
         // given
         statementsDefinition = new StatementsDefinition();
         Map<String, Statement> statementsDefinitionMap = Map.of(randomStatementCode(), optionalStatement());
-        statementsDefinition.setStatements(statementsDefinitionMap);
+        statementsDefinition.getStatements().putAll(statementsDefinitionMap);
 
         //when && then
         assertThat(statementsDefinition.getRequiredStatementsMap()).isEmpty();

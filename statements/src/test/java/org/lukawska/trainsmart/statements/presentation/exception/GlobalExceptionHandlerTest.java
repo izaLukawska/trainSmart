@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.statements.presentation.exception;
 
-
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,6 @@ class GlobalExceptionHandlerTest {
                            .hasStatus(HttpStatus.NOT_FOUND)
                            .hasDetail(statementException.getMessage())
                            .hasTitle("Statement exception");
-
     }
 
     @Test

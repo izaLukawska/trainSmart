@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.statements.testutil;
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
+import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 
@@ -20,7 +21,11 @@ public class UserAgreementTestData {
                                         AgreementStatus.ACCEPTED);
     }
 
-    public static UserAgreement acceptedUserAgreement() {
-        return new UserAgreement(mock(User.class), UUID.randomUUID().toString(), 2, AgreementStatus.ACCEPTED);
+    public static UserAgreement acceptedUserAgreement(String statementCode, int version) {
+        return new UserAgreement(mock(User.class), statementCode, version, AgreementStatus.ACCEPTED);
+    }
+
+    public static UserAgreementResponse userAgreementResponse(Long userId, String statementCode) {
+        return new UserAgreementResponse(null, userId, statementCode, 2, AgreementStatus.ACCEPTED);
     }
 }

@@ -2,28 +2,24 @@ package org.lukawska.trainsmart.statements.application.services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.shared_persistence.application.exception.UserException;
+import org.lukawska.trainsmart.shared_persistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.shared_persistence.application.service.UserService;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
-import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
-import org.lukawska.trainsmart.statements.application.exception.StatementException;
 import org.lukawska.trainsmart.statements.application.validation.UserAgreementValidator;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
-import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.shared_persistence.application.exception.ExceptionType.USER_NOT_FOUND;
+import static org.lukawska.trainsmart.statements.testutil.StatementTestData.randomStatementCode;
 import static org.lukawska.trainsmart.statements.testutil.StatementTestData.requiredStatement;
 import static org.lukawska.trainsmart.statements.testutil.UserAgreementTestData.acceptedUserAgreement;
 import static org.lukawska.trainsmart.statements.testutil.UserAgreementTestData.acceptedUserAgreementRequest;
@@ -46,17 +42,14 @@ class UserAgreementServiceTest {
     private UserAgreementService userAgreementService;
 
     @Test
-    void shouldSignNewAgreementSuccess() {
+    void shouldSignAgreementSuccess() {
         //given
         final UserAgreementRequest request = acceptedUserAgreementRequest();
-        when(userAgreementValidator.validateNewUserAgreement(request)).thenReturn(requiredStatement());
-        when(userAgreementRepository.save(any())).thenReturn(new UserAgreement(mock(User.class),
-                                                                               request.statementCode(),
-                                                                               1,
-                                                                               AgreementStatus.ACCEPTED));
+        when(userAgreementValidator.validateUserAgreement(request)).thenReturn(requiredStatement());
+        when(userAgreementRepository.save(any())).thenReturn(acceptedUserAgreement(request.statementCode(), 1));
 
         //when
-        UserAgreementResponse result = userAgreementService.signNewAgreement(request);
+        UserAgreementResponse result = userAgreementService.signAgreement(request);
 
         //then
         assertThat(result.statementCode()).isEqualTo(request.statementCode());
@@ -64,29 +57,11 @@ class UserAgreementServiceTest {
     }
 
     @Test
-    void shouldReSignStatementSuccess() {
-        final UserAgreementRequest request = acceptedUserAgreementRequest();
-        when(userAgreementValidator.validateUserAgreement(any())).thenReturn(requiredStatement(2));
-        when(userAgreementRepository.findByUserIdAndStatementCode(request.userId(), request.statementCode()))
-                .thenReturn(Optional.of(new UserAgreement(mock(User.class),
-                                                          "statementCode",
-                                                          1,
-                                                          AgreementStatus.ACCEPTED)));
-
-        // when
-        UserAgreementResponse result = userAgreementService.reSignAgreement(request);
-
-        // then
-        assertThat(result.statementCode()).isEqualTo("statementCode");
-        assertThat(result.agreementStatus()).isEqualTo(AgreementStatus.ACCEPTED);
-        assertThat(result.version()).isEqualTo(2);
-    }
-
-    @Test
     void shouldReturnRequiredStatementsToSign() {
         //given
         final Long userId = new Random().nextLong(10);
-        List<UserAgreement> userAgreements = List.of(acceptedUserAgreement(), acceptedUserAgreement());
+        List<UserAgreement> userAgreements = List.of(acceptedUserAgreement(randomStatementCode(), 1),
+                                                     acceptedUserAgreement(randomStatementCode(), 1));
 
         when(userService.getUserById(userId)).thenReturn(mock(User.class));
         when(userAgreementRepository.findAllByUserId(userId)).thenReturn(userAgreements);
@@ -103,38 +78,26 @@ class UserAgreementServiceTest {
     }
 
     @Test
-    void shouldThrowUserNotFoundExceptionWhenSignNewAgreement() {
+    void shouldThrowUserNotFoundExceptionWhenSignAgreement() {
         //given
         final UserAgreementRequest request = acceptedUserAgreementRequest();
-        when(userService.getUserById(request.userId())).thenThrow(new UserException(USER_NOT_FOUND));
+        when(userService.getUserById(request.userId())).thenThrow(new UserNotFoundException(request.userId()));
 
         //when && then
-        assertThatThrownBy(() -> userAgreementService.signNewAgreement(request))
-                .isInstanceOf(UserException.class)
-                .hasMessage(USER_NOT_FOUND.getMessage());
+        assertThatThrownBy(() -> userAgreementService.signAgreement(request))
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User not found for ID: %d", request.userId());
         verify(userAgreementRepository, never()).save(any());
-    }
-
-    @Test
-    void shouldThrowUserAgreementNotFoundExceptionWhenReSignAgreement() {
-        //given
-        final UserAgreementRequest request = acceptedUserAgreementRequest();
-        when(userAgreementValidator.validateUserAgreement(request)).thenReturn(requiredStatement());
-
-        //when && then
-        assertThatThrownBy(() -> userAgreementService.reSignAgreement(request))
-                .isInstanceOf(StatementException.class)
-                .hasMessage(ExceptionType.USER_AGREEMENT_NOT_FOUND.getMessage());
     }
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenGetRequiredStatementsToSign() {
         //given
-        when(userService.getUserById(1L)).thenThrow(new UserException(USER_NOT_FOUND));
+        when(userService.getUserById(1L)).thenThrow(new UserNotFoundException(1L));
 
         //when && then
         assertThatThrownBy(() -> userAgreementService.getRequiredStatementsToSign(1L))
-                .isInstanceOf(UserException.class)
-                .hasMessage(USER_NOT_FOUND.getMessage());
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User not found for ID: %d", 1L);
     }
 }

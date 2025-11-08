@@ -22,7 +22,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(StatementException.class)
     public ProblemDetail handleStatementException(StatementException exception) {
-        log.warn("Handling statement exception: {}", exception.getExceptionType().name());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(exception.getExceptionType().getStatus(),
                                                                        exception.getMessage());
         problemDetail.setTitle("Statement exception");
@@ -32,8 +31,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        log.warn("Handling constraint violation exception: {}", ex.getMessage(), ex);
-
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Constraint violation");
         problemDetail.setProperties(getConstraintViolation(ex));
@@ -43,8 +40,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception exception) {
-        log.error("Unexpected error: {}", exception.getMessage(), exception);
-        
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred");
     }
 
@@ -53,9 +48,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
-
-        log.warn("Handling method argument not valid exception: {}", ex.getMessage(), ex);
-
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Validation failure");
         problemDetail.setProperties(getFieldErrors(ex));
