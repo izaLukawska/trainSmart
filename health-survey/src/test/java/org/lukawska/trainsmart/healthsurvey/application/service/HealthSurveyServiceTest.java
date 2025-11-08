@@ -74,12 +74,11 @@ class HealthSurveyServiceTest {
     }
 
     @Test
-    void shouldSkipInjuriesUpdateWhenListIsNull() {
+    void shouldSkipFieldsUpdateWhenValuesAreNull() {
         //given
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(existingHealthSurvey));
-        final UpdateHealthSurveyRequest updateHealthSurveyRequest =
-                new UpdateHealthSurveyRequest(1L, null, null);
+        final UpdateHealthSurveyRequest updateHealthSurveyRequest = new UpdateHealthSurveyRequest(1L, null, null);
 
         //when
         HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(updateHealthSurveyRequest);
@@ -87,6 +86,7 @@ class HealthSurveyServiceTest {
         //then
         assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
         assertThat(result.weight()).isEqualTo(existingHealthSurvey.getWeight());
+        assertThat(result.injuriesCount()).isEqualTo(existingHealthSurvey.getInjuries().size());
     }
 
     @Test
@@ -102,7 +102,6 @@ class HealthSurveyServiceTest {
         assertThat(response.weight()).isEqualTo(80);
         assertThat(response.gender()).isEqualTo(Gender.MALE);
     }
-
 
     @Test
     void getAllInjuriesByUserId() {
