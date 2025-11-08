@@ -3,10 +3,9 @@ package org.lukawska.trainsmart.healthsurvey.presentation.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.CreateHealthSurveyRequest;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
-import org.lukawska.trainsmart.healthsurvey.application.dto.UpdateInjuriesRequest;
-import org.lukawska.trainsmart.healthsurvey.application.dto.UpdateWeightRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.UpdateHealthSurveyRequest;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/health-survey")
+@RequestMapping("/api/users/health-survey")
 @RequiredArgsConstructor
 @Validated
 public class HealthSurveyController {
@@ -35,21 +34,15 @@ public class HealthSurveyController {
     @PostMapping("/submit")
     public ResponseEntity<HealthSurveyResponse> submitHealthSurvey(@Valid
                                                                    @RequestBody
-                                                                   HealthSurveyRequest surveyRequest) {
-        return ResponseEntity.status(201)
-                             .body(healthSurveyService.submitHealthSurvey(surveyRequest));
+                                                                   CreateHealthSurveyRequest surveyRequest) {
+        return ResponseEntity.status(201).body(healthSurveyService.submitHealthSurvey(surveyRequest));
     }
 
-    @PutMapping("/update-injuries/{userId}")
-    public HealthSurveyResponse updateInjuries(@PathVariable @Positive Long userId,
-                                               @RequestBody @Valid UpdateInjuriesRequest injuriesRequest) {
-        return healthSurveyService.updateInjuries(userId, injuriesRequest.newInjuries());
-    }
-
-    @PatchMapping("/update-weight/{userId}")
-    public HealthSurveyResponse updateWeight(@PathVariable Long userId,
-                                             @RequestParam @Valid UpdateWeightRequest weightRequest) {
-        return healthSurveyService.updateWeight(userId, weightRequest.newWeight());
+    @PutMapping("/update")
+    public ResponseEntity<HealthSurveyResponse> updateHealthSurvey(@Valid
+                                                                   @RequestBody
+                                                                   UpdateHealthSurveyRequest surveyRequest) {
+        return ResponseEntity.ok(healthSurveyService.updateHealthSurvey(surveyRequest));
     }
 
     @DeleteMapping("/delete/{userId}")

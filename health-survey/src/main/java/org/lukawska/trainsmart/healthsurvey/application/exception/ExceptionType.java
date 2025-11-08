@@ -1,10 +1,11 @@
 package org.lukawska.trainsmart.healthsurvey.application.exception;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public enum ExceptionType {
 
@@ -15,6 +16,6 @@ public enum ExceptionType {
     INVALID_WEIGHT(HttpStatus.BAD_REQUEST, "Weight must be positive.");
 
     private final HttpStatus httpStatus;
-
     private final String message;
+
 }

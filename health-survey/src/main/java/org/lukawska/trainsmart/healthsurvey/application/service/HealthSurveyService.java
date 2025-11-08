@@ -1,8 +1,9 @@
 package org.lukawska.trainsmart.healthsurvey.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.CreateHealthSurveyRequest;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
+import org.lukawska.trainsmart.healthsurvey.application.dto.UpdateHealthSurveyRequest;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
@@ -24,14 +25,29 @@ public class HealthSurveyService {
 
     private final UserService userService;
 
-    public HealthSurveyResponse submitHealthSurvey(HealthSurveyRequest surveyRequest) {
+    public HealthSurveyResponse submitHealthSurvey(CreateHealthSurveyRequest surveyRequest) {
         if (healthSurveyRepository.existsByUserId(surveyRequest.userId())) {
             throw new HealthSurveyException(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS);
         }
 
         User user = userService.getUserById(surveyRequest.userId());
-
         HealthSurvey healthSurvey = mapToEntity(surveyRequest, user);
+        healthSurveyRepository.save(healthSurvey);
+
+        return mapToHealthSurveyResponse(healthSurvey);
+    }
+
+    public HealthSurveyResponse updateHealthSurvey(UpdateHealthSurveyRequest surveyRequest) {
+        HealthSurvey healthSurvey = getExistingHealthSurvey(surveyRequest.userId());
+
+        if (surveyRequest.weight() != null) {
+            healthSurvey.updateWeight(surveyRequest.weight());
+        }
+
+        if (surveyRequest.injuries() != null) {
+            healthSurvey.updateInjuries(surveyRequest.injuries());
+        }
+
         healthSurveyRepository.save(healthSurvey);
 
         return mapToHealthSurveyResponse(healthSurvey);
@@ -43,24 +59,6 @@ public class HealthSurveyService {
 
     public List<String> getAllInjuriesByUserId(Long userId) {
         return getExistingHealthSurvey(userId).getInjuries();
-    }
-
-    public HealthSurveyResponse updateInjuries(Long userId, List<String> newInjuries) {
-        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
-
-        healthSurvey.updateInjuries(newInjuries);
-        healthSurveyRepository.save(healthSurvey);
-
-        return mapToHealthSurveyResponse(healthSurvey);
-    }
-
-    public HealthSurveyResponse updateWeight(Long userId, Integer newWeight) {
-        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
-
-        healthSurvey.updateWeight(newWeight);
-        healthSurveyRepository.save(healthSurvey);
-
-        return mapToHealthSurveyResponse(healthSurvey);
     }
 
     public void deleteHealthSurveyByUserId(Long userId) {
