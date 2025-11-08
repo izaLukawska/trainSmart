@@ -85,8 +85,7 @@ class MailServiceTest {
         List<MailResponse> result = mailService.getAllMailsBySubjectContaining(keyword);
 
         //then
-        assertThat(result).extracting(MailResponse::subject)
-                          .containsExactly(expectedSubject);
+        assertThat(result).extracting(MailResponse::subject).containsExactly(expectedSubject);
     }
 
     @Test
@@ -100,9 +99,7 @@ class MailServiceTest {
         List<MailResponse> result = mailService.getAllMailsByRecipient(recipientMail);
 
         //then
-        assertThat(result).extracting(MailResponse::recipients)
-                          .containsExactly(randomMail.getRecipients());
-
+        assertThat(result).extracting(MailResponse::recipients).containsExactly(randomMail.getRecipients());
     }
 
     @Test
@@ -129,8 +126,8 @@ class MailServiceTest {
         MailResponse result = mailService.getMailResponseById(id);
 
         //then
-        assertThat(result).extracting(MailResponse::recipients, MailResponse::subject)
-                          .contains(randomMail.getRecipients(), randomMail.getSubject());
+        assertThat(result.recipients()).contains(randomMail.getRecipients().toArray(String[]::new));
+        assertThat(result.subject()).isEqualTo(randomMail.getSubject());
     }
 
     @Test

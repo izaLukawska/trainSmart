@@ -4,7 +4,6 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,10 +34,8 @@ class MailSenderAdapterTest {
         when(mailingProperties.getFrom()).thenReturn(randomMail());
         when(mailingProperties.getReplyTo()).thenReturn(randomMail());
 
-        final MailRequest mailRequest = randomMailRequest(true);
-
         //when
-        mailSenderAdapter.sendEmail(mailRequest);
+        mailSenderAdapter.sendEmail(randomMailRequest(true));
 
         //then
         verify(mailSender).send(mimeMessage);

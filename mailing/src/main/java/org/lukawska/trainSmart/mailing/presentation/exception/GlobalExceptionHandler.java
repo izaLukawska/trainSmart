@@ -22,7 +22,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(MailingException.class)
     public ProblemDetail handleMailingException(MailingException ex) {
-        log.error("Caught mailing exception: {}", ex.getMessage(), ex);
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getExceptionType().getHttpStatus(),
                                                                        ex.getMessage());
         problemDetail.setTitle("Mailing exception");
@@ -32,15 +31,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception exception) {
-        log.error("Unexpected error: {}", exception.getMessage(), exception);
-
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred");
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        log.warn("Handling constraint violation exception: {}", ex.getMessage(), ex);
-
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Constraint violation");
         problemDetail.setProperties(getConstraintViolation(ex));
@@ -53,8 +48,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
-
-        log.warn("Handling method argument not valid exception: {}", ex.getMessage(), ex);
 
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Validation failure");

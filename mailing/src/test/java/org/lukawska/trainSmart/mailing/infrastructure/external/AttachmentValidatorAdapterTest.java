@@ -31,7 +31,6 @@ class AttachmentValidatorAdapterTest {
     @InjectMocks
     private AttachmentValidatorAdapter attachmentValidatorAdapter;
 
-
     @Test
     void shouldValidateAttachmentSuccess() {
         //given
@@ -43,7 +42,6 @@ class AttachmentValidatorAdapterTest {
         // when && then
         assertThatCode(() -> attachmentValidatorAdapter.validateAttachments(List.of(attachment)))
                 .doesNotThrowAnyException();
-
     }
 
     @Test
