@@ -26,7 +26,7 @@ public class HealthSurveyController {
         return healthSurveyService.getHealthSurveyByUserIdResponse(userId);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{userId}/injuries")
     public List<String> getAllInjuriesByUserId(@PathVariable @Positive Long userId) {
         return healthSurveyService.getAllInjuriesByUserId(userId);
     }

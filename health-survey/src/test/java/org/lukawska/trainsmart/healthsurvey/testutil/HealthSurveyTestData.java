@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.healthsurvey.application.testutil;
+package org.lukawska.trainsmart.healthsurvey.testutil;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.healthsurvey.application.dto.CreateHealthSurveyRequest;

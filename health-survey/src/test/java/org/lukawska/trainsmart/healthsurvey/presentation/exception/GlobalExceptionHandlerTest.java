@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.lukawska.trainsmart.healthsurvey.presentation.exception.ExceptionTestData.mockViolation;
+import static org.lukawska.trainsmart.healthsurvey.testutil.ExceptionTestData.mockViolation;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +41,6 @@ class GlobalExceptionHandlerTest {
                            .hasStatus(HttpStatus.BAD_REQUEST)
                            .hasDetail(healthSurveyException.getMessage())
                            .hasTitle("Health survey exception");
-
     }
 
     @Test
@@ -105,5 +104,4 @@ class GlobalExceptionHandlerTest {
                            .hasFieldErrorProperty(fieldError1)
                            .hasFieldErrorProperty(fieldError2);
     }
-
 }

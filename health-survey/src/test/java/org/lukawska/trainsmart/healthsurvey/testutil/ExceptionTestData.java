@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.healthsurvey.presentation.exception;
+package org.lukawska.trainsmart.healthsurvey.testutil;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
@@ -9,7 +9,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.*;
 
 @UtilityClass
-class ExceptionTestData {
+public class ExceptionTestData {
 
     public static ConstraintViolation<?> mockViolation(String message) {
         Path path = mock(Path.class);

@@ -9,7 +9,6 @@ import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
-import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.shared_persistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.shared_persistence.application.service.UserService;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
@@ -24,8 +23,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.healthsurvey.application.testutil.HealthSurveyTestData.healthSurveyEntity;
-import static org.lukawska.trainsmart.healthsurvey.application.testutil.HealthSurveyTestData.healthSurveyRequest;
+import static org.lukawska.trainsmart.healthsurvey.testutil.HealthSurveyTestData.healthSurveyEntity;
+import static org.lukawska.trainsmart.healthsurvey.testutil.HealthSurveyTestData.healthSurveyRequest;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,31 +75,33 @@ class HealthSurveyServiceTest {
     @Test
     void shouldSkipFieldsUpdateWhenValuesAreNull() {
         //given
-        final HealthSurvey existingHealthSurvey = healthSurveyEntity();
-        when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(existingHealthSurvey));
+        final HealthSurvey expectedHealthSurvey = healthSurveyEntity();
+        when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(expectedHealthSurvey));
         final UpdateHealthSurveyRequest updateHealthSurveyRequest = new UpdateHealthSurveyRequest(1L, null, null);
 
         //when
         HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(updateHealthSurveyRequest);
 
         //then
-        assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
-        assertThat(result.weight()).isEqualTo(existingHealthSurvey.getWeight());
-        assertThat(result.injuriesCount()).isEqualTo(existingHealthSurvey.getInjuries().size());
+        assertThat(result.id()).isEqualTo(expectedHealthSurvey.getId());
+        assertThat(result.weight()).isEqualTo(expectedHealthSurvey.getWeight());
+        assertThat(result.injuriesCount()).isEqualTo(expectedHealthSurvey.getInjuries().size());
     }
 
     @Test
     void shouldReturnHealthSurveyByUserIdResponse() {
         //given
-        when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(healthSurveyEntity()));
+        final HealthSurvey expectedHealthSurvey = healthSurveyEntity();
+        when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(expectedHealthSurvey));
 
         //when
-        HealthSurveyResponse response = healthSurveyService.getHealthSurveyByUserIdResponse(1L);
+        HealthSurveyResponse resultHealthSurvey = healthSurveyService.getHealthSurveyByUserIdResponse(1L);
 
         //then
-        assertThat(response.injuriesCount()).isEqualTo(3);
-        assertThat(response.weight()).isEqualTo(80);
-        assertThat(response.gender()).isEqualTo(Gender.MALE);
+        assertThat(resultHealthSurvey.id()).isEqualTo(expectedHealthSurvey.getId());
+        assertThat(resultHealthSurvey.injuriesCount()).isEqualTo(expectedHealthSurvey.getInjuries().size());
+        assertThat(resultHealthSurvey.weight()).isEqualTo(expectedHealthSurvey.getWeight());
+        assertThat(resultHealthSurvey.gender()).isEqualTo(expectedHealthSurvey.getGender());
     }
 
     @Test
@@ -108,13 +109,14 @@ class HealthSurveyServiceTest {
         //given
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(existingHealthSurvey));
+        String[] expectedInjuries = existingHealthSurvey.getInjuries().toArray(String[]::new);
 
         //when
         List<String> actualInjuries = healthSurveyService.getAllInjuriesByUserId(1L);
 
         //then
         assertThat(actualInjuries).hasSize(3);
-        assertThat(actualInjuries).containsExactlyInAnyOrder(existingHealthSurvey.getInjuries().toArray(String[]::new));
+        assertThat(actualInjuries).containsExactlyInAnyOrder(expectedInjuries);
     }
 
     @Test

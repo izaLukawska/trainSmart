@@ -10,7 +10,7 @@ import org.springframework.validation.FieldError;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProblemDetailAssert {
+class ProblemDetailAssert {
 
     private final ProblemDetail problemDetail;
 
