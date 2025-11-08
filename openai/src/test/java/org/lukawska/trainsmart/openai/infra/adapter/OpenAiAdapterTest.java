@@ -2,7 +2,6 @@ package org.lukawska.trainsmart.openai.infra.adapter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.openai.application.exception.ExceptionType;
 import org.lukawska.trainsmart.openai.application.exception.OpenAiException;
 import org.lukawska.trainsmart.openai.infra.dto.ChatRolesRequest;
 import org.mockito.InjectMocks;
@@ -87,6 +86,6 @@ class OpenAiAdapterTest {
         //when && then
         assertThatThrownBy(() -> openAiAdapter.sendPrompt(new ChatRolesRequest(null, userPrompt)))
                 .isInstanceOf(OpenAiException.class)
-                .hasMessage(ExceptionType.OPENAI_CLIENT_ERROR.getMessage());
+                .hasMessage("OpenAI request failed");
     }
 }

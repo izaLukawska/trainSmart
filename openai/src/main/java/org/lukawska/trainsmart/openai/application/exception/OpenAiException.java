@@ -1,14 +1,12 @@
 package org.lukawska.trainsmart.openai.application.exception;
 
-import lombok.Getter;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-@Getter
+@ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
 public class OpenAiException extends RuntimeException {
 
-    private final ExceptionType exceptionType;
-
-    public OpenAiException(ExceptionType exceptionType) {
-        super(exceptionType.getMessage());
-        this.exceptionType = exceptionType;
+    public OpenAiException() {
+        super("OpenAI request failed");
     }
 }

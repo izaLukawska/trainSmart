@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.lukawska.trainsmart.openai.application.exception.ExceptionType;
 import org.lukawska.trainsmart.openai.application.exception.OpenAiException;
 import org.lukawska.trainsmart.openai.domain.port.ChatClientPort;
 import org.lukawska.trainsmart.openai.infra.dto.ChatRolesRequest;
@@ -32,7 +31,7 @@ public class OpenAiAdapter implements ChatClientPort<ChatRolesRequest, String> {
             return prompt.user(request.userPrompt()).call().content();
         } catch (Exception e) {
             log.error("OpenAI call failed", e);
-            throw new OpenAiException(ExceptionType.OPENAI_CLIENT_ERROR);
+            throw new OpenAiException();
         }
     }
 }
