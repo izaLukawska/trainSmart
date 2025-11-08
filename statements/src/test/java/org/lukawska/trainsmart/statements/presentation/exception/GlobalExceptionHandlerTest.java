@@ -77,7 +77,6 @@ class GlobalExceptionHandlerTest {
                            .hasConstraintViolation(violation2);
     }
 
-
     @Test
     void shouldHandleMethodArgumentNotValidAndUseDefaultMessageIfFieldErrorMessageNotPresent() {
         // given

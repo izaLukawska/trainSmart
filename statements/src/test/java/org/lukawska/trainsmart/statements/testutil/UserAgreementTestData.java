@@ -21,6 +21,10 @@ public class UserAgreementTestData {
                                         AgreementStatus.ACCEPTED);
     }
 
+    public static UserAgreementRequest rejectedUserAgreementRequest(String statementCode) {
+        return new UserAgreementRequest(new Random().nextLong(10), statementCode, AgreementStatus.ACCEPTED);
+    }
+
     public static UserAgreement acceptedUserAgreement(String statementCode, int version) {
         return new UserAgreement(mock(User.class), statementCode, version, AgreementStatus.ACCEPTED);
     }

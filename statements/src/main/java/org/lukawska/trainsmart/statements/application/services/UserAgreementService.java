@@ -15,7 +15,6 @@ import org.lukawska.trainsmart.statements.infra.config.Statement;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,31 +31,12 @@ public class UserAgreementService {
     public UserAgreementResponse signAgreement(UserAgreementRequest request) {
         Statement statement = userAgreementValidator.validateUserAgreement(request);
 
-        Optional<UserAgreement> userAgreement =
-                userAgreementRepository.findByUserIdAndStatementCode(request.userId(), request.statementCode());
+        UserAgreement userAgreement = userAgreementRepository
+                .findByUserIdAndStatementCode(request.userId(), request.statementCode())
+                .map(existingUserAgreement -> updateUserAgreement(existingUserAgreement, request, statement))
+                .orElseGet(() -> createUserAgreement(request, statement));
 
-        if (userAgreement.isPresent()) {
-            UserAgreement existingUserAgreement = userAgreement.get();
-
-            log.info("Updating user agreement with ID: {}", existingUserAgreement.getId());
-            existingUserAgreement.changeStatus(request.agreementStatus());
-            existingUserAgreement.updateStatementVersion(statement.version());
-
-            return UserAgreementMapper.mapToResponse(userAgreementRepository.save(existingUserAgreement));
-        } else {
-            log.info("Checking if user with ID: {} exists", request.userId());
-            User existingUser = userService.getUserById(request.userId());
-
-            UserAgreement agreementRecord = new UserAgreement(existingUser,
-                                                              request.statementCode(),
-                                                              statement.version(),
-                                                              request.agreementStatus());
-
-            log.info("Saving agreement with user ID: {} and statement code: {}",
-                     request.userId(), request.statementCode());
-
-            return UserAgreementMapper.mapToResponse(userAgreementRepository.save(agreementRecord));
-        }
+        return UserAgreementMapper.mapToResponse(userAgreement);
     }
 
     public List<UserAgreementResponse> getRequiredStatementsToSign(Long userId) {
@@ -75,5 +55,28 @@ public class UserAgreementService {
                   outdatedUserAgreements.size(), userId);
 
         return outdatedUserAgreements;
+    }
+
+    private UserAgreement createUserAgreement(UserAgreementRequest request, Statement statement) {
+        log.info("Checking if user with ID: {} exists", request.userId());
+        User existingUser = userService.getUserById(request.userId());
+
+        UserAgreement agreementRecord = new UserAgreement(
+                existingUser, request.statementCode(), statement.version(), request.agreementStatus());
+
+        log.info("Saving user agreement with ID: {}", agreementRecord.getId());
+
+        return userAgreementRepository.save(agreementRecord);
+    }
+
+    private UserAgreement updateUserAgreement(UserAgreement existingUserAgreement,
+                                              UserAgreementRequest request,
+                                              Statement statement) {
+        log.info("Updating user agreement with ID: {}", existingUserAgreement.getId());
+
+        existingUserAgreement.changeStatus(request.agreementStatus());
+        existingUserAgreement.updateStatementVersion(statement.version());
+
+        return userAgreementRepository.save(existingUserAgreement);
     }
 }
