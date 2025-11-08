@@ -45,11 +45,8 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleGenericException() {
-        //given
-        Exception exception = new Exception(UUID.randomUUID().toString());
-
         //when
-        ProblemDetail result = exceptionHandler.handleGenericException(exception);
+        ProblemDetail result = exceptionHandler.handleGenericException();
 
         //then
         ProblemDetailAssert.then(result)

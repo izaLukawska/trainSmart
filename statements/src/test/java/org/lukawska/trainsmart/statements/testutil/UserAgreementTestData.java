@@ -8,17 +8,15 @@ import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 
 import java.util.Random;
-import java.util.UUID;
 
+import static org.lukawska.trainsmart.statements.testutil.StatementTestData.randomStatementCode;
 import static org.mockito.Mockito.mock;
 
 @UtilityClass
 public class UserAgreementTestData {
 
     public static UserAgreementRequest acceptedUserAgreementRequest() {
-        return new UserAgreementRequest(new Random().nextLong(),
-                                        UUID.randomUUID().toString(),
-                                        AgreementStatus.ACCEPTED);
+        return new UserAgreementRequest(new Random().nextLong(), randomStatementCode(), AgreementStatus.ACCEPTED);
     }
 
     public static UserAgreementRequest rejectedUserAgreementRequest(String statementCode) {

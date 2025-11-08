@@ -36,7 +36,7 @@ class UserAgreementControllerTest {
         when(service.signAgreement(request)).thenReturn(expectedResponse);
 
         // when
-        ResponseEntity<UserAgreementResponse> responseEntity = controller.reSignAgreement(request);
+        ResponseEntity<UserAgreementResponse> responseEntity = controller.signAgreement(request);
 
         // then
         assertThat(responseEntity.getBody()).isNotNull();
@@ -55,8 +55,7 @@ class UserAgreementControllerTest {
         List<UserAgreementResponse> actualList = controller.getRequiredStatementsToSign(userId);
 
         //then
-        assertThat(actualList).hasSize(1)
-                              .contains(response);
+        assertThat(actualList).hasSize(1).contains(response);
     }
 
     @Test

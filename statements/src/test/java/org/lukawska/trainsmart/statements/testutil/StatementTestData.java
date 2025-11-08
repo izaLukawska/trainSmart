@@ -10,24 +10,15 @@ import java.util.UUID;
 public final class StatementTestData {
 
     public static Statement requiredStatement(int version) {
-        return new Statement(UUID.randomUUID().toString(),
-                             version,
-                             true,
-                             UUID.randomUUID().toString());
+        return new Statement(randomStatementCode(), version, true, randomStatementCode());
     }
 
     public static Statement requiredStatement() {
-        return new Statement(UUID.randomUUID().toString(),
-                             new Random().nextInt(10),
-                             true,
-                             UUID.randomUUID().toString());
+        return new Statement(randomStatementCode(), new Random().nextInt(10), true, randomStatementCode());
     }
 
     public static Statement optionalStatement() {
-        return new Statement(UUID.randomUUID().toString(),
-                             new Random().nextInt(10),
-                             false,
-                             UUID.randomUUID().toString());
+        return new Statement(randomStatementCode(), new Random().nextInt(10), false, randomStatementCode());
     }
 
     public static String randomStatementCode() {

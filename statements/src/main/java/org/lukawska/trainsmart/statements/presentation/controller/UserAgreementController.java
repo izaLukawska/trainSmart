@@ -23,7 +23,7 @@ public class UserAgreementController {
     private final UserAgreementService service;
 
     @PutMapping("/sign")
-    public ResponseEntity<UserAgreementResponse> reSignAgreement(@Valid @RequestBody UserAgreementRequest request) {
+    public ResponseEntity<UserAgreementResponse> signAgreement(@Valid @RequestBody UserAgreementRequest request) {
         log.debug("Signing statement for user with ID: {} and statement code: {}",
                   request.userId(), request.statementCode());
         return ResponseEntity.ok(service.signAgreement(request));
