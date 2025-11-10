@@ -72,7 +72,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldHandleConstraintViolation() {
+    void shouldHandleConstraintViolationException() {
         //given
         final ConstraintViolation<?> violation1 = mockViolation(UUID.randomUUID().toString());
         final ConstraintViolation<?> violation2 = mockViolation(UUID.randomUUID().toString());
@@ -91,7 +91,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldHandleMethodArgumentNotValidAndUseDefaultMessageIfFieldErrorMessageNotPresent() {
+    void shouldHandleMethodArgumentNotValidException() {
         // given
         final FieldError fieldError1 = new FieldError("object", "age", "must be 18");
         final FieldError fieldError2 = new FieldError("object", "username", "must not be blank");
@@ -104,10 +104,8 @@ class GlobalExceptionHandlerTest {
         when(ex.getMessage()).thenReturn("Validation failed");
 
         // when
-        ResponseEntity<Object> response = exceptionHandler.handleMethodArgumentNotValid(ex,
-                                                                                        new HttpHeaders(),
-                                                                                        HttpStatus.BAD_REQUEST,
-                                                                                        mock(WebRequest.class));
+        ResponseEntity<Object> response = exceptionHandler.handleMethodArgumentNotValid(
+                ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
 
         // then
         assertThat(response).isNotNull();
