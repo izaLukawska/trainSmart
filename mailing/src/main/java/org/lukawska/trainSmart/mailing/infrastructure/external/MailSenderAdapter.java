@@ -8,7 +8,6 @@ import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.service.MailSender;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
-import org.slf4j.MDC;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -29,17 +28,14 @@ public class MailSenderAdapter implements MailSender {
     @Override
     @Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
     public void sendEmail(MailRequest mailRequest) throws MessagingException {
-        String correlationId = MDC.get("correlationId");
-        log.info("Sending email with correlation id: {}", correlationId);
+        log.debug("Attempting to send mail");
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
-
-        log.info("Applying mail data for correlation id: {}", correlationId);
         applyMailData(mailRequest, messageHelper);
 
         mailSender.send(message);
-        log.info("Successfully send email with correlation id: {}", correlationId);
+        log.info("Mail sent successfully.");
     }
 
     private MimeMessageHelper createMimeMessageHelper(MailRequest mailRequest, MimeMessage message)
@@ -49,7 +45,7 @@ public class MailSenderAdapter implements MailSender {
     }
 
     private void applyMailData(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
-        helper.setTo(mailRequest.recipients().toArray(new String[0]));
+        helper.setTo(mailRequest.recipients().toArray(String[]::new));
         helper.setSubject(mailRequest.subject());
         helper.setText(mailRequest.text(), mailRequest.isHtml());
         helper.setFrom(mailingProperties.getFrom());
@@ -58,7 +54,6 @@ public class MailSenderAdapter implements MailSender {
         helper.setBcc(mailRequest.bcc().toArray(String[]::new));
 
         addAttachments(mailRequest, helper);
-
     }
 
     private void addAttachments(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {

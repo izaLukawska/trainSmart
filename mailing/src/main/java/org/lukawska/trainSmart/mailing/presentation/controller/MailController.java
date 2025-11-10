@@ -26,13 +26,13 @@ public class MailController {
 
     @PostMapping("/send")
     public ResponseEntity<MailResponse> sendMail(@Valid @RequestBody MailRequest mailRequest) {
-        log.debug("Sending mail with subject: {}", mailRequest.subject());
+        log.info("Sending mail.");
         return ResponseEntity.status(201).body(mailService.sendMail(mailRequest));
     }
 
     @GetMapping("/{id}")
     public MailResponse getMailById(@PathVariable @NotNull Long id) {
-        log.debug("Searching for mail with id: {}", id);
+        log.info("Searching for mail with id: {}", id);
         return mailService.getMailResponseById(id);
     }
 
@@ -43,9 +43,7 @@ public class MailController {
     }
 
     @GetMapping("/recipient")
-    public List<MailResponse> getAllMailsByRecipient(@RequestParam
-                                                     @NotBlank
-                                                     @Email String recipient) {
+    public List<MailResponse> getAllMailsByRecipient(@RequestParam @NotBlank @Email String recipient) {
         log.debug("Fetching mails for recipient: {}", recipient);
         return mailService.getAllMailsByRecipient(recipient);
     }

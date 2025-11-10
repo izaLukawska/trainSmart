@@ -8,16 +8,18 @@ import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainSmart.mailing.application.exception.MailingException;
-import org.lukawska.trainSmart.mailing.application.mapper.MailMapper;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.repository.MailRepository;
 import org.lukawska.trainSmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainSmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
-import org.slf4j.MDC;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+
+import static org.lukawska.trainSmart.mailing.application.mapper.MailMapper.mapToEntity;
+import static org.lukawska.trainSmart.mailing.application.mapper.MailMapper.mapToResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -34,63 +36,58 @@ public class MailService {
 
     @Transactional
     public MailResponse sendMail(MailRequest mailRequest) {
-        String correlationId = MDC.get("correlationId");
-
         if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
-            log.info("Validating attachments for correlationId: {}", correlationId);
+            log.debug("Validating {} attachments.", mailRequest.attachments().size());
             attachmentValidatorAdapter.validateAttachments(mailRequest.attachments());
         }
 
         try {
             mailSender.sendEmail(mailRequest);
-            MailEntity mailEntity = MailMapper.mapToEntity(mailRequest);
+            MailEntity mailEntity = mapToEntity(mailRequest);
             mailEntity.markAsSent();
             mailRepository.save(mailEntity);
-            return MailMapper.mapToResponse(mailEntity,
-                                            mailingProperties.getFrom(),
-                                            mailingProperties.getReplyTo());
-        } catch (MessagingException e) {
-            log.error("Error occurred while sending email for correlationId: {}", correlationId, e);
+            log.info("Saved mail with ID: {}", mailEntity.getId());
+            return mapToResponse(mailEntity, mailingProperties.getFrom(), mailingProperties.getReplyTo());
+        } catch (MessagingException | MailException e) {
+            log.error("Error occurred while sending email {}", e.getMessage());
             throw new MailingException(ExceptionType.MAIL_SEND_ERROR);
         }
     }
 
     @Transactional
     public MailResponse getMailResponseById(Long id) {
-        return mailRepository.findById(id)
-                             .map(mail -> MailMapper.mapToResponse(mail,
-                                                                   mailingProperties.getFrom(),
-                                                                   mailingProperties.getReplyTo()))
-                             .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
+        return mailRepository
+                .findById(id)
+                .map(mail -> mapToResponse(mail, mailingProperties.getFrom(), mailingProperties.getReplyTo()))
+                .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
     }
 
     @Transactional
     public List<MailResponse> getAllMails() {
-        return mailRepository.findAll()
-                             .stream()
-                             .map(mail -> MailMapper.mapToResponse(mail,
-                                                                   mailingProperties.getFrom(),
-                                                                   mailingProperties.getReplyTo()))
-                             .toList();
+        return mailRepository
+                .findAll()
+                .stream()
+                .map(mail -> mapToResponse(mail, mailingProperties.getFrom(), mailingProperties.getReplyTo()))
+                .toList();
     }
 
     @Transactional
     public List<MailResponse> getAllMailsByRecipient(String recipient) {
-        return mailRepository.findAllByRecipient(recipient)
-                             .stream()
-                             .map(mail -> MailMapper.mapToResponse(mail,
-                                                                   mailingProperties.getFrom(),
-                                                                   mailingProperties.getReplyTo()))
-                             .toList();
+        List<MailEntity> foundMails = mailRepository.findAllByRecipient(recipient);
+        log.debug("Found {} mails for recipient {}", foundMails.size(), recipient);
+
+        return foundMails.stream()
+                         .map(mail -> mapToResponse(mail, mailingProperties.getFrom(), mailingProperties.getReplyTo()))
+                         .toList();
     }
 
     @Transactional
     public List<MailResponse> getAllMailsBySubjectContaining(String keyword) {
-        return mailRepository.findAllBySubjectContaining(keyword)
-                             .stream()
-                             .map(mail -> MailMapper.mapToResponse(mail,
-                                                                   mailingProperties.getFrom(),
-                                                                   mailingProperties.getReplyTo()))
-                             .toList();
+        List<MailEntity> foundMails = mailRepository.findAllBySubjectContaining(keyword);
+        log.debug("Found {} mails for keyword {}", foundMails.size(), keyword);
+
+        return foundMails.stream()
+                         .map(mail -> mapToResponse(mail, mailingProperties.getFrom(), mailingProperties.getReplyTo()))
+                         .toList();
     }
 }

@@ -60,11 +60,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private Map<String, Object> getConstraintViolation(ConstraintViolationException ex) {
         return ex.getConstraintViolations()
                  .stream()
-                 .collect(Collectors.toMap(constraintViolation -> constraintViolation.getPropertyPath().toString(),
-                                           ConstraintViolation::getMessage,
-                                           (oldMessage, newMessage) -> String.format("%s, %s",
-                                                                                     oldMessage,
-                                                                                     newMessage)));
+                 .collect(Collectors.toMap(
+                         constraintViolation -> constraintViolation.getPropertyPath().toString(),
+                         ConstraintViolation::getMessage,
+                         (oldMessage, newMessage) -> String.format("%s, %s", oldMessage, newMessage)));
     }
 
     private Map<String, Object> getFieldErrors(MethodArgumentNotValidException ex) {

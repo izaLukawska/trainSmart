@@ -134,8 +134,7 @@ class MailServiceTest {
     void shouldThrowMessagingExceptionWhenSendMail() throws MessagingException {
         //given
         final MailRequest mailRequest = randomMailRequest(new Random().nextBoolean());
-        doThrow(new MessagingException(randomText()))
-                .when(mailSender).sendEmail(eq(mailRequest));
+        doThrow(new MessagingException(randomText())).when(mailSender).sendEmail(mailRequest);
 
         //when && then
         assertThatThrownBy(() -> mailService.sendMail(mailRequest))

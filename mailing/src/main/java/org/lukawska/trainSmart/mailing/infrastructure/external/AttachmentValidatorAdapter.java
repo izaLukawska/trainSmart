@@ -28,6 +28,7 @@ public class AttachmentValidatorAdapter implements AttachmentValidator {
         long maxSizeBytes = mailingProperties.getMaxSizeBytes();
 
         for (Attachment att : attachments) {
+            log.debug("Validating attachment: {}", att.getFileName());
             validateExtension(att);
             validateSize(att, maxSizeBytes);
             validateMimeType(att);
@@ -38,15 +39,12 @@ public class AttachmentValidatorAdapter implements AttachmentValidator {
         String fileName = attachment.getFileName().toLowerCase();
         String ext = FilenameUtils.getExtension(fileName);
         if (!mailingProperties.getValidMimeTypes().containsKey(ext)) {
-            log.warn("Attachment '{}' has unsupported extension: {}", fileName, ext);
             throw new MailingException(ExceptionType.INVALID_ATTACHMENT_EXTENSION);
         }
     }
 
     private void validateSize(Attachment attachment, long maxSizeBytes) {
         if (attachment.getSize() > maxSizeBytes) {
-            log.warn("Attachment: {} with size {} exceeds limit {}",
-                     attachment, attachment.getSize(), maxSizeBytes);
             throw new MailingException(ExceptionType.ATTACHMENT_TOO_LARGE);
         }
     }
@@ -58,7 +56,6 @@ public class AttachmentValidatorAdapter implements AttachmentValidator {
 
         String detected = tika.detect(attachment.getContent(), fileName);
         if (CollectionUtils.isEmpty(mimeTypes) || !mimeTypes.contains(detected)) {
-            log.warn("Attachment '{}' has invalid MIME type: {}", fileName, detected);
             throw new MailingException(ExceptionType.INVALID_ATTACHMENT_TYPE);
         }
     }

@@ -1,13 +1,10 @@
 package org.lukawska.trainSmart.mailing.testdata;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainSmart.mailing.application.dto.AttachmentMeta;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
-import org.lukawska.trainSmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainSmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainSmart.mailing.domain.valueObject.Attachment;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -36,22 +33,6 @@ public final class MailingTestData {
                          .isHtml(new Random().nextBoolean())
                          .attachments(List.of(randomValidAttachment()))
                          .build();
-    }
-
-    public static MailResponse randomMailResponse() {
-        return new MailResponse(new Random().nextLong(),
-                                List.of(randomMail()),
-                                List.of(randomMail()),
-                                List.of(randomMail()),
-                                randomText(),
-                                randomMail(),
-                                randomMail(),
-                                List.of(randomAttachmentMeta()),
-                                Instant.now());
-    }
-
-    public static AttachmentMeta randomAttachmentMeta() {
-        return new AttachmentMeta(randomText().concat(".pdf"), 10);
     }
 
     public static Attachment randomValidAttachment() {
