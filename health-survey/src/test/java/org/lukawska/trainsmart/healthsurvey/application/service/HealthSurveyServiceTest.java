@@ -16,8 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +42,6 @@ class HealthSurveyServiceTest {
         //given
         final CreateHealthSurveyRequest createHealthSurveyRequest = healthSurveyRequest();
         when(userService.getUserById(createHealthSurveyRequest.userId())).thenReturn(mock(User.class));
-        final int expectedAge = Period.between(createHealthSurveyRequest.birthDate(), LocalDate.now()).getYears();
 
         //when
         HealthSurveyResponse result = healthSurveyService.submitHealthSurvey(createHealthSurveyRequest);
@@ -53,7 +50,6 @@ class HealthSurveyServiceTest {
         verify(healthSurveyRepository, times(1)).save(any());
         assertThat(result.injuriesCount()).isEqualTo(3);
         assertThat(result.weight()).isEqualTo(60);
-        assertThat(result.age()).isEqualTo(expectedAge);
     }
 
     @Test

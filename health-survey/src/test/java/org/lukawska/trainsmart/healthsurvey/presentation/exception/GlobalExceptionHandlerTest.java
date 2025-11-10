@@ -28,18 +28,18 @@ class GlobalExceptionHandlerTest {
     private final GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
 
     @Test
-    void shouldHandleHealthSurveyExceptionWhenInvalidAge() {
+    void shouldHandleHealthSurveyExceptionWhenHealthSurveyNotFound() {
         //given
-        final HealthSurveyException healthSurveyException = new HealthSurveyException(ExceptionType.INVALID_AGE);
+        final HealthSurveyException exception = new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND);
 
         //when
-        ProblemDetail result = exceptionHandler.handleHealthSurveyException(healthSurveyException);
+        ProblemDetail result = exceptionHandler.handleHealthSurveyException(exception);
 
         //then
         ProblemDetailAssert.then(result)
                            .isNotNull()
-                           .hasStatus(HttpStatus.BAD_REQUEST)
-                           .hasDetail(healthSurveyException.getMessage())
+                           .hasStatus(HttpStatus.NOT_FOUND)
+                           .hasDetail(exception.getMessage())
                            .hasTitle("Health survey exception");
     }
 
@@ -73,7 +73,6 @@ class GlobalExceptionHandlerTest {
                            .hasConstraintViolation(violation1)
                            .hasConstraintViolation(violation2);
     }
-
 
     @Test
     void shouldHandleMethodArgumentNotValidAndUseDefaultMessageIfFieldErrorMessageNotPresent() {

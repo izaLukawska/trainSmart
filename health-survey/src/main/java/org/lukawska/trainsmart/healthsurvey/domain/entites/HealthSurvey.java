@@ -9,8 +9,6 @@ import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +30,6 @@ public class HealthSurvey {
     @Column(name = "gender", nullable = false)
     private Gender gender;
 
-    @Column(name = "birth_date", nullable = false)
-    private LocalDate birthDate;
-
     @Column(nullable = false)
     private Integer weight;
 
@@ -50,10 +45,9 @@ public class HealthSurvey {
     private Instant weightUpdatedAt;
 
     @Builder
-    private HealthSurvey(User user, Gender gender, LocalDate birthDate, Integer weight, List<String> injuries) {
+    private HealthSurvey(User user, Gender gender, Integer weight, List<String> injuries) {
         this.user = user;
         this.gender = gender;
-        this.birthDate = birthDate;
         this.weight = weight;
         this.injuries = injuries == null ? new ArrayList<>() : injuries;
     }
@@ -65,11 +59,6 @@ public class HealthSurvey {
 
     public void updateInjuries(List<String> injuries) {
         this.injuries = injuries;
-    }
-
-    @Transient
-    public int getAge() {
-        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
     @PrePersist

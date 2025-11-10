@@ -13,7 +13,6 @@ public class HealthSurveyMapper {
         return HealthSurvey.builder()
                            .user(user)
                            .gender(surveyRequest.gender())
-                           .birthDate(surveyRequest.birthDate())
                            .weight(surveyRequest.weight())
                            .injuries(surveyRequest.injuries())
                            .build();
@@ -23,7 +22,6 @@ public class HealthSurveyMapper {
         return new HealthSurveyResponse(healthSurvey.getId(),
                                         healthSurvey.getUser().getId(),
                                         healthSurvey.getGender(),
-                                        healthSurvey.getAge(),
                                         healthSurvey.getWeight(),
                                         healthSurvey.getInjuries().size());
     }
