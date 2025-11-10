@@ -29,6 +29,7 @@ public class UserAgreementService {
 
     @Transactional
     public UserAgreementResponse signAgreement(UserAgreementRequest request) {
+        log.info("Validating statement with code: {}", request.statementCode());
         Statement statement = userAgreementValidator.validateUserAgreement(request);
 
         UserAgreement userAgreement = userAgreementRepository
@@ -58,7 +59,6 @@ public class UserAgreementService {
     }
 
     private UserAgreement createUserAgreement(UserAgreementRequest request, Statement statement) {
-        log.info("Checking if user with ID: {} exists", request.userId());
         User existingUser = userService.getUserById(request.userId());
 
         UserAgreement agreementRecord = new UserAgreement(

@@ -34,17 +34,17 @@ class UserAgreementValidatorTest {
     void shouldValidateUserAgreementSuccess() {
         //given
         final UserAgreementRequest request = acceptedUserAgreementRequest();
-        final Statement expected = optionalStatement();
+        final Statement expectedStatement = optionalStatement();
 
         when(statementsDefinition.findStatementByCode(request.statementCode()))
-                .thenReturn(Optional.of(expected));
+                .thenReturn(Optional.of(expectedStatement));
 
         //when
         Statement actualStatement = userAgreementValidator.validateUserAgreement(request);
 
         //then
-        assertThat(actualStatement.title()).isEqualTo(expected.title());
-        assertThat(actualStatement.version()).isEqualTo(expected.version());
+        assertThat(actualStatement.title()).isEqualTo(expectedStatement.title());
+        assertThat(actualStatement.version()).isEqualTo(expectedStatement.version());
         assertThat(actualStatement.required()).isFalse();
     }
 

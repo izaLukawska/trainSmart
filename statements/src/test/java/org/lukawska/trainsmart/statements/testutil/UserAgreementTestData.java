@@ -20,7 +20,7 @@ public class UserAgreementTestData {
     }
 
     public static UserAgreementRequest rejectedUserAgreementRequest(String statementCode) {
-        return new UserAgreementRequest(new Random().nextLong(10), statementCode, AgreementStatus.ACCEPTED);
+        return new UserAgreementRequest(new Random().nextLong(10), statementCode, AgreementStatus.REJECTED);
     }
 
     public static UserAgreement acceptedUserAgreement(String statementCode, int version) {

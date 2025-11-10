@@ -24,38 +24,37 @@ class StatementsDefinitionTest {
         statementsDefinition.getStatements().put(statementCode, statement);
 
         //when
-        Optional<Statement> found = statementsDefinition.findStatementByCode(statementCode);
+        Optional<Statement> foundStatement = statementsDefinition.findStatementByCode(statementCode);
 
         //then
-        assertThat(found).isPresent().contains(statement);
+        assertThat(foundStatement).isPresent().contains(statement);
     }
 
     @Test
     void shouldReturnOnlyRequiredStatementsMap() {
         // given
-        final String statementCode = randomStatementCode();
+        final String requiredStatementCode = randomStatementCode();
         statementsDefinition = new StatementsDefinition();
         final String optionalStatementCode = randomStatementCode();
         final Statement requiredStatement = requiredStatement();
-        Map<String, Statement> statementsDefinitionMap = Map.of(statementCode, requiredStatement,
+        Map<String, Statement> statementsDefinitionMap = Map.of(requiredStatementCode, requiredStatement,
                                                                 optionalStatementCode, optionalStatement());
         statementsDefinition.getStatements().putAll(statementsDefinitionMap);
 
         // when
-        Map<String, Statement> required = statementsDefinition.getRequiredStatementsMap();
+        Map<String, Statement> requiredStatementsMap = statementsDefinition.getRequiredStatementsMap();
 
         // then
-        assertThat(required).hasSize(1)
-                            .containsEntry(statementCode, requiredStatement)
-                            .doesNotContainKey(optionalStatementCode);
+        assertThat(requiredStatementsMap).hasSize(1)
+                                         .containsEntry(requiredStatementCode, requiredStatement)
+                                         .doesNotContainKey(optionalStatementCode);
     }
 
     @Test
     void shouldReturnEmptyRequiredStatementsMapWhenNoRequiredStatementsPresent() {
         // given
         statementsDefinition = new StatementsDefinition();
-        Map<String, Statement> statementsDefinitionMap = Map.of(randomStatementCode(), optionalStatement());
-        statementsDefinition.getStatements().putAll(statementsDefinitionMap);
+        statementsDefinition.getStatements().put(randomStatementCode(), optionalStatement());
 
         //when && then
         assertThat(statementsDefinition.getRequiredStatementsMap()).isEmpty();

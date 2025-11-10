@@ -73,9 +73,9 @@ class UserAgreementServiceTest {
         UserAgreementResponse result = userAgreementService.signAgreement(request);
 
         //then
+        assertThat(result.id()).isEqualTo(existingUserAgreement.getId());
         assertThat(result.agreementStatus()).isEqualTo(request.agreementStatus());
         assertThat(result.statementCode()).isEqualTo(request.statementCode());
-        assertThat(result.id()).isEqualTo(existingUserAgreement.getId());
     }
 
     @Test
