@@ -5,10 +5,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
 import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,18 +34,13 @@ public class HealthSurvey {
     private Integer height;
 
     @Column(nullable = false)
+    @Audited
     private Integer weight;
 
     @ElementCollection
     @CollectionTable(name = "health_survey_injuries", joinColumns = @JoinColumn(name = "health_survey_id"))
     @Column(nullable = false)
     private List<String> injuries;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "weight_updated_at")
-    private Instant weightUpdatedAt;
 
     @Builder
     private HealthSurvey(User user, Gender gender, Integer height, Integer weight, List<String> injuries) {
@@ -58,15 +53,9 @@ public class HealthSurvey {
 
     public void updateWeight(Integer weight) {
         this.weight = weight;
-        this.weightUpdatedAt = Instant.now();
     }
 
     public void updateInjuries(List<String> injuries) {
         this.injuries = injuries;
-    }
-
-    @PrePersist
-    private void onCreate() {
-        this.createdAt = Instant.now();
     }
 }

@@ -11,12 +11,21 @@
 
     <artifactId>health-survey</artifactId>
 
+    <properties>
+        <hibernate-envers.version>7.1.7.Final</hibernate-envers.version>
+    </properties>
+
 
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>shared-persistence</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-envers</artifactId>
+            <version>${hibernate-envers.version}</version>
         </dependency>
     </dependencies>
 </project>
