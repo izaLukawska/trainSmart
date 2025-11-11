@@ -49,9 +49,11 @@ class MailServiceTest {
         final MailRequest mailRequest = randomMailRequest(true);
 
         //when
-        mailService.sendMail(mailRequest);
+        MailResponse result = mailService.sendMail(mailRequest);
 
         //then
+        assertThat(result.recipients()).isEqualTo(mailRequest.recipients());
+        assertThat(result.attachments().size()).isEqualTo(mailRequest.attachments().size());
         verify(mailingProperties).getFrom();
         verify(mailingProperties).getReplyTo();
         verify(attachmentValidatorAdapter).validateAttachments(mailRequest.attachments());
@@ -64,9 +66,11 @@ class MailServiceTest {
         final MailRequest mailRequest = randomMailRequest(false);
 
         //when
-        mailService.sendMail(mailRequest);
+        MailResponse result = mailService.sendMail(mailRequest);
 
         //then
+        assertThat(result.recipients()).isEqualTo(mailRequest.recipients());
+        assertThat(result.attachments()).isEmpty();
         verify(mailingProperties).getFrom();
         verify(mailingProperties).getReplyTo();
         verify(attachmentValidatorAdapter, never()).validateAttachments(mailRequest.attachments());
