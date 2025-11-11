@@ -103,19 +103,6 @@ class MailServiceTest {
     }
 
     @Test
-    void shouldReturnAllMails() {
-        //given
-        final List<MailEntity> randomList = List.of(randomMailEntity(), randomMailEntity());
-        when(mailRepository.findAll()).thenReturn(randomList);
-
-        //when
-        List<MailResponse> result = mailService.getAllMails();
-
-        //then
-        assertThat(result).hasSize(2);
-    }
-
-    @Test
     void shouldReturnMailWhenGetMailByIdFound() {
         //given
         final Long id = new Random().nextLong();

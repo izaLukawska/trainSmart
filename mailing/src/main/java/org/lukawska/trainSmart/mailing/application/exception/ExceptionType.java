@@ -1,14 +1,14 @@
 package org.lukawska.trainSmart.mailing.application.exception;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ExceptionType {
 
-    ATTACHMENT_IO_ERROR("Attachment processing error.", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_ATTACHMENT_TYPE("Invalid attachment type.", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
     INVALID_ATTACHMENT_EXTENSION("Invalid attachment extension.", HttpStatus.BAD_REQUEST),
     ATTACHMENT_TOO_LARGE("Attachment too large.", HttpStatus.PAYLOAD_TOO_LARGE),

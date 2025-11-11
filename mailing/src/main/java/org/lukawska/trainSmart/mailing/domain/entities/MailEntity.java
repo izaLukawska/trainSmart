@@ -23,24 +23,21 @@ public class MailEntity {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "mail_recipients", joinColumns = @JoinColumn(name = "mail_id"))
-    @Column(name = "recipient")
     private List<String> recipients = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "mail_cc", joinColumns = @JoinColumn(name = "mail_id"))
-    @Column(name = "cc")
     private List<String> cc = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "mail_bcc", joinColumns = @JoinColumn(name = "mail_id"))
-    @Column(name = "bcc")
     private List<String> bcc = new ArrayList<>();
 
     @Column(nullable = false)
     private String subject;
 
     @Lob
-    @Column(name = "body", nullable = false)
+    @Column(nullable = false)
     private String text;
 
     private boolean isHtml;
@@ -68,7 +65,8 @@ public class MailEntity {
         this.attachments = attachments == null ? new ArrayList<>() : attachments;
     }
 
-    public void markAsSent() {
+    @PrePersist
+    private void markAsSent() {
         this.sentAt = Instant.now();
     }
 }

@@ -28,7 +28,6 @@ public final class MailMapper {
         return new MailResponse(mail.getId(),
                                 defaultListIfNull(mail.getRecipients()),
                                 defaultListIfNull(mail.getCc()),
-                                defaultListIfNull(mail.getBcc()),
                                 mail.getSubject(),
                                 mailFrom,
                                 replyTo,

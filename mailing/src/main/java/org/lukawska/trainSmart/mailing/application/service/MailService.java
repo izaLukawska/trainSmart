@@ -37,14 +37,12 @@ public class MailService {
     @Transactional
     public MailResponse sendMail(MailRequest mailRequest) {
         if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
-            log.debug("Validating {} attachments.", mailRequest.attachments().size());
             attachmentValidatorAdapter.validateAttachments(mailRequest.attachments());
         }
 
         try {
             mailSender.sendEmail(mailRequest);
             MailEntity mailEntity = mapToEntity(mailRequest);
-            mailEntity.markAsSent();
             mailRepository.save(mailEntity);
             log.info("Saved mail with ID: {}", mailEntity.getId());
             return mapToResponse(mailEntity, mailingProperties.getFrom(), mailingProperties.getReplyTo());
@@ -56,19 +54,11 @@ public class MailService {
 
     @Transactional
     public MailResponse getMailResponseById(Long id) {
+        log.info("Getting email for ID: {}", id);
         return mailRepository
                 .findById(id)
                 .map(mail -> mapToResponse(mail, mailingProperties.getFrom(), mailingProperties.getReplyTo()))
                 .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
-    }
-
-    @Transactional
-    public List<MailResponse> getAllMails() {
-        return mailRepository
-                .findAll()
-                .stream()
-                .map(mail -> mapToResponse(mail, mailingProperties.getFrom(), mailingProperties.getReplyTo()))
-                .toList();
     }
 
     @Transactional

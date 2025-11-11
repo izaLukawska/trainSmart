@@ -3,7 +3,7 @@ package org.lukawska.trainSmart.mailing.presentation.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainSmart.mailing.application.dto.MailRequest;
@@ -31,15 +31,9 @@ public class MailController {
     }
 
     @GetMapping("/{id}")
-    public MailResponse getMailById(@PathVariable @NotNull Long id) {
+    public MailResponse getMailById(@PathVariable @Positive Long id) {
         log.info("Searching for mail with id: {}", id);
         return mailService.getMailResponseById(id);
-    }
-
-    @GetMapping("/all")
-    public List<MailResponse> getAllMails() {
-        log.info("Fetching all mails");
-        return mailService.getAllMails();
     }
 
     @GetMapping("/recipient")
