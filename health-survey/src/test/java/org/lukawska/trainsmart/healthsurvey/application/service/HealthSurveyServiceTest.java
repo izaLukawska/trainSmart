@@ -2,9 +2,9 @@ package org.lukawska.trainsmart.healthsurvey.application.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.healthsurvey.application.dto.CreateHealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
-import org.lukawska.trainsmart.healthsurvey.application.dto.UpdateHealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
@@ -40,11 +40,11 @@ class HealthSurveyServiceTest {
     @Test
     void shouldSubmitHealthSurveySuccess() {
         //given
-        final CreateHealthSurveyRequest createHealthSurveyRequest = healthSurveyRequest();
-        when(userService.getUserById(createHealthSurveyRequest.userId())).thenReturn(mock(User.class));
+        final HealthSurveyCreateRequest createHealthSurveyRequest = healthSurveyRequest();
+        when(userService.getUserById(2L)).thenReturn(mock(User.class));
 
         //when
-        HealthSurveyResponse result = healthSurveyService.submitHealthSurvey(createHealthSurveyRequest);
+        HealthSurveyResponse result = healthSurveyService.submitHealthSurvey(2L, createHealthSurveyRequest);
 
         //then
         verify(healthSurveyRepository, times(1)).save(any());
@@ -55,12 +55,12 @@ class HealthSurveyServiceTest {
     @Test
     void shouldUpdateHealthSurveySuccess() {
         //given
-        final UpdateHealthSurveyRequest updateHealthSurveyRequest = new UpdateHealthSurveyRequest(1L, 70, List.of());
+        final HealthSurveyUpdateRequest updateHealthSurveyRequest = new HealthSurveyUpdateRequest(70, List.of());
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(existingHealthSurvey));
 
         //when
-        HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(updateHealthSurveyRequest);
+        HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(1L, updateHealthSurveyRequest);
 
         //then
         assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
@@ -73,10 +73,10 @@ class HealthSurveyServiceTest {
         //given
         final HealthSurvey expectedHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(expectedHealthSurvey));
-        final UpdateHealthSurveyRequest updateHealthSurveyRequest = new UpdateHealthSurveyRequest(1L, null, null);
+        final HealthSurveyUpdateRequest updateHealthSurveyRequest = new HealthSurveyUpdateRequest(null, null);
 
         //when
-        HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(updateHealthSurveyRequest);
+        HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(1L, updateHealthSurveyRequest);
 
         //then
         assertThat(result.id()).isEqualTo(expectedHealthSurvey.getId());
@@ -134,7 +134,7 @@ class HealthSurveyServiceTest {
         when(userService.getUserById(any())).thenThrow(new UserNotFoundException(2L));
 
         //when && then
-        assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(healthSurveyRequest()))
+        assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(2L, healthSurveyRequest()))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessage("User not found for ID: %d", 2L);
     }
@@ -142,11 +142,11 @@ class HealthSurveyServiceTest {
     @Test
     void shouldThrowHealthSurveyAlreadyExistsExceptionWhenSubmitHealthSurvey() {
         //given
-        CreateHealthSurveyRequest createHealthSurveyRequest = healthSurveyRequest();
-        when(healthSurveyRepository.existsByUserId(createHealthSurveyRequest.userId())).thenReturn(true);
+        HealthSurveyCreateRequest createHealthSurveyRequest = healthSurveyRequest();
+        when(healthSurveyRepository.existsByUserId(1L)).thenReturn(true);
 
         //when && then
-        assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(createHealthSurveyRequest))
+        assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(1L, createHealthSurveyRequest))
                 .isInstanceOf(HealthSurveyException.class)
                 .hasMessage(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS.getMessage());
     }

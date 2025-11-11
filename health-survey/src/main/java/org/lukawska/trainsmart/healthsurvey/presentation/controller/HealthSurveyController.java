@@ -3,9 +3,9 @@ package org.lukawska.trainsmart.healthsurvey.presentation.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.healthsurvey.application.dto.CreateHealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
-import org.lukawska.trainsmart.healthsurvey.application.dto.UpdateHealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,17 +32,17 @@ public class HealthSurveyController {
     }
 
     @PostMapping
-    public ResponseEntity<HealthSurveyResponse> submitHealthSurvey(@Valid
-                                                                   @RequestBody
-                                                                   CreateHealthSurveyRequest surveyRequest) {
-        return ResponseEntity.status(201).body(healthSurveyService.submitHealthSurvey(surveyRequest));
+    public ResponseEntity<HealthSurveyResponse> submitHealthSurvey(
+            @PathVariable @Positive Long userId,
+            @Valid @RequestBody HealthSurveyCreateRequest surveyRequest) {
+        return ResponseEntity.status(201).body(healthSurveyService.submitHealthSurvey(userId, surveyRequest));
     }
 
     @PutMapping
-    public ResponseEntity<HealthSurveyResponse> updateHealthSurvey(@Valid
-                                                                   @RequestBody
-                                                                   UpdateHealthSurveyRequest surveyRequest) {
-        return ResponseEntity.ok(healthSurveyService.updateHealthSurvey(surveyRequest));
+    public ResponseEntity<HealthSurveyResponse> updateHealthSurvey(
+            @PathVariable @Positive Long userId,
+            @Valid @RequestBody HealthSurveyUpdateRequest surveyRequest) {
+        return ResponseEntity.ok(healthSurveyService.updateHealthSurvey(userId, surveyRequest));
     }
 
     @DeleteMapping

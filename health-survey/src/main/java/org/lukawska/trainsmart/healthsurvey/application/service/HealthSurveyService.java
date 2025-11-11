@@ -1,9 +1,9 @@
 package org.lukawska.trainsmart.healthsurvey.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.healthsurvey.application.dto.CreateHealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
-import org.lukawska.trainsmart.healthsurvey.application.dto.UpdateHealthSurveyRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
@@ -25,20 +25,20 @@ public class HealthSurveyService {
 
     private final UserService userService;
 
-    public HealthSurveyResponse submitHealthSurvey(CreateHealthSurveyRequest surveyRequest) {
-        if (healthSurveyRepository.existsByUserId(surveyRequest.userId())) {
+    public HealthSurveyResponse submitHealthSurvey(Long userId, HealthSurveyCreateRequest surveyRequest) {
+        if (healthSurveyRepository.existsByUserId(userId)) {
             throw new HealthSurveyException(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS);
         }
 
-        User user = userService.getUserById(surveyRequest.userId());
+        User user = userService.getUserById(userId);
         HealthSurvey healthSurvey = mapToEntity(surveyRequest, user);
         healthSurveyRepository.save(healthSurvey);
 
         return mapToHealthSurveyResponse(healthSurvey);
     }
 
-    public HealthSurveyResponse updateHealthSurvey(UpdateHealthSurveyRequest surveyRequest) {
-        HealthSurvey healthSurvey = getExistingHealthSurvey(surveyRequest.userId());
+    public HealthSurveyResponse updateHealthSurvey(Long userId, HealthSurveyUpdateRequest surveyRequest) {
+        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
 
         if (surveyRequest.weight() != null) {
             healthSurvey.updateWeight(surveyRequest.weight());
@@ -67,8 +67,9 @@ public class HealthSurveyService {
     }
 
     private HealthSurvey getExistingHealthSurvey(Long userId) {
-        return healthSurveyRepository
-                .findByUserId(userId)
-                .orElseThrow(() -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
+        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId)
+                                                          .orElseThrow(() -> new HealthSurveyException(
+                                                                  ExceptionType.HEALTH_SURVEY_NOT_FOUND));
+        return healthSurvey;
     }
 }

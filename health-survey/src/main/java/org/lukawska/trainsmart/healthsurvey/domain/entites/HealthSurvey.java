@@ -27,15 +27,18 @@ public class HealthSurvey {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false)
+    @Column(nullable = false)
     private Gender gender;
+
+    @Column(nullable = false)
+    private Integer height;
 
     @Column(nullable = false)
     private Integer weight;
 
     @ElementCollection
     @CollectionTable(name = "health_survey_injuries", joinColumns = @JoinColumn(name = "health_survey_id"))
-    @Column(name = "injuries", nullable = false)
+    @Column(nullable = false)
     private List<String> injuries;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -45,9 +48,10 @@ public class HealthSurvey {
     private Instant weightUpdatedAt;
 
     @Builder
-    private HealthSurvey(User user, Gender gender, Integer weight, List<String> injuries) {
+    private HealthSurvey(User user, Gender gender, Integer height, Integer weight, List<String> injuries) {
         this.user = user;
         this.gender = gender;
+        this.height = height;
         this.weight = weight;
         this.injuries = injuries == null ? new ArrayList<>() : injuries;
     }
