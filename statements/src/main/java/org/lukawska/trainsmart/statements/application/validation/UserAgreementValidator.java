@@ -1,7 +1,6 @@
 package org.lukawska.trainsmart.statements.application.validation;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.exception.ExceptionType;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
@@ -12,7 +11,6 @@ import org.lukawska.trainsmart.statements.infra.config.StatementsDefinition;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class UserAgreementValidator {
 

@@ -9,7 +9,6 @@ public final class UserAgreementMapper {
 
     public static UserAgreementResponse mapToResponse(UserAgreement userAgreement) {
         return new UserAgreementResponse(userAgreement.getId(),
-                                         userAgreement.getUser().getId(),
                                          userAgreement.getStatementCode(),
                                          userAgreement.getStatementVersion(),
                                          userAgreement.getStatus());
