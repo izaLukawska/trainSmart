@@ -37,6 +37,7 @@ public class MailService {
     @Transactional
     public MailResponse sendMail(MailRequest mailRequest) {
         if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
+            log.info("Validating {} attachments.", mailRequest.attachments().size());
             attachmentValidatorAdapter.validateAttachments(mailRequest.attachments());
         }
 
@@ -54,11 +55,11 @@ public class MailService {
 
     @Transactional
     public MailResponse getMailResponseById(Long id) {
-        log.info("Getting email for ID: {}", id);
-        return mailRepository
-                .findById(id)
-                .map(mail -> mapToResponse(mail, mailingProperties.getFrom(), mailingProperties.getReplyTo()))
-                .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
+        MailEntity foundMail = mailRepository.findById(id)
+                                             .orElseThrow(() -> new MailingException(ExceptionType.MAIL_NOT_FOUND));
+        log.info("Mail with ID: {} found.", id);
+
+        return mapToResponse(foundMail, mailingProperties.getFrom(), mailingProperties.getReplyTo());
     }
 
     @Transactional
