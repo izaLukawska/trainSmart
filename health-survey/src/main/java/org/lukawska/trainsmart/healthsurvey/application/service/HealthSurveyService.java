@@ -65,20 +65,27 @@ public class HealthSurveyService {
 
     @Transactional(readOnly = true)
     public List<String> getAllInjuriesByUserId(Long userId) {
-        return getExistingHealthSurvey(userId).getInjuries();
+        return healthSurveyRepository.findAllInjuriesByUserId(userId)
+                                     .orElseThrow(() -> new HealthSurveyException(
+                                             ExceptionType.HEALTH_SURVEY_NOT_FOUND));
     }
 
     @Transactional
     public void deleteHealthSurveyByUserId(Long userId) {
-        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
-        healthSurveyRepository.delete(healthSurvey);
+        if (!healthSurveyRepository.existsByUserId(userId)) {
+            throw new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND);
+        }
+
+        healthSurveyRepository.deleteByUserId(userId);
     }
 
     @Transactional(readOnly = true)
     public List<WeightHistoryResponse> getWeightHistoryByUserId(Long userId) {
-        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
+        Long healthSurveyId = healthSurveyRepository.findIdByUserId(userId)
+                                                    .orElseThrow(() -> new HealthSurveyException(
+                                                            ExceptionType.HEALTH_SURVEY_NOT_FOUND));
 
-        return healthSurveyRepository.findRevisions(healthSurvey.getId())
+        return healthSurveyRepository.findRevisions(healthSurveyId)
                                      .stream()
                                      .map(rev -> new WeightHistoryResponse(
                                              rev.getEntity().getWeight(),

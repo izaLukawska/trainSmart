@@ -2,9 +2,12 @@ package org.lukawska.trainsmart.healthsurvey.domain.repositories;
 
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.history.RevisionRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,5 +17,13 @@ public interface HealthSurveyRepository extends JpaRepository<HealthSurvey, Long
     Optional<HealthSurvey> findByUserId(Long userId);
 
     boolean existsByUserId(Long userId);
+
+    void deleteByUserId(Long userId);
+
+    @Query("SELECT hs.id FROM HealthSurvey hs WHERE hs.user.id = :userId")
+    Optional<Long> findIdByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT hs.injuries FROM HealthSurvey hs WHERE hs.user.id = :userId")
+    Optional<List<String>> findAllInjuriesByUserId(@Param("userId") Long userId);
 
 }

@@ -27,7 +27,7 @@ public class HealthSurveyTestData {
                            .build();
     }
 
-    private List<String> defaultInjuries() {
+    public List<String> defaultInjuries() {
         return List.of("sprained ankle", "wrist pain", "dislocated arm");
     }
 }
