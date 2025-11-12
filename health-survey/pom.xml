@@ -15,7 +15,6 @@
         <spring-data-envers.version>4.0.0-M6</spring-data-envers.version>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
@@ -28,4 +27,5 @@
             <version>${spring-data-envers.version}</version>
         </dependency>
     </dependencies>
+
 </project>

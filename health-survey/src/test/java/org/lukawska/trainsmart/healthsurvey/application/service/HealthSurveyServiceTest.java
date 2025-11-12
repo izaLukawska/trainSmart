@@ -121,11 +121,11 @@ class HealthSurveyServiceTest {
         //given
         final Long userId = 1L;
         HealthSurvey healthSurvey = healthSurveyEntity();
-        when(healthSurveyRepository.findIdByUserId(userId)).thenReturn(Optional.of(2L));
+        when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(healthSurvey));
 
         @SuppressWarnings("unchecked")
         Revision<Integer, HealthSurvey> myRevision = Revision.of(mock(RevisionMetadata.class), healthSurvey);
-        when(healthSurveyRepository.findRevisions(2L)).thenReturn(Revisions.of(List.of(myRevision)));
+        when(healthSurveyRepository.findRevisions(healthSurvey.getId())).thenReturn(Revisions.of(List.of(myRevision)));
 
         //when
         List<WeightHistoryResponse> expectedWeightHistory = healthSurveyService.getWeightHistoryByUserId(userId);

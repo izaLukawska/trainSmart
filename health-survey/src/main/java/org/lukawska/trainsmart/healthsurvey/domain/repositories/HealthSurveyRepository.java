@@ -20,9 +20,6 @@ public interface HealthSurveyRepository extends JpaRepository<HealthSurvey, Long
 
     void deleteByUserId(Long userId);
 
-    @Query("SELECT hs.id FROM HealthSurvey hs WHERE hs.user.id = :userId")
-    Optional<Long> findIdByUserId(@Param("userId") Long userId);
-
     @Query("SELECT hs.injuries FROM HealthSurvey hs WHERE hs.user.id = :userId")
     Optional<List<String>> findAllInjuriesByUserId(@Param("userId") Long userId);
 
