@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
+import org.lukawska.trainsmart.healthsurvey.application.dto.WeightHistoryResponse;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
@@ -15,6 +16,9 @@ import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.history.Revision;
+import org.springframework.data.history.RevisionMetadata;
+import org.springframework.data.history.Revisions;
 
 import java.util.List;
 import java.util.Optional;
@@ -101,7 +105,7 @@ class HealthSurveyServiceTest {
     }
 
     @Test
-    void getAllInjuriesByUserId() {
+    void shouldGetAllInjuriesByUserId() {
         //given
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(existingHealthSurvey));
@@ -116,7 +120,26 @@ class HealthSurveyServiceTest {
     }
 
     @Test
-    void deleteHealthSurveyByUserId() {
+    void shouldGetWeightHistoryByUserId() {
+        //given
+        final Long userId = 2L;
+        HealthSurvey healthSurvey = healthSurveyEntity();
+        when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(healthSurvey));
+
+        @SuppressWarnings("unchecked")
+        Revision<Integer, HealthSurvey> myRevision = Revision.of(mock(RevisionMetadata.class), healthSurvey);
+        when(healthSurveyRepository.findRevisions(healthSurvey.getId())).thenReturn(Revisions.of(List.of(myRevision)));
+
+        //when
+        List<WeightHistoryResponse> expectedWeightHistory = healthSurveyService.getWeightHistoryByUserId(userId);
+
+        //then
+        assertThat(expectedWeightHistory.size()).isEqualTo(1);
+        assertThat(expectedWeightHistory.getFirst().weight()).isEqualTo(healthSurvey.getWeight());
+    }
+
+    @Test
+    void shouldDeleteHealthSurveyByUserId() {
         //given
         final HealthSurvey healthSurvey = mock(HealthSurvey.class);
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(healthSurvey));

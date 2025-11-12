@@ -1,10 +1,6 @@
 package org.lukawska.trainsmart.healthsurvey.application.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
@@ -18,8 +14,7 @@ import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import static org.lukawska.trainsmart.healthsurvey.application.mapper.HealthSurveyMapper.mapToEntity;
@@ -32,9 +27,6 @@ public class HealthSurveyService {
     private final HealthSurveyRepository healthSurveyRepository;
 
     private final UserService userService;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Transactional
     public HealthSurveyResponse submitHealthSurvey(Long userId, HealthSurveyCreateRequest surveyRequest) {
@@ -85,25 +77,13 @@ public class HealthSurveyService {
     @Transactional(readOnly = true)
     public List<WeightHistoryResponse> getWeightHistoryByUserId(Long userId) {
         HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
-        Long surveyId = healthSurvey.getId();
 
-        AuditReader reader = AuditReaderFactory.get(entityManager);
-        List<Number> revisions = reader.getRevisions(HealthSurvey.class, surveyId);
-
-        return mapRevisionsToHistory(reader, revisions, surveyId);
-    }
-
-    private List<WeightHistoryResponse> mapRevisionsToHistory(AuditReader reader, List<Number> revisions,
-                                                              Long surveyId) {
-        List<WeightHistoryResponse> history = new ArrayList<>();
-
-        for (Number rev : revisions) {
-            HealthSurvey revEntity = reader.find(HealthSurvey.class, surveyId, rev);
-            Date revDate = reader.getRevisionDate(rev);
-            history.add(new WeightHistoryResponse(revEntity.getWeight(), revDate.toInstant()));
-        }
-
-        return history;
+        return healthSurveyRepository.findRevisions(healthSurvey.getId())
+                                     .stream()
+                                     .map(rev -> new WeightHistoryResponse(
+                                             rev.getEntity().getWeight(),
+                                             rev.getRevisionInstant().orElse(Instant.EPOCH)))
+                                     .toList();
     }
 
     private HealthSurvey getExistingHealthSurvey(Long userId) {

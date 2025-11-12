@@ -12,7 +12,7 @@
     <artifactId>health-survey</artifactId>
 
     <properties>
-        <hibernate-envers.version>7.1.7.Final</hibernate-envers.version>
+        <spring-data-envers.version>4.0.0-M6</spring-data-envers.version>
     </properties>
 
 
@@ -23,9 +23,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>${hibernate-envers.version}</version>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-envers</artifactId>
+            <version>${spring-data-envers.version}</version>
         </dependency>
     </dependencies>
 </project>

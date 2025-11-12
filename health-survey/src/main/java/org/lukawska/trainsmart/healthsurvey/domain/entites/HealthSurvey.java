@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SoftDelete;
 import org.hibernate.envers.Audited;
 import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
@@ -16,6 +17,7 @@ import java.util.List;
 @Entity
 @Table(name = "health_survey")
 @Getter
+@SoftDelete
 public class HealthSurvey {
 
     @Id
@@ -30,7 +32,7 @@ public class HealthSurvey {
     @Column(nullable = false)
     private Gender gender;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private Integer height;
 
     @Column(nullable = false)
