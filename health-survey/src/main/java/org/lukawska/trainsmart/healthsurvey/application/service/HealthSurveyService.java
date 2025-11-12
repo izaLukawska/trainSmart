@@ -8,6 +8,7 @@ import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRe
 import org.lukawska.trainsmart.healthsurvey.application.dto.WeightHistoryResponse;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
+import org.lukawska.trainsmart.healthsurvey.application.mapper.HealthSurveyMapper;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
 import org.lukawska.trainsmart.shared_persistence.application.service.UserService;
@@ -15,7 +16,6 @@ import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 
 import static org.lukawska.trainsmart.healthsurvey.application.mapper.HealthSurveyMapper.mapToEntity;
@@ -65,18 +65,18 @@ public class HealthSurveyService {
 
     @Transactional(readOnly = true)
     public HealthSurveyResponse getHealthSurveyByUserIdResponse(Long userId) {
-        HealthSurvey foundHealthSurvey = getExistingHealthSurvey(userId);
-        log.info("Found health survey: {}", foundHealthSurvey.getId());
+        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
+        log.info("Found health survey: {}", healthSurvey.getId());
 
-        return mapToHealthSurveyResponse(foundHealthSurvey);
+        return mapToHealthSurveyResponse(healthSurvey);
     }
 
     @Transactional(readOnly = true)
     public List<String> getAllInjuriesByUserId(Long userId) {
         List<String> injuries = healthSurveyRepository.findAllInjuriesByUserId(userId).orElseThrow(
                 () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-
         log.info("Found {} injuries.", injuries.size());
+
         return injuries;
     }
 
@@ -95,23 +95,20 @@ public class HealthSurveyService {
         Long healthSurveyId = getExistingHealthSurvey(userId).getId();
         log.info("Fetching weight history for health survey: {}", healthSurveyId);
 
-        List<WeightHistoryResponse> weightHistory = healthSurveyRepository.findRevisions(healthSurveyId)
-                                                                          .stream()
-                                                                          .map(rev -> new WeightHistoryResponse(
-                                                                                  rev.getEntity().getWeight(),
-                                                                                  rev.getRevisionInstant()
-                                                                                     .orElse(Instant.EPOCH)))
-                                                                          .toList();
+        var weightHistory = healthSurveyRepository.findRevisions(healthSurveyId)
+                                                  .stream()
+                                                  .map(HealthSurveyMapper::mapToWeightHistoryResponse)
+                                                  .toList();
         log.debug("Found {} weight update records.", weightHistory.size());
 
         return weightHistory;
     }
 
     private HealthSurvey getExistingHealthSurvey(Long userId) {
-        HealthSurvey foundHealthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
+        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
                 () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-        log.info("Found health survey: {}.", foundHealthSurvey.getId());
+        log.info("Found health survey: {}.", healthSurvey.getId());
 
-        return foundHealthSurvey;
+        return healthSurvey;
     }
 }
