@@ -25,6 +25,7 @@
         <module>app</module>
         <module>mailing</module>
         <module>openai</module>
+        <module>integration-tests</module>
     </modules>
     <scm>
         <connection/>
@@ -41,14 +42,11 @@
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <spring-retry.version>2.0.12</spring-retry.version>
-        <logback-core.version>1.5.19</logback-core.version>
         <postgresql.version>42.7.8</postgresql.version>
-        <testcontainers.version>1.21.3</testcontainers.version>
         <jacoco.version>0.8.13</jacoco.version>
         <logback.version>1.5.19</logback.version>
         <!-- Plugin version -->
         <maven-compiler.plugin.version>3.14.0</maven-compiler.plugin.version>
-        <spring-boot.maven-plugin.version>${spring-boot.version}</spring-boot.maven-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -120,23 +118,10 @@
         </dependency>
         <!-- Test dependencies -->
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
