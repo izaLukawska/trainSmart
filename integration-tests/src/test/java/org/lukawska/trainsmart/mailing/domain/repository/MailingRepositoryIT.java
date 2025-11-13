@@ -6,9 +6,9 @@ import org.lukawska.trainsmart.config.PostgresTestBase;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.testdata.MailingTestData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import static org.lukawska.trainsmart.mailing.testdata.MailingTestData.mailWithR
 
 @DataJpaTest
 @Transactional
-@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class MailingRepositoryIT extends PostgresTestBase {
 
     @Autowired
@@ -28,9 +28,8 @@ public class MailingRepositoryIT extends PostgresTestBase {
     void shouldReturnAllMailsForRecipient() {
         // given
         final String recipient = "test@test.com";
-        mailRepository.saveAllAndFlush((List.of(mailWithRecipient(recipient),
-                                                mailWithRecipient(recipient),
-                                                mailWithRecipient("another@test.com"))));
+        mailRepository.saveAllAndFlush(List.of(
+                mailWithRecipient(recipient), mailWithRecipient(recipient), mailWithRecipient("another@test.com")));
 
         //when
         List<MailEntity> result = mailRepository.findAllByRecipient(recipient);

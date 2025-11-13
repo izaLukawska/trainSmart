@@ -13,8 +13,6 @@ import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.repository.MailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -25,10 +23,9 @@ import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 @Transactional
-@ActiveProfiles("test")
 public class MailServiceIT extends PostgresTestBase {
 
-    @MockitoBean
+    @Autowired
     private MailSender mailSender;
 
     @Autowired
@@ -79,9 +76,7 @@ public class MailServiceIT extends PostgresTestBase {
     void shouldReturnAllMailsByRecipient() {
         //given
         final String recipient = "test@test.com";
-        mailRepository.saveAll(List.of(mailWithRecipient(recipient),
-                                       mailWithRecipient(recipient),
-                                       mailWithRecipient("test1@test.com")));
+        mailRepository.saveAll(List.of(mailWithRecipient(recipient), mailWithRecipient("test1@test.com")));
 
         //when
         List<MailResponse> mailResponses = mailService.getAllMailsByRecipient(recipient);
@@ -97,9 +92,7 @@ public class MailServiceIT extends PostgresTestBase {
     void shouldReturnAllMailsBySubjectContaining() {
         //given
         final String keyword = "test";
-        mailRepository.saveAll(List.of(mailWithSubject("test subject"),
-                                       mailWithSubject("test subject"),
-                                       mailWithSubject("different subject")));
+        mailRepository.saveAll(List.of(mailWithSubject("test subject"), mailWithSubject("different subject")));
 
         //when
         List<MailResponse> mailResponses = mailService.getAllMailsBySubjectContaining(keyword);
