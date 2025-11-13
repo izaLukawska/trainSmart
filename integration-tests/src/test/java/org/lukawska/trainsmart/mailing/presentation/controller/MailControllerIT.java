@@ -38,20 +38,19 @@ public class MailControllerIT {
     @Test
     void shouldCreateMailAndReturn201() throws Exception {
         // given
-        MailRequest request = mailRequestWithAttachments();
-        when(mailService.sendMail(request)).thenReturn(mailResponseWitId(1L));
+        final MailRequest mailRequest = mailRequestWithAttachments();
+        when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWitId(1L));
 
         // when + then
         mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON)
-                                              .content(objectMapper.writeValueAsString(request)))
+                                              .content(objectMapper.writeValueAsString(mailRequest)))
                .andExpect(status().isCreated());
-
     }
 
     @Test
     void shouldReturnMailById() throws Exception {
         // given
-        MailResponse mailResponse = mailResponseWitId(1L);
+        final MailResponse mailResponse = mailResponseWitId(1L);
         when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
 
         // when + then

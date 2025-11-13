@@ -13,6 +13,7 @@ import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.repository.MailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.doNothing;
 @Transactional
 public class MailServiceIT extends PostgresTestBase {
 
-    @Autowired
+    @MockitoBean
     private MailSender mailSender;
 
     @Autowired
@@ -62,14 +63,14 @@ public class MailServiceIT extends PostgresTestBase {
     @Test
     void shouldReturnMailById() {
         //given
-        MailEntity mail = mailEntityWithAttachments();
-        mailRepository.save(mail);
+        final MailEntity mailEntity = mailEntityWithAttachments();
+        mailRepository.save(mailEntity);
 
         //when
-        MailResponse result = mailService.getMailResponseById(mail.getId());
+        MailResponse result = mailService.getMailResponseById(mailEntity.getId());
 
         //then
-        assertThat(result.id()).isEqualTo(mail.getId());
+        assertThat(result.id()).isEqualTo(mailEntity.getId());
     }
 
     @Test

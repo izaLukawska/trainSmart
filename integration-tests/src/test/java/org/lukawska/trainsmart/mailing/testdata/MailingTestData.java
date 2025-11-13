@@ -20,6 +20,7 @@ public class MailingTestData {
                          .text(UUID.randomUUID().toString())
                          .subject(UUID.randomUUID().toString())
                          .isHtml(new Random().nextBoolean())
+                         .attachments(validAttachments())
                          .build();
     }
 
@@ -50,7 +51,7 @@ public class MailingTestData {
                                UUID.randomUUID().toString(),
                                UUID.randomUUID().toString(),
                                new Random().nextBoolean(),
-                               List.of(new Attachment("file.pdf", new byte[]{1, 2, 3})));
+                               validAttachments());
     }
 
     public static MailRequest mailRequestWithInvalidAttachment() {
