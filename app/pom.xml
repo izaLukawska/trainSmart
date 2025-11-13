@@ -12,6 +12,8 @@
     <artifactId>app</artifactId>
 
     <properties>
+        <spring-boot.maven-plugin.version>${spring-boot.version}</spring-boot.maven-plugin.version>
+        <trainsmart.version>0.0.1-SNAPSHOT</trainsmart.version>
         <openai.version>${project.version}</openai.version>
     </properties>
 
@@ -20,6 +22,12 @@
             <groupId>org.lukawska</groupId>
             <artifactId>openai</artifactId>
             <version>${openai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>mailing</artifactId>
+            <version>${trainsmart.version}</version>
         </dependency>
     </dependencies>
 
@@ -36,6 +44,13 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

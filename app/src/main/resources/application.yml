@@ -9,6 +9,20 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+            connectiontimeout: 5000
+            timeout: 5000
+            writetimeout: 5000
   ai:
     retry:
       max-attempts: 3
@@ -26,3 +40,21 @@ spring:
           model: gpt-4o-mini
           max-tokens: 500
           temperature: 0.0
+
+mailing:
+  from: no-reply@trainsmart.com
+  reply-to: support@trainsmart.com
+  validMimeTypes:
+    pdf:
+      - application/pdf
+      - application/x-pdf
+    xls:
+      - application/vnd.ms-excel
+    xlsx:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  maxSizeBytes: 10485760
+
+management:
+  health:
+    mail:
+      enabled: false

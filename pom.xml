@@ -23,6 +23,7 @@
     </developers>
     <modules>
         <module>app</module>
+        <module>mailing</module>
         <module>openai</module>
     </modules>
     <scm>
@@ -39,9 +40,10 @@
         <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
+        <spring-retry.version>2.0.12</spring-retry.version>
+        <logback-core.version>1.5.19</logback-core.version>
         <postgresql.version>42.7.8</postgresql.version>
         <testcontainers.version>1.21.3</testcontainers.version>
-        <spring-security-test.version>6.5.5</spring-security-test.version>
         <jacoco.version>0.8.13</jacoco.version>
         <logback.version>1.5.19</logback.version>
         <!-- Plugin version -->
@@ -59,11 +61,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,6 +75,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+            <version>${spring-retry.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -127,9 +134,9 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -169,6 +176,12 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*Controller.class</exclude>
+                                <exclude>**/*Controller$*.class</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>check</id>
@@ -176,6 +189,10 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <excludes>
+                                <exclude>**/*Controller.class</exclude>
+                                <exclude>**/*Controller$*.class</exclude>
+                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
@@ -183,7 +200,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.00</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
