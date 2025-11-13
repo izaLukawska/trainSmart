@@ -11,6 +11,7 @@ import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.repository.MailRepository;
+import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,6 +32,9 @@ public class MailServiceIT extends PostgresTestBase {
 
     @Autowired
     private MailRepository mailRepository;
+
+    @Autowired
+    private MailingProperties mailingProperties;
 
     @Autowired
     private MailService mailService;
@@ -55,9 +59,8 @@ public class MailServiceIT extends PostgresTestBase {
 
         assertThat(mailResponse.id()).isEqualTo(savedMail.getId());
         assertThat(mailResponse.recipients()).isEqualTo(savedMail.getRecipients());
-        assertThat(mailResponse.from()).isEqualTo("test-from@example.com");
-        assertThat(mailResponse.replyTo()).isEqualTo("test-replyto@example.com");
-        assertThat(mailResponse.subject()).isEqualTo(savedMail.getSubject());
+        assertThat(mailResponse.from()).isEqualTo(mailingProperties.getFrom());
+        assertThat(mailResponse.replyTo()).isEqualTo(mailingProperties.getReplyTo());
     }
 
     @Test

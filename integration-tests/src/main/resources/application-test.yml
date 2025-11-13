@@ -5,6 +5,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+  mail:
+    protocol: smtp
 
 mailing:
   from: test-from@example.com

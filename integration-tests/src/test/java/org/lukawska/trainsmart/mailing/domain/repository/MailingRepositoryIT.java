@@ -43,7 +43,7 @@ public class MailingRepositoryIT extends PostgresTestBase {
     @Test
     void shouldThrowExceptionWhenSubjectIsNull() {
         //given
-        MailEntity mailWithoutSubject = MailingTestData.mailWithSubject(null);
+        final MailEntity mailWithoutSubject = MailingTestData.mailWithSubject(null);
 
         //when && then
         assertThatThrownBy(() -> mailRepository.saveAndFlush(mailWithoutSubject))
