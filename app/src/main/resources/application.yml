@@ -23,7 +23,6 @@ spring:
             connectiontimeout: 5000
             timeout: 5000
             writetimeout: 5000
-
 mailing:
   from: no-reply@trainsmart.com
   reply-to: support@trainsmart.com
@@ -36,3 +35,8 @@ mailing:
     xlsx:
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   maxSizeBytes: 10485760
+  
+management:
+  health:
+    mail:
+      enabled: false
