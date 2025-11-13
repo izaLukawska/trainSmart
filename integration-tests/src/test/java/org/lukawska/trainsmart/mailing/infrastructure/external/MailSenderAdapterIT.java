@@ -32,6 +32,12 @@ public class MailSenderAdapterIT extends PostgresTestBase {
     @Container
     static GenericContainer<?> mailhog = new GenericContainer<>("mailhog/mailhog:latest").withExposedPorts(1025, 8025);
 
+    @Autowired
+    private MailSenderAdapter mailSenderAdapter;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
         registry.add("spring.mail.host", mailhog::getHost);
@@ -39,17 +45,15 @@ public class MailSenderAdapterIT extends PostgresTestBase {
         registry.add("spring.mail.protocol", () -> "smtp");
     }
 
-    @Autowired
-    private MailSenderAdapter mailSenderAdapter;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Test
     void shouldSendMailSuccess() throws Exception {
+        //given
+        final MailRequest mailRequest = mailRequestWithAttachments();
+
         //when
-        MailRequest mailRequest = mailRequestWithAttachments();
         mailSenderAdapter.sendEmail(mailRequest);
+
+        //then
         URI uri = URI.create(String.format("http://%s:%d/api/v2/messages",
                                            mailhog.getHost(), mailhog.getMappedPort(8025)));
 
@@ -60,8 +64,8 @@ public class MailSenderAdapterIT extends PostgresTestBase {
         JsonNode items = root.path("items");
         assertFalse(items.isEmpty(), "No messages in MailHog");
 
-        JsonNode first = items.get(0);
-        JsonNode subjectNode = first.path("Content").path("Headers").path("Subject");
+        JsonNode sentMail = items.get(0);
+        JsonNode subjectNode = sentMail.path("Content").path("Headers").path("Subject");
         String subject = subjectNode.isArray() && !subjectNode.isEmpty() ? subjectNode.get(0).asText() : "";
 
         assertEquals(mailRequest.subject(), subject);
