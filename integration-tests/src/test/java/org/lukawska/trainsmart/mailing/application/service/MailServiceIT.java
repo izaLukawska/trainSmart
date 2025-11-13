@@ -21,7 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lukawska.trainsmart.mailing.testdata.MailingTestData.*;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Transactional
@@ -54,6 +54,7 @@ public class MailServiceIT extends PostgresTestBase {
         MailResponse mailResponse = mailService.sendMail(mailRequest);
 
         //then
+        verify(mailSender, times(1)).sendEmail(mailRequest);
         MailEntity savedMail = mailRepository.findById(mailResponse.id())
                                              .orElseThrow(() -> new AssertionError("Mail not saved"));
 
@@ -89,7 +90,7 @@ public class MailServiceIT extends PostgresTestBase {
         List<MailEntity> mailsByRecipient = mailRepository.findAllByRecipient(recipient);
         assertThat(mailResponses.size()).isEqualTo(mailsByRecipient.size());
         assertThat(mailResponses).extracting(MailResponse::recipients)
-                                 .allMatch(response -> response.contains("test@test.com"));
+                                 .allMatch(response -> response.contains(recipient));
     }
 
     @Test

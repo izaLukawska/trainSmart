@@ -65,7 +65,7 @@ public class MailingTestData {
                                        new Attachment("file.pdf", new byte[]{1, 2, 3})));
     }
 
-    public static MailResponse mailResponseWitId(Long id) {
+    public static MailResponse mailResponseWithId(Long id) {
         return new MailResponse(id,
                                 List.of(UUID.randomUUID() + "@test.com"),
                                 List.of(UUID.randomUUID() + "@test.com"),

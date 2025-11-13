@@ -9,6 +9,7 @@ import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.MailException;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
@@ -65,19 +66,22 @@ public class MailSenderAdapterIT extends PostgresTestBase {
         HttpRequest httpRequest = HttpRequest.newBuilder(uri).GET().build();
         HttpResponse<String> httpResponse = HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
+        assertThat(httpResponse.statusCode()).isEqualTo(200);
+
         JsonNode sentMail = objectMapper.readTree(httpResponse.body()).at("/items/0");
+        assertThat(sentMail.isMissingNode()).isFalse();
 
         String subject = getHeaderValue(sentMail, "Subject");
         String from = getHeaderValue(sentMail, "From");
         String replyTo = getHeaderValue(sentMail, "Reply-To");
 
-        assertThat(sentMail.isMissingNode()).isFalse();
         assertThat(subject).isEqualTo(mailRequest.subject());
         assertThat(replyTo).isEqualTo(mailingProperties.getReplyTo());
         assertThat(from).isEqualTo(mailingProperties.getFrom());
     }
 
     @Test
+    @DirtiesContext
     void shouldThrowMailSendErrorAfterAllRetriesFailed() {
         //given
         mailhog.stop();

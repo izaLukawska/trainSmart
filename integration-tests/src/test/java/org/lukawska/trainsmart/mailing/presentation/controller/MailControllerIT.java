@@ -39,7 +39,7 @@ public class MailControllerIT {
     void shouldCreateMailAndReturn201() throws Exception {
         // given
         final MailRequest mailRequest = mailRequestWithAttachments();
-        when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWitId(1L));
+        when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
 
         // when + then
         mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON)
@@ -50,7 +50,7 @@ public class MailControllerIT {
     @Test
     void shouldReturnMailById() throws Exception {
         // given
-        final MailResponse mailResponse = mailResponseWitId(1L);
+        final MailResponse mailResponse = mailResponseWithId(1L);
         when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
 
         // when + then
@@ -79,14 +79,15 @@ public class MailControllerIT {
     void shouldReturnAllMailsBySubject() throws Exception {
         // given
         final String subject = "subject";
-        when(mailService.getAllMailsBySubjectContaining(subject))
+        final String keyword = "sub";
+        when(mailService.getAllMailsBySubjectContaining(keyword))
                 .thenReturn(List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
 
         // when + then
-        mockMvc.perform(get("/api/mail/subject").param("keyword", "subject"))
+        mockMvc.perform(get("/api/mail/subject").param("keyword", keyword))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
-               .andExpect(jsonPath("$[*].subject", everyItem(containsString("sub"))));
+               .andExpect(jsonPath("$[*].subject", everyItem(containsString(keyword))));
     }
 
     @Test
