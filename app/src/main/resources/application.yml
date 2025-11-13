@@ -23,6 +23,24 @@ spring:
             connectiontimeout: 5000
             timeout: 5000
             writetimeout: 5000
+  ai:
+    retry:
+      max-attempts: 3
+      backoff:
+        initial-interval: 2000ms
+        multiplier: 2
+        max-interval: 10000ms
+      on-client-errors: false
+      exclude-on-http-codes: [ 400, 401, 403 ]
+      on-http-codes: [ 429, 500, 503, 502, 504 ]
+    openai:
+      api-key: ${OPEN_AI_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+          max-tokens: 500
+          temperature: 0.0
+
 mailing:
   from: no-reply@trainsmart.com
   reply-to: support@trainsmart.com
@@ -35,7 +53,7 @@ mailing:
     xlsx:
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   maxSizeBytes: 10485760
-  
+
 management:
   health:
     mail:

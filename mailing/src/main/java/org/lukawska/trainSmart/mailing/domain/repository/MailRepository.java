@@ -11,9 +11,9 @@ import java.util.List;
 @Repository
 public interface MailRepository extends JpaRepository<MailEntity, Long> {
 
-	@Query("SELECT m FROM MailEntity m JOIN m.recipients r WHERE r = :recipient")
-	List<MailEntity> findAllByRecipient(@Param("recipient") String recipient);
+    @Query("SELECT m FROM MailEntity m JOIN m.recipients r WHERE r = :recipient")
+    List<MailEntity> findAllByRecipient(@Param("recipient") String recipient);
 
-	List<MailEntity> findAllBySubjectContaining(String keyword);
+    List<MailEntity> findAllBySubjectContaining(String keyword);
 
 }
