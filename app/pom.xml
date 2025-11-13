@@ -12,10 +12,17 @@
     <artifactId>app</artifactId>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.maven-plugin.version>${spring-boot.version}</spring-boot.maven-plugin.version>
+        <trainsmart.version>0.0.1-SNAPSHOT</trainsmart.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>mailing</artifactId>
+            <version>${trainsmart.version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -30,6 +37,13 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
