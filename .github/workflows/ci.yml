@@ -47,7 +47,7 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Build project
-        run: mvn -B -U -DskipTests package
+        run: mvn -pl app -am -B -U -DskipTests package -Dspring-boot.repackage.skip=false
 
       - name: Run tests and check coverage
         run: mvn verify
@@ -102,6 +102,13 @@ jobs:
         with:
           name: jar-artifacts
           path: app/target
+
+      - name: Show downloaded JARs (debug)
+        run: |
+          echo "Listing app/target"
+          ls -la app/target || true
+          echo "If empty, list workspace root:"
+          ls -la || true
 
       - name: Inspect downloaded JAR manifest
         run: |
