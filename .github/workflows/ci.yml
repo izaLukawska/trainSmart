@@ -97,8 +97,30 @@ jobs:
           echo "DB_PORT=${{ secrets.DB_DOCKER_PORT }}" >> .env
           echo "DB_HOST=${{ secrets.DB_DOCKER_HOST }}" >> .env
 
-      - name: Build bootable JAR for smoke tests
-        run: mvn -pl app -am -B -U clean package -DskipTests -Dspring-boot.repackage.skip=false
+      - name: Download JAR artifacts from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-artifacts
+          path: app/target
+
+      - name: Inspect downloaded JAR manifest
+        run: |
+          echo "Inspecting JAR manifest..."
+          if ! unzip -p app/target/*.jar META-INF/MANIFEST.MF >/tmp/manifest 2>/dev/null; then
+            echo "ERROR: cannot read META-INF/MANIFEST.MF from app/target/*.jar"
+            ls -l app/target/*.jar || true
+            exit 1
+          fi
+          
+          echo "Manifest contents:"
+          cat /tmp/manifest
+          
+          if ! grep -E '^(Main-Class|Start-Class):' /tmp/manifest >/dev/null; then
+            echo "ERROR: JAR is not executable (missing Main-Class or Start-Class)"
+            echo "Listing JAR contents for debug:"
+            unzip -l app/target/*.jar | head -n 50
+            exit 1
+          fi
 
       - name: Build and start services
         run: docker compose --env-file .env up -d --build
@@ -107,25 +129,25 @@ jobs:
         run: |
           echo "Waiting for containers to initialize..."
           sleep 5
-
-          MAX_ATTEMPTS=24   # 24 * 5s = 120s
+          
+          MAX_ATTEMPTS=24
           URL="http://localhost:8080/actuator/health"
-
+          
           for i in $(seq 1 $MAX_ATTEMPTS); do
             echo "Attempt $i/$MAX_ATTEMPTS"
-            docker compose ps 
+            docker compose ps
             if curl -sSf --max-time 3 $URL > /dev/null; then
               echo "Application run successfully"
               docker compose down --volumes --remove-orphans
               exit 0
             fi
-
+          
             echo "Health endpoint not ready yet - last logs:"
             docker compose logs --tail 50
             sleep 5
           done
-
+          
           echo "Application failed to become healthy after $((MAX_ATTEMPTS*5))s"
-          docker compose logs --no-color
+          docker compose logs
           docker compose down --volumes --remove-orphans
           exit 1
