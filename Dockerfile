@@ -7,12 +7,11 @@ COPY pom.xml .
 
 COPY . .
 
-RUN mvn package -DskipTests
+RUN mvn package -DskipTests -Dspring-boot.repackage.skip=false
 
 # RUNTIME STAGE
 FROM eclipse-temurin:21-jre-alpine
 
-COPY --from=builder /app/app/target/app-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/app/target/*.jar app.jar
 
 ENTRYPOINT ["java","-jar","/app.jar"]
-
