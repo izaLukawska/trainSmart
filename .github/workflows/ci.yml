@@ -98,7 +98,6 @@ jobs:
           echo "DB_HOST=${{ secrets.DB_DOCKER_HOST }}" >> .env
 
       - name: Build bootable JAR for smoke tests
-
         run: mvn -pl app -am -B -U clean package -DskipTests -Dspring-boot.repackage.skip=false
 
       - name: Build and start services
@@ -114,7 +113,7 @@ jobs:
 
           for i in $(seq 1 $MAX_ATTEMPTS); do
             echo "Attempt $i/$MAX_ATTEMPTS"
-            docker compose ps --no-ansi
+            docker compose ps 
             if curl -sSf --max-time 3 $URL > /dev/null; then
               echo "Application run successfully"
               docker compose down --volumes --remove-orphans
@@ -122,7 +121,7 @@ jobs:
             fi
 
             echo "Health endpoint not ready yet - last logs:"
-            docker compose logs --no-color --tail 50
+            docker compose logs --tail 50
             sleep 5
           done
 
