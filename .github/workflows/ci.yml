@@ -81,6 +81,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up JDK 21 with caching
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'
+
       - name: Generate .env from secrets
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
