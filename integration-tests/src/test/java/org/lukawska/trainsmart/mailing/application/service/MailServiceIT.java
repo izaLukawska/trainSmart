@@ -5,12 +5,14 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestBase;
+import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
 import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.repository.MailRepository;
+import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,6 +62,7 @@ public class MailServiceIT extends PostgresTestBase {
 
         assertThat(mailResponse.id()).isEqualTo(savedMail.getId());
         assertThat(mailResponse.recipients()).isEqualTo(savedMail.getRecipients());
+        assertThat(mailResponse.subject()).isEqualTo(savedMail.getSubject());
         assertThat(mailResponse.from()).isEqualTo(mailingProperties.getFrom());
         assertThat(mailResponse.replyTo()).isEqualTo(mailingProperties.getReplyTo());
     }
@@ -68,6 +71,7 @@ public class MailServiceIT extends PostgresTestBase {
     void shouldReturnMailById() {
         //given
         final MailEntity mailEntity = mailEntityWithAttachments();
+        final List<AttachmentMeta> expectedAttachmentMeta = mapToAttachmentMetaList(mailEntity.getAttachments());
         mailRepository.save(mailEntity);
 
         //when
@@ -75,6 +79,8 @@ public class MailServiceIT extends PostgresTestBase {
 
         //then
         assertThat(result.id()).isEqualTo(mailEntity.getId());
+        assertThat(result.recipients()).isEqualTo(mailEntity.getRecipients());
+        assertThat(result.attachments()).isEqualTo(expectedAttachmentMeta);
     }
 
     @Test
@@ -109,6 +115,20 @@ public class MailServiceIT extends PostgresTestBase {
     }
 
     @Test
+    void shouldThrowExceptionWhenSendMailError() throws MessagingException {
+        //given
+        final MailRequest mailRequest = mailRequestWithAttachments();
+        doThrow(new MessagingException("send error")).when(mailSender).sendEmail(mailRequest);
+
+        //when && then
+        assertThatThrownBy(() -> mailService.sendMail(mailRequest))
+                .isInstanceOf(MailingException.class)
+                .hasMessage(ExceptionType.MAIL_SEND_ERROR.getMessage());
+
+        assertThat(mailRepository.count()).isZero();
+    }
+
+    @Test
     void shouldThrowInvalidAttachmentExtensionWhenSendMail() {
         //given
         final MailRequest mailRequest = mailRequestWithInvalidAttachment();
@@ -117,5 +137,13 @@ public class MailServiceIT extends PostgresTestBase {
         assertThatThrownBy(() -> mailService.sendMail(mailRequest))
                 .isInstanceOf(MailingException.class)
                 .hasMessage(ExceptionType.INVALID_ATTACHMENT_EXTENSION.getMessage());
+
+        assertThat(mailRepository.count()).isZero();
+    }
+
+    private List<AttachmentMeta> mapToAttachmentMetaList(List<Attachment> attachments) {
+        return attachments.stream()
+                          .map(att -> new AttachmentMeta(att.getFileName(), att.getSize()))
+                          .toList();
     }
 }
