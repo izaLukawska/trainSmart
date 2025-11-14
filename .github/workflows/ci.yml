@@ -89,6 +89,9 @@ jobs:
           echo "DB_PORT=${{ secrets.DB_DOCKER_PORT }}" >> .env
           echo "DB_HOST=${{ secrets.DB_DOCKER_HOST }}" >> .env
 
+      - name: Build bootable JAR for smoke tests
+        run: mvn clean package -DskipTests -Dspring-boot.repackage.skip=false
+
       - name: Build and start services
         run: docker compose up -d --build
 
