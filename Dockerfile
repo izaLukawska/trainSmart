@@ -7,7 +7,7 @@ COPY pom.xml .
 
 COPY . .
 
-RUN mvn package -DskipTests -Dspring-boot.repackage.skip=false
+RUN mvn package -DskipTests
 
 # RUNTIME STAGE
 FROM eclipse-temurin:21-jre-alpine
