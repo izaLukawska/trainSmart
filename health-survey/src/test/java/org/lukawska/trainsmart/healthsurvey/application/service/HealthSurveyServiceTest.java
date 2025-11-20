@@ -16,6 +16,7 @@ import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionMetadata;
 import org.springframework.data.history.Revisions;
@@ -162,7 +163,7 @@ class HealthSurveyServiceTest {
         //give
         final Long userId = 1L;
         final HealthSurvey healthSurvey = healthSurveyEntity();
-        when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.ofNullable(healthSurvey));
+        when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(healthSurvey));
 
         //when
         healthSurveyService.deleteHealthSurveyByUserId(userId);
@@ -187,7 +188,8 @@ class HealthSurveyServiceTest {
         //given
         final Long userId = 1L;
         HealthSurveyCreateRequest createHealthSurveyRequest = healthSurveyRequest();
-        when(healthSurveyRepository.existsByUserId(userId)).thenReturn(true);
+        when(userService.getUserById(userId)).thenReturn(mock(User.class));
+        when(healthSurveyRepository.save(any())).thenThrow(new DataIntegrityViolationException("Unique violation"));
 
         //when && then
         assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(userId, createHealthSurveyRequest))

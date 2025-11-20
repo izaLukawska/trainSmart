@@ -16,8 +16,6 @@ public interface HealthSurveyRepository extends JpaRepository<HealthSurvey, Long
 
     Optional<HealthSurvey> findByUserId(Long userId);
 
-    boolean existsByUserId(Long userId);
-
     @Query("SELECT hs.injuries FROM HealthSurvey hs WHERE hs.user.id = :userId")
     Optional<Set<String>> findAllInjuriesByUserId(@Param("userId") Long userId);
 

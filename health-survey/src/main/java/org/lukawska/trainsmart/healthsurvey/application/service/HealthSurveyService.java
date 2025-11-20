@@ -13,6 +13,7 @@ import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,19 +35,18 @@ public class HealthSurveyService {
 
     @Transactional
     public HealthSurveyResponse submitHealthSurvey(Long userId, HealthSurveyCreateRequest surveyRequest) {
-        if (healthSurveyRepository.existsByUserId(userId)) {
-            throw new HealthSurveyException(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS);
-        }
-
         User user = userService.getUserById(userId);
         log.info("Creating health survey for user: {}", user.getId());
         HealthSurvey healthSurvey = mapToEntity(surveyRequest, user);
 
-        HealthSurvey.builder().build();
-        healthSurveyRepository.save(healthSurvey);
-        log.info("Saved health survey: {}", healthSurvey.getId());
-
-        return mapToHealthSurveyResponse(healthSurvey);
+        try {
+            healthSurveyRepository.save(healthSurvey);
+            log.info("Saved health survey: {}", healthSurvey.getId());
+            return mapToHealthSurveyResponse(healthSurvey);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Failed to create health survey for user {}: {}", userId, e.getMessage());
+            throw new HealthSurveyException(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS);
+        }
     }
 
     @Transactional

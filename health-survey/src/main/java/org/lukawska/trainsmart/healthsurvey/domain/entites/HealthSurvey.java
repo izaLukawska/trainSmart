@@ -14,7 +14,7 @@ import java.util.Set;
 
 @NoArgsConstructor
 @Entity
-@Table(name = "health_survey")
+@Table(name = "health_survey", uniqueConstraints = @UniqueConstraint(columnNames = "user_id"))
 @Getter
 @SoftDelete
 public class HealthSurvey {
