@@ -6,7 +6,7 @@ import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 
@@ -27,7 +27,7 @@ public class HealthSurveyTestData {
                            .build();
     }
 
-    public List<String> defaultInjuries() {
-        return List.of("sprained ankle", "wrist pain", "dislocated arm");
+    public Set<String> defaultInjuries() {
+        return Set.of("sprained ankle", "wrist pain", "dislocated arm");
     }
 }

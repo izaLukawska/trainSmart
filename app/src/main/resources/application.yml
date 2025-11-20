@@ -12,3 +12,7 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+
+server:
+  servlet:
+    context-path: /api/v1

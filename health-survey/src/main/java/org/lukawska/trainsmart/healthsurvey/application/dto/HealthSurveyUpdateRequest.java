@@ -3,7 +3,28 @@ package org.lukawska.trainsmart.healthsurvey.application.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
-public record HealthSurveyUpdateRequest(@Positive Integer weight, @Size(max = 5) List<@NotBlank String> injuries) {}
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+public class HealthSurveyUpdateRequest {
+
+    @Positive
+    private Integer weight;
+
+    @Size(max = 5)
+    private Set<@NotBlank String> injuries;
+
+    public HealthSurveyUpdateRequest(Set<String> injuries) {
+        this.injuries = injuries;
+    }
+
+    public HealthSurveyUpdateRequest(Integer weight) {
+        this.weight = weight;
+    }
+}

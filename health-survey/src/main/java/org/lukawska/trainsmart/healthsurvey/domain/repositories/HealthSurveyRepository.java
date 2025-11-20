@@ -7,8 +7,8 @@ import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface HealthSurveyRepository extends JpaRepository<HealthSurvey, Long>,
@@ -18,9 +18,7 @@ public interface HealthSurveyRepository extends JpaRepository<HealthSurvey, Long
 
     boolean existsByUserId(Long userId);
 
-    void deleteByUserId(Long userId);
-
     @Query("SELECT hs.injuries FROM HealthSurvey hs WHERE hs.user.id = :userId")
-    Optional<List<String>> findAllInjuriesByUserId(@Param("userId") Long userId);
+    Optional<Set<String>> findAllInjuriesByUserId(@Param("userId") Long userId);
 
 }

@@ -1,7 +1,6 @@
 package org.lukawska.trainsmart.healthsurvey.domain.entites;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +9,10 @@ import org.hibernate.envers.Audited;
 import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Entity
 @Table(name = "health_survey")
 @Getter
@@ -42,22 +41,22 @@ public class HealthSurvey {
     @ElementCollection
     @CollectionTable(name = "health_survey_injuries", joinColumns = @JoinColumn(name = "health_survey_id"))
     @Column(nullable = false)
-    private List<String> injuries;
+    private Set<String> injuries;
 
     @Builder
-    private HealthSurvey(User user, Gender gender, Integer height, Integer weight, List<String> injuries) {
+    private HealthSurvey(User user, Gender gender, Integer height, Integer weight, Set<String> injuries) {
         this.user = user;
         this.gender = gender;
         this.height = height;
         this.weight = weight;
-        this.injuries = injuries == null ? new ArrayList<>() : injuries;
+        this.injuries = injuries == null ? new HashSet<>() : injuries;
     }
 
     public void updateWeight(Integer weight) {
         this.weight = weight;
     }
 
-    public void updateInjuries(List<String> injuries) {
+    public void updateInjuries(Set<String> injuries) {
         this.injuries = injuries;
     }
 }
