@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.util.List;
 
@@ -41,9 +42,11 @@ public class MailControllerIT {
         final MailRequest mailRequest = mailRequestWithAttachments();
         when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
 
-        // when + then
-        mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON)
-                                              .content(objectMapper.writeValueAsString(mailRequest)))
+        // when && then
+        RequestBuilder request = post("/api/mail/send").contentType(MediaType.APPLICATION_JSON)
+                                                       .content(objectMapper.writeValueAsString(mailRequest));
+
+        mockMvc.perform(request)
                .andExpect(status().isCreated());
     }
 
@@ -53,7 +56,7 @@ public class MailControllerIT {
         final MailResponse mailResponse = mailResponseWithId(1L);
         when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
 
-        // when + then
+        // when && then
         mockMvc.perform(get("/api/mail/1"))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id").value(mailResponse.id()))
@@ -68,7 +71,7 @@ public class MailControllerIT {
         when(mailService.getAllMailsByRecipient(recipient))
                 .thenReturn(List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
 
-        // when + then
+        // when && then
         mockMvc.perform(get("/api/mail/recipient").param("recipient", recipient))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
@@ -83,7 +86,7 @@ public class MailControllerIT {
         when(mailService.getAllMailsBySubjectContaining(keyword))
                 .thenReturn(List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
 
-        // when + then
+        // when && then
         mockMvc.perform(get("/api/mail/subject").param("keyword", keyword))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
@@ -99,8 +102,7 @@ public class MailControllerIT {
     @Test
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
-        mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON)
-                                              .content("{}"))
+        mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON).content("{}"))
                .andExpect(status().isBadRequest());
     }
 }
