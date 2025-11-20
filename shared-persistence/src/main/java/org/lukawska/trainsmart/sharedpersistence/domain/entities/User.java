@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.shared_persistence.domain.entities;
+package org.lukawska.trainsmart.sharedpersistence.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;

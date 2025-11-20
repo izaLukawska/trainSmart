@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.envers.Audited;
 import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
-import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 
 import java.util.HashSet;
 import java.util.Set;

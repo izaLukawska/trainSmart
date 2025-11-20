@@ -1,9 +1,9 @@
-package org.lukawska.trainsmart.shared_persistence.application.service;
+package org.lukawska.trainsmart.sharedpersistence.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.shared_persistence.application.exception.UserNotFoundException;
-import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
-import org.lukawska.trainsmart.shared_persistence.domain.repositories.UserRepository;
+import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.domain.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor

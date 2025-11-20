@@ -5,7 +5,7 @@ import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRe
 import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
 import org.lukawska.trainsmart.healthsurvey.application.dto.WeightHistoryResponse;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
-import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.springframework.data.history.Revision;
 
 import java.time.Instant;

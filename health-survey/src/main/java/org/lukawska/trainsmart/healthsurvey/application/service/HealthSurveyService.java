@@ -11,8 +11,8 @@ import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyEx
 import org.lukawska.trainsmart.healthsurvey.application.mapper.HealthSurveyMapper;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
-import org.lukawska.trainsmart.shared_persistence.application.service.UserService;
-import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
