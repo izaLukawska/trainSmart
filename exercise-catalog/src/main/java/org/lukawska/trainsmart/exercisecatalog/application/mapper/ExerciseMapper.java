@@ -1,9 +1,9 @@
-package exercisecatalog.application.mapper;
+package org.lukawska.trainsmart.exercisecatalog.application.mapper;
 
-import exercisecatalog.application.dto.ExerciseRequest;
-import exercisecatalog.application.dto.ExerciseResponse;
-import exercisecatalog.domain.entity.Exercise;
 import lombok.experimental.UtilityClass;
+import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
+import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
+import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
 
 @UtilityClass
 public class ExerciseMapper {

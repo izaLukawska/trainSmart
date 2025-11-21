@@ -1,17 +1,17 @@
-package exercisecatalog.application.service;
+package org.lukawska.trainsmart.exercisecatalog.application.service;
 
-import exercisecatalog.application.dto.ExerciseRequest;
-import exercisecatalog.application.dto.ExerciseResponse;
-import exercisecatalog.application.exception.ExceptionType;
-import exercisecatalog.application.exception.ExerciseException;
-import exercisecatalog.application.mapper.ExerciseMapper;
-import exercisecatalog.domain.entity.Exercise;
-import exercisecatalog.domain.repository.ExerciseRepository;
-import exercisecatalog.domain.valueObject.ExerciseType;
-import exercisecatalog.domain.valueObject.MuscleGroup;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
+import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
+import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
+import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
+import org.lukawska.trainsmart.exercisecatalog.application.mapper.ExerciseMapper;
+import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.repository.ExerciseRepository;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +20,8 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Instant;
 import java.util.List;
 
-import static exercisecatalog.application.mapper.ExerciseMapper.mapToExercise;
-import static exercisecatalog.application.mapper.ExerciseMapper.mapToResponse;
+import static org.lukawska.trainsmart.exercisecatalog.application.mapper.ExerciseMapper.mapToExercise;
+import static org.lukawska.trainsmart.exercisecatalog.application.mapper.ExerciseMapper.mapToResponse;
 
 @Service
 @RequiredArgsConstructor

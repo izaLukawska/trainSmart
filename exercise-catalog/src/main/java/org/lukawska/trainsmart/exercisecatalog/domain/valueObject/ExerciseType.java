@@ -1,4 +1,4 @@
-package exercisecatalog.domain.valueObject;
+package org.lukawska.trainsmart.exercisecatalog.domain.valueObject;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

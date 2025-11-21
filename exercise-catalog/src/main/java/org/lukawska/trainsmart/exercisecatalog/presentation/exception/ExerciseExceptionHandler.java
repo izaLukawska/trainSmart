@@ -1,4 +1,4 @@
-package exercisecatalog.presentation.exception;
+package org.lukawska.trainsmart.exercisecatalog.presentation.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

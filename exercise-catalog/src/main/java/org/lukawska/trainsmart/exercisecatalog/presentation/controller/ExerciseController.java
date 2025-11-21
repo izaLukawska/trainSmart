@@ -1,14 +1,14 @@
-package exercisecatalog.presentation.controller;
+package org.lukawska.trainsmart.exercisecatalog.presentation.controller;
 
-import exercisecatalog.application.dto.ExerciseRequest;
-import exercisecatalog.application.dto.ExerciseResponse;
-import exercisecatalog.application.service.ExerciseService;
-import exercisecatalog.domain.valueObject.MuscleGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
+import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
+import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

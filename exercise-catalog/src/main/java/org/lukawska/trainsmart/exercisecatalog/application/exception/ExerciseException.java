@@ -1,4 +1,4 @@
-package exercisecatalog.application.exception;
+package org.lukawska.trainsmart.exercisecatalog.application.exception;
 
 import lombok.Getter;
 

@@ -1,9 +1,9 @@
-package exercisecatalog.application.dto;
+package org.lukawska.trainsmart.exercisecatalog.application.dto;
 
-import exercisecatalog.domain.valueObject.ExerciseType;
-import exercisecatalog.domain.valueObject.MuscleGroup;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 
 public record ExerciseRequest(@NotBlank String name,
                               @NotNull MuscleGroup muscleGroup,

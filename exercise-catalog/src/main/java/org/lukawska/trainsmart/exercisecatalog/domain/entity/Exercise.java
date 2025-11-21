@@ -1,10 +1,10 @@
-package exercisecatalog.domain.entity;
+package org.lukawska.trainsmart.exercisecatalog.domain.entity;
 
-import exercisecatalog.domain.valueObject.ExerciseType;
-import exercisecatalog.domain.valueObject.MuscleGroup;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import sharedpersistence.infrastructure.base.BaseEntity;
 
 @Table(name = "exercises", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "exercise_type"}))

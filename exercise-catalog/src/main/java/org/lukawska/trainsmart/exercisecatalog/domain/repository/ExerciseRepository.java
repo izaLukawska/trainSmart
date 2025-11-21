@@ -1,8 +1,8 @@
-package exercisecatalog.domain.repository;
+package org.lukawska.trainsmart.exercisecatalog.domain.repository;
 
-import exercisecatalog.domain.entity.Exercise;
-import exercisecatalog.domain.valueObject.ExerciseType;
-import exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
