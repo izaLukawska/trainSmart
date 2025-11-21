@@ -13,21 +13,23 @@
 
     <properties>
         <spring-boot.maven-plugin.version>${spring-boot.version}</spring-boot.maven-plugin.version>
-        <trainsmart.version>0.0.1-SNAPSHOT</trainsmart.version>
-        <openai.version>${project.version}</openai.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>openai</artifactId>
-            <version>${openai.version}</version>
+            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>mailing</artifactId>
-            <version>${trainsmart.version}</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>exercise-catalog</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

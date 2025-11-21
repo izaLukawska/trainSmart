@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.exercisecatalog.application.service;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
@@ -53,7 +54,7 @@ public class ExerciseService {
         return mapToResponse(foundExercise);
     }
 
-    public List<ExerciseResponse> getExercisesByMuscleGroup(MuscleGroup muscleGroup) {
+    public List<ExerciseResponse> getExercisesByMuscleGroup(@NotNull MuscleGroup muscleGroup) {
         List<Exercise> exercises = exerciseRepository.findAllByMuscleGroup(muscleGroup);
         log.info("Found {} exercises for muscle group: {}", exercises.size(), muscleGroup.name());
 
@@ -69,14 +70,14 @@ public class ExerciseService {
         return exercises;
     }
 
-    public List<Exercise> getExercisesFrom(Instant date) {
+    public List<Exercise> getExercisesFrom(@NotNull Instant date) {
         List<Exercise> exercises = exerciseRepository.findAllByCreatedAtGreaterThanEqual(date);
         log.info("Found {} exercises created after: {}", exercises.size(), date);
 
         return exercises;
     }
 
-    public List<Exercise> getExercisesByType(ExerciseType exerciseType) {
+    public List<Exercise> getExercisesByType(@NotNull ExerciseType exerciseType) {
         List<Exercise> exercises = exerciseRepository.findAllByExerciseType(exerciseType);
         log.info("Found {} exercises for type: {}", exercises.size(), exerciseType.name());
 
