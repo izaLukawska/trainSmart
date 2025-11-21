@@ -26,6 +26,8 @@
         <module>mailing</module>
         <module>openai</module>
         <module>integration-tests</module>
+        <module>exercise-catalog</module>
+        <module>shared-persistence</module>
     </modules>
     <scm>
         <connection/>
