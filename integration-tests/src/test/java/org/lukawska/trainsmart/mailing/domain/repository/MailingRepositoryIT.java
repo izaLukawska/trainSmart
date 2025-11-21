@@ -19,7 +19,7 @@ import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailWithR
 @DataJpaTest
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class MailingRepositoryIT extends PostgresTestBase {
+class MailingRepositoryIT extends PostgresTestBase {
 
     @Autowired
     private MailRepository mailRepository;

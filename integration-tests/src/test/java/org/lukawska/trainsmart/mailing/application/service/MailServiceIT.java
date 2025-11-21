@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Transactional
-public class MailServiceIT extends PostgresTestBase {
+class MailServiceIT extends PostgresTestBase {
 
     @MockitoBean
     private MailSender mailSender;

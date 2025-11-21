@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
-public class ExerciseServiceIT extends PostgresTestBase {
+class ExerciseServiceIT extends PostgresTestBase {
 
     @Autowired
     private ExerciseRepository exerciseRepository;

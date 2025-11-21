@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class ExerciseRepositoryIT extends PostgresTestBase {
+class ExerciseRepositoryIT extends PostgresTestBase {
 
     @Autowired
     private ExerciseRepository exerciseRepository;

@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MailController.class)
 @ActiveProfiles("test")
-public class MailControllerIT {
+class MailControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
