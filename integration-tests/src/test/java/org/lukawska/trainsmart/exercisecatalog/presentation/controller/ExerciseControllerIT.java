@@ -71,8 +71,9 @@ class ExerciseControllerIT {
         when(exerciseService.getExercisesByMuscleGroup(muscleGroup)).thenReturn(expectedResponse);
 
         //when && then
-        mockMvc.perform(get("/exercises/muscle-group").param("muscleGroup", muscleGroup.name())
-                                                      .contentType(MediaType.APPLICATION_JSON))
+        RequestBuilder request = get("/exercises/muscle-group").param("muscleGroup", muscleGroup.name())
+                                                               .contentType(MediaType.APPLICATION_JSON);
+        mockMvc.perform(request)
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[0].name").value(exerciseResponse1.name()))

@@ -77,9 +77,9 @@ class ExerciseServiceIT extends PostgresTestBase {
 
         //then
         assertThat(result).hasSize(2);
-        List<String> exerciseNames = result.stream().map(ExerciseResponse::name).toList();
-        assertThat(exerciseNames).doesNotContain(exercise3.getName());
-        assertThat(exerciseNames).containsExactlyInAnyOrder(exercise2.getName(), exercise1.getName());
+        assertThat(result).extracting(ExerciseResponse::name)
+                          .containsExactlyInAnyOrder(exercise2.getName(), exercise1.getName())
+                          .doesNotContain(exercise3.getName());
     }
 
     @Test
@@ -113,6 +113,7 @@ class ExerciseServiceIT extends PostgresTestBase {
         //then
         assertThat(result).hasSize(2);
         assertThat(result).containsExactlyInAnyOrder(exercise1, exercise2);
+        assertThat(result).doesNotContain(exercise3);
     }
 
     @Test
