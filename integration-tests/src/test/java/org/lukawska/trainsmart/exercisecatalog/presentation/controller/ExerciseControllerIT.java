@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
+import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
+import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
@@ -85,5 +87,16 @@ class ExerciseControllerIT {
         //when && then
         mockMvc.perform(post("/exercises").contentType(MediaType.APPLICATION_JSON).content("{}"))
                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenNotFound() throws Exception {
+        //given
+        final String name = "invalid";
+        when(exerciseService.getExercise(name)).thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
+
+        //when && then
+        mockMvc.perform(get("/exercises/name").contentType(MediaType.APPLICATION_JSON).param("name", name))
+               .andExpect(status().isNotFound());
     }
 }

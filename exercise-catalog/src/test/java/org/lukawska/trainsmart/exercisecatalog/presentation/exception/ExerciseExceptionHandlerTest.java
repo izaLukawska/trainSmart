@@ -53,19 +53,6 @@ class ExerciseExceptionHandlerTest {
     }
 
     @Test
-    void shouldHandleGenericException() {
-        //when
-        ProblemDetail result = exceptionHandler.handleGenericException();
-
-        //then
-        ProblemDetailAssert.then(result)
-                           .isNotNull()
-                           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                           .hasDetail("Unexpected exercise error")
-                           .hasTitle("Internal Server Error");
-    }
-
-    @Test
     void shouldHandleConstraintViolation() {
         //given
         final ConstraintViolation<?> violation1 = mockViolation(UUID.randomUUID().toString());

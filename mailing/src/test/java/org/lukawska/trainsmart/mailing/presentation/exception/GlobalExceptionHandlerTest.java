@@ -43,17 +43,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldReturn500WithProblemDetailWhenUnexpectedError() {
-        //when
-        ProblemDetail result = exceptionHandler.handleGenericException();
-
-        //then
-        ProblemDetailAssert.then(result)
-                           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                           .hasDetail("Unexpected error occurred");
-    }
-
-    @Test
     void shouldReturn400WithProblemDetailWhenMethodArgumentNotValidException() {
         // given
         final FieldError fieldError1 = new FieldError("object", "age", "must be 18");

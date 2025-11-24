@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice(basePackages = "org.lukawska.trainsmart.exercisecatalog.presentation")
+@RestControllerAdvice
 @Slf4j
 public class ExerciseExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -27,11 +27,6 @@ public class ExerciseExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setTitle("Exercise exception");
 
         return problemDetail;
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGenericException() {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected exercise error");
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
