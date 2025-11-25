@@ -31,6 +31,11 @@
             <artifactId>exercise-catalog</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>health-survey</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

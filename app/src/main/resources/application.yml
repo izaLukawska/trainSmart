@@ -9,6 +9,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  mvc:
+    problemdetails:
+      enabled: true
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}
@@ -53,6 +56,10 @@ mailing:
     xlsx:
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   maxSizeBytes: 10485760
+
+server:
+  servlet:
+    context-path: /api/v1
 
 management:
   health:

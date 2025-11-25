@@ -29,6 +29,8 @@
         <module>exercise-catalog</module>
         <module>shared-persistence</module>
         <module>training-plan</module>
+        <module>health-survey</module>
+        <module>shared-persistence</module>
     </modules>
     <scm>
         <connection/>
@@ -45,7 +47,6 @@
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <spring-retry.version>2.0.12</spring-retry.version>
-        <logback-core.version>1.5.19</logback-core.version>
         <postgresql.version>42.7.8</postgresql.version>
         <jacoco.version>0.8.13</jacoco.version>
         <logback.version>1.5.19</logback.version>
@@ -105,6 +106,7 @@
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
