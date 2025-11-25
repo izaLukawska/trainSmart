@@ -28,6 +28,7 @@
         <module>integration-tests</module>
         <module>exercise-catalog</module>
         <module>shared-persistence</module>
+        <module>training-plan</module>
     </modules>
     <scm>
         <connection/>
