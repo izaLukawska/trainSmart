@@ -26,9 +26,4 @@ public class UserExerciseController {
                                                        @RequestParam(required = false) Boolean enabled) {
         return userExerciseService.getUserExercisesResponse(userId, enabled);
     }
-
-    @PatchMapping("/update")
-    public void updateStatus(@PathVariable Long userId, @RequestBody List<String> names) {
-        userExerciseService.updateUserExerciseEnabledStatus(userId, names);
-    }
 }

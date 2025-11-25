@@ -30,9 +30,9 @@ public interface UserExerciseRepository extends JpaRepository<UserExercise, Long
             END
             WHERE ue.user.id = :userId
             """)
-    void updateEnabledByUserAndExerciseNames(@Param("userId") Long userId,
-                                             @Param("names") List<String> names,
-                                             @Param("date") Instant date);
+    void updateEnabledByUserIdAndNames(@Param("userId") Long userId,
+                                       @Param("names") List<String> names,
+                                       @Param("date") Instant date);
 
     @Modifying(clearAutomatically = true)
     @Transactional

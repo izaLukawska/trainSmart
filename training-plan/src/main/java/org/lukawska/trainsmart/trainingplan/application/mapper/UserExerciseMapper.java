@@ -18,9 +18,6 @@ public class UserExerciseMapper {
     }
 
     public static UserExerciseResponse mapToResponse(UserExercise userExercise) {
-        return new UserExerciseResponse(userExercise.getId(),
-                                        userExercise.getUser().getId(),
-                                        userExercise.getExercise().getName(),
-                                        userExercise.isEnabled());
+        return new UserExerciseResponse(userExercise.getId(), userExercise.getExercise().getName());
     }
 }
