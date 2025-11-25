@@ -23,9 +23,9 @@ import static org.lukawska.trainsmart.healthsurvey.testutil.ExceptionTestData.mo
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class GlobalExceptionHandlerTest {
+class HealthSurveyExceptionHandlerTest {
 
-    private final GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
+    private final HealthSurveyExceptionHandler exceptionHandler = new HealthSurveyExceptionHandler();
 
     @Test
     void shouldHandleHealthSurveyExceptionWhenHealthSurveyNotFound() {
@@ -41,18 +41,6 @@ class GlobalExceptionHandlerTest {
                            .hasStatus(HttpStatus.NOT_FOUND)
                            .hasDetail(exception.getMessage())
                            .hasTitle("Health survey exception");
-    }
-
-    @Test
-    void shouldHandleGenericException() {
-        //when
-        ProblemDetail result = exceptionHandler.handleGenericException();
-
-        //then
-        ProblemDetailAssert.then(result)
-                           .isNotNull()
-                           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                           .hasTitle("Internal Server Error");
     }
 
     @Test

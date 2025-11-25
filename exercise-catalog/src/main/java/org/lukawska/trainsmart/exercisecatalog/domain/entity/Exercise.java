@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
-import sharedpersistence.infrastructure.base.BaseEntity;
+import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
 
 @Table(name = "exercises", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "exercise_type"}))
 @NoArgsConstructor

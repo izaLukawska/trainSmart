@@ -1,4 +1,4 @@
-package sharedpersistence.infrastructure.base;
+package org.lukawska.trainsmart.sharedpersistence.infrastructure.base;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

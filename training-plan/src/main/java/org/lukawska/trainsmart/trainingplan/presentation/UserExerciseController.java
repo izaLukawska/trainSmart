@@ -1,0 +1,34 @@
+package org.lukawska.trainsmart.trainingplan.presentation;
+
+import lombok.RequiredArgsConstructor;
+import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseResponse;
+import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/users/{userId}/exercises")
+public class UserExerciseController {
+
+    private final UserExerciseService userExerciseService;
+
+    @PostMapping
+    public ResponseEntity<Void> syncExercises(@PathVariable Long userId) {
+        userExerciseService.syncUserExercise(userId);
+        return ResponseEntity.status(201).build();
+    }
+
+    @GetMapping
+    public List<UserExerciseResponse> getUserExercises(@PathVariable Long userId,
+                                                       @RequestParam(required = false) Boolean enabled) {
+        return userExerciseService.getUserExercisesResponse(userId, enabled);
+    }
+
+    @PatchMapping("/update")
+    public void updateStatus(@PathVariable Long userId, @RequestBody List<String> names) {
+        userExerciseService.updateUserExerciseEnabledStatus(userId, names);
+    }
+}
