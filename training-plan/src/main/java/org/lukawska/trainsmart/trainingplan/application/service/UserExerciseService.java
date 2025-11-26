@@ -45,7 +45,6 @@ public class UserExerciseService {
             return;
         }
 
-        log.info("Found {} exercises to add for user: {}", exercises.size(), userId);
         List<UserExercise> newUserExercises = mapToUserExercises(exercises, user);
 
         try {
