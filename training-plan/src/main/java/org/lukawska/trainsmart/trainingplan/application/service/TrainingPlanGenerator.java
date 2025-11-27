@@ -36,15 +36,21 @@ public class TrainingPlanGenerator {
         }
 
         Map<MuscleGroup, Set<Long>> usedIdsPerGroup = new HashMap<>();
+        Set<Long> chosenIds = new HashSet<>();
 
         for (int week = 1; week <= weekCount; week++) {
             TrainingWeek trainingWeek = new TrainingWeek(trainingPlan, week);
             for (int day = 1; day <= daysPerWeek; day++) {
-                TrainingBlock trainingBlock = generateTrainingBlock(trainingWeek, exercises, usedIdsPerGroup);
+                TrainingBlock trainingBlock = generateTrainingBlock(trainingWeek, exercises, usedIdsPerGroup,
+                                                                    chosenIds);
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
 
             trainingPlan.addTrainingWeek(trainingWeek);
+        }
+
+        if (!chosenIds.isEmpty()) {
+            userExerciseService.recordUses(chosenIds);
         }
 
         return trainingPlan;
@@ -52,17 +58,17 @@ public class TrainingPlanGenerator {
 
     public TrainingBlock generateTrainingBlock(TrainingWeek trainingWeek,
                                                Map<MuscleGroup, List<UserExercise>> groupedExercises,
-                                               Map<MuscleGroup, Set<Long>> usedIdsPerGroup) {
+                                               Map<MuscleGroup, Set<Long>> usedIdsPerGroup,
+                                               Set<Long> chosenIds) {
         TrainingBlock trainingBlock = new TrainingBlock(trainingWeek);
         for (MuscleGroup muscleGroup : groupedExercises.keySet()) {
-            List<UserExercise> exercises = groupedExercises.get(muscleGroup);
-
             Set<Long> usedIds = usedIdsPerGroup.computeIfAbsent(muscleGroup, k -> new HashSet<>());
+            List<UserExercise> exercises = groupedExercises.get(muscleGroup);
             List<UserExercise> candidates = getCandidates(exercises, usedIds);
 
             UserExercise chosen = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
-            chosen.recordExerciseUse();
             usedIds.add(chosen.getId());
+            chosenIds.add(chosen.getId());
 
             BlockExercise blockExercise = new BlockExercise(trainingBlock, chosen, 3, 10, Intensity.MEDIUM);
             trainingBlock.addBlockExercise(blockExercise);
