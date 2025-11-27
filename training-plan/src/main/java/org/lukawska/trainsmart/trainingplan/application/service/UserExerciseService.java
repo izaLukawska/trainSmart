@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
 import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
@@ -20,6 +21,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper.mapToUserExercises;
 
@@ -76,6 +79,12 @@ public class UserExerciseService {
     public List<UserExercise> getUserExercises(@NotNull Long userId, Boolean enabled) {
         return enabled == null ? userExerciseRepository.findAllByUserId(userId) :
                 userExerciseRepository.findAllByUserIdAndEnabled(userId, enabled);
+    }
+
+    public Map<MuscleGroup, List<UserExercise>> getEnabledUserExercisesByMuscleGroup(@NotNull Long userId) {
+        return getUserExercises(userId, true).stream()
+                                             .collect(Collectors.groupingBy(
+                                                     userExercise -> userExercise.getExercise().getMuscleGroup()));
     }
 
     public List<String> getAllExerciseNames(@NotNull Long userId) {

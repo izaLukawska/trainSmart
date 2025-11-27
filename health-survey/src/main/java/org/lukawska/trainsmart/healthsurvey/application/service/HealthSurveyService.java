@@ -17,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -68,8 +69,8 @@ public class HealthSurveyService {
     }
 
     public Set<String> getAllInjuriesByUserId(Long userId) {
-        Set<String> injuries = healthSurveyRepository.findAllInjuriesByUserId(userId).orElseThrow(
-                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
+        Set<String> injuries = healthSurveyRepository.findAllInjuriesByUserId(userId)
+                                                     .orElseGet(Collections::emptySet);
         log.info("Found {} injuries.", injuries.size());
 
         return injuries;

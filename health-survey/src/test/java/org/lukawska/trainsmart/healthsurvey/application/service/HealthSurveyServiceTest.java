@@ -140,6 +140,19 @@ class HealthSurveyServiceTest {
     }
 
     @Test
+    void shouldReturnEmptySetWhenNoHealthSurveyPresent() {
+        //given
+        final Long userId = 1L;
+        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(Set.of()));
+
+        //when
+        Set<String> actualInjuries = healthSurveyService.getAllInjuriesByUserId(userId);
+
+        //then
+        assertThat(actualInjuries).isEmpty();
+    }
+
+    @Test
     void shouldGetWeightHistoryByUserId() {
         //given
         final Long userId = 1L;
@@ -195,14 +208,6 @@ class HealthSurveyServiceTest {
         assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(userId, createHealthSurveyRequest))
                 .isInstanceOf(HealthSurveyException.class)
                 .hasMessage(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS.getMessage());
-    }
-
-    @Test
-    void shouldThrowHealthSurveyNotFoundExceptionWhenGetAllInjuriesByUserId() {
-        //when && then
-        assertThatThrownBy(() -> healthSurveyService.getAllInjuriesByUserId(1L))
-                .isInstanceOf(HealthSurveyException.class)
-                .hasMessage(ExceptionType.HEALTH_SURVEY_NOT_FOUND.getMessage());
     }
 
     @Test
