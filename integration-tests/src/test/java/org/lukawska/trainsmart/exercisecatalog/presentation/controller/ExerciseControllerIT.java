@@ -55,7 +55,7 @@ class ExerciseControllerIT {
         //given
         final String name = "crunches";
         final ExerciseResponse exerciseResponse = new ExerciseResponse(1L, name);
-        when(exerciseService.getExercise(name)).thenReturn(exerciseResponse);
+        when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
 
         //when && then
         mockMvc.perform(get("/exercises/name").param("name", name).contentType(MediaType.APPLICATION_JSON))
@@ -93,7 +93,8 @@ class ExerciseControllerIT {
     void shouldReturnBadRequestWhenNotFound() throws Exception {
         //given
         final String name = "invalid";
-        when(exerciseService.getExercise(name)).thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
+        when(exerciseService.getExerciseByName(name)).thenThrow(
+                new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
         //when && then
         mockMvc.perform(get("/exercises/name").contentType(MediaType.APPLICATION_JSON).param("name", name))

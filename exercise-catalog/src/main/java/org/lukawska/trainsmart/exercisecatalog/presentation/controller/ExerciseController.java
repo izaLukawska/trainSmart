@@ -33,9 +33,9 @@ public class ExerciseController {
     }
 
     @GetMapping("/name")
-    public ExerciseResponse getExercise(@RequestParam("name") @NotBlank String name) {
+    public ExerciseResponse getExerciseByName(@RequestParam("name") @NotBlank String name) {
         log.info("Getting exercise by name: {}", name);
-        return exerciseService.getExercise(name);
+        return exerciseService.getExerciseByName(name);
     }
 
     @GetMapping("/muscle-group")

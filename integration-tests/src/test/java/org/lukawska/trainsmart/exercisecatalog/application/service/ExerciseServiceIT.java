@@ -56,7 +56,7 @@ class ExerciseServiceIT extends PostgresTestBase {
         exerciseRepository.save(exercise);
 
         //when
-        ExerciseResponse result = exerciseService.getExercise(exercise.getName());
+        ExerciseResponse result = exerciseService.getExerciseByName(exercise.getName());
 
         //then
         assertThat(result.name()).isEqualTo(exercise.getName());
@@ -128,7 +128,7 @@ class ExerciseServiceIT extends PostgresTestBase {
         exerciseRepository.saveAll(List.of(exercise2, exercise3));
 
         //when
-        List<Exercise> result = exerciseService.getExercisesFrom(exercise2.getCreatedAt());
+        List<Exercise> result = exerciseService.getExercisesByCreatedAtSince(exercise2.getCreatedAt());
 
         //then
         assertThat(result).hasSize(2);

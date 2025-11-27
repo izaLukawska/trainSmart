@@ -5,13 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
-import sharedpersistence.infrastructure.base.BaseEntity;
+import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 
 @Table(name = "exercises", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "exercise_type"}))
 @NoArgsConstructor
 @Getter
 @Entity
-public class Exercise extends BaseEntity {
+public class Exercise extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

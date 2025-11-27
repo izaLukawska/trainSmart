@@ -52,7 +52,7 @@ class ExerciseServiceTest {
         when(exerciseRepository.findByName(exercise.getName())).thenReturn(Optional.of(exercise));
 
         //when
-        ExerciseResponse result = exerciseService.getExercise(exercise.getName());
+        ExerciseResponse result = exerciseService.getExerciseByName(exercise.getName());
 
         //then
         assertThat(result.name()).isEqualTo(exercise.getName());
@@ -102,7 +102,7 @@ class ExerciseServiceTest {
         when(exerciseRepository.findAllByCreatedAtGreaterThanEqual(date)).thenReturn(List.of(exercise1, exercise2));
 
         //when
-        List<Exercise> result = exerciseService.getExercisesFrom(date);
+        List<Exercise> result = exerciseService.getExercisesByCreatedAtSince(date);
 
         //then
         assertThat(result).hasSize(2);
@@ -145,7 +145,7 @@ class ExerciseServiceTest {
         final String invalidName = "invalid name";
         when(exerciseRepository.findByName(invalidName)).thenReturn(Optional.empty());
         //when && then
-        assertThatThrownBy(() -> exerciseService.getExercise(invalidName))
+        assertThatThrownBy(() -> exerciseService.getExerciseByName(invalidName))
                 .isInstanceOf(ExerciseException.class)
                 .hasMessage(ExceptionType.EXERCISE_NOT_FOUND.getMessage());
     }
