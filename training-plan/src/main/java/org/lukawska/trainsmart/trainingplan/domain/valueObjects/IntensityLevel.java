@@ -4,8 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public enum Intensity {
+public enum IntensityLevel {
 
-    LIGHT, MEDIUM, HEAVY
+    LIGHT, MEDIUM, HIGH
 
 }
