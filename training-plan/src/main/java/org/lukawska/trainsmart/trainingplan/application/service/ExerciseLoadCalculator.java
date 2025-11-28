@@ -6,7 +6,7 @@ import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 @UtilityClass
 public class ExerciseLoadCalculator {
 
-    public static double calculatePercent(TrainingType trainingType, int reps, int sets) {
+    public static double calculateLoadPercent(TrainingType trainingType, int reps, int sets) {
         double minPercent = trainingType.getMinPercent();
         double maxPercent = trainingType.getMaxPercent();
 

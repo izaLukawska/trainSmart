@@ -6,6 +6,7 @@ import org.lukawska.trainsmart.sharedpersistence.application.service.UserService
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
 import org.lukawska.trainsmart.trainingplan.domain.entity.*;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +35,10 @@ public class TrainingPlanGenerator {
         for (int week = 1; week <= request.duration().getWeeksCount(); week++) {
             TrainingWeek trainingWeek = new TrainingWeek(trainingPlan, week);
             for (int day = 1; day <= request.daysPerWeek(); day++) {
-                TrainingBlock trainingBlock = generateTrainingBlock(trainingWeek, groups, usedExercises);
+                TrainingBlock trainingBlock = generateTrainingBlock(trainingWeek,
+                                                                    groups,
+                                                                    usedExercises,
+                                                                    trainingPlan.getTrainingType());
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
         }
@@ -44,7 +48,8 @@ public class TrainingPlanGenerator {
 
     private TrainingBlock generateTrainingBlock(TrainingWeek trainingWeek,
                                                 Map<MuscleGroup, List<UserExercise>> groups,
-                                                Set<UserExercise> usedExercises) {
+                                                Set<UserExercise> usedExercises,
+                                                TrainingType trainingType) {
         TrainingBlock trainingBlock = new TrainingBlock(trainingWeek);
         for (MuscleGroup muscleGroup : groups.keySet()) {
             List<UserExercise> exercises = groups.get(muscleGroup);
@@ -53,11 +58,27 @@ public class TrainingPlanGenerator {
             pickedExercise.recordExerciseUse();
             usedExercises.add(pickedExercise);
 
-            BlockExercise blockExercise = new BlockExercise(trainingBlock, pickedExercise, 5, 5, IntensityLevel.HEAVY);
+            BlockExercise blockExercise = generateBlockExercise(trainingBlock, pickedExercise, trainingType);
             trainingBlock.addBlockExercise(blockExercise);
         }
 
         return trainingBlock;
+    }
+
+    private BlockExercise generateBlockExercise(TrainingBlock trainingBlock,
+                                                UserExercise userExercise,
+                                                TrainingType trainingType) {
+        int reps = ThreadLocalRandom.current().nextInt(trainingType.getMinReps(), trainingType.getMaxReps() + 1);
+        int sets = ThreadLocalRandom.current().nextInt(trainingType.getMinSets(), trainingType.getMaxSets() + 1);
+
+        IntensityLevel intensityLevel =
+                switch (trainingType) {
+                    case STRENGTH -> IntensityLevel.HIGH;
+                    case HYPERTROPHY -> IntensityLevel.MEDIUM;
+                    case ENDURANCE -> IntensityLevel.LIGHT;
+                };
+
+        return new BlockExercise(trainingBlock, userExercise, reps, sets, intensityLevel);
     }
 
     private UserExercise pickExercise(List<UserExercise> exercises, Set<UserExercise> usedExercises) {
