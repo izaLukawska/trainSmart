@@ -31,13 +31,20 @@ public class BlockExercise {
     @Enumerated(EnumType.STRING)
     private IntensityLevel intensity;
 
+    private Double calculatedWeight;
+
     @Builder
     public BlockExercise(TrainingBlock trainingBlock, UserExercise userExercise,
-                         int sets, int reps, IntensityLevel intensity) {
+                         int sets, int reps, IntensityLevel intensity, Double calculatedWeight) {
         this.trainingBlock = trainingBlock;
         this.userExercise = userExercise;
         this.sets = sets;
         this.reps = reps;
         this.intensity = intensity;
+        this.calculatedWeight = calculatedWeight;
+    }
+
+    public void setWeight(Double weight) {
+        this.calculatedWeight = weight;
     }
 }

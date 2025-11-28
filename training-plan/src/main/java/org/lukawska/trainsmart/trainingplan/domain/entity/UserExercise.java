@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
 
@@ -38,5 +39,9 @@ public class UserExercise extends BaseEntity {
 
     public void recordExerciseUse() {
         this.lastUsedAt = Instant.now();
+    }
+
+    public boolean isBarbellExercise() {
+        return this.exercise.getExerciseType().equals(ExerciseType.BARBELL);
     }
 }

@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.lukawska.trainsmart.trainingplan.application.service.ExerciseLoadCalculator.calculateLoadPercent;
+
 @Service
 @RequiredArgsConstructor
 public class TrainingPlanGenerator {
@@ -29,16 +31,13 @@ public class TrainingPlanGenerator {
         Map<MuscleGroup, List<UserExercise>> groups =
                 userExerciseService.getEnabledUserExercisesByMuscleGroup(request.userId());
         TrainingPlan trainingPlan = mapToTrainingPlan(request);
-
+        TrainingType trainingType = trainingPlan.getTrainingType();
         Set<UserExercise> usedExercises = new HashSet<>();
 
         for (int week = 1; week <= request.duration().getWeeksCount(); week++) {
             TrainingWeek trainingWeek = new TrainingWeek(trainingPlan, week);
             for (int day = 1; day <= request.daysPerWeek(); day++) {
-                TrainingBlock trainingBlock = generateTrainingBlock(trainingWeek,
-                                                                    groups,
-                                                                    usedExercises,
-                                                                    trainingPlan.getTrainingType());
+                TrainingBlock trainingBlock = generateTrainingBlock(trainingWeek, groups, usedExercises, trainingType);
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
         }
@@ -68,17 +67,20 @@ public class TrainingPlanGenerator {
     private BlockExercise generateBlockExercise(TrainingBlock trainingBlock,
                                                 UserExercise userExercise,
                                                 TrainingType trainingType) {
-        int reps = ThreadLocalRandom.current().nextInt(trainingType.getMinReps(), trainingType.getMaxReps() + 1);
-        int sets = ThreadLocalRandom.current().nextInt(trainingType.getMinSets(), trainingType.getMaxSets() + 1);
+        int reps = getRandomReps(trainingType);
+        int sets = getRandomSets(trainingType);
 
-        IntensityLevel intensityLevel =
-                switch (trainingType) {
-                    case STRENGTH -> IntensityLevel.HIGH;
-                    case HYPERTROPHY -> IntensityLevel.MEDIUM;
-                    case ENDURANCE -> IntensityLevel.LIGHT;
-                };
+        IntensityLevel intensityLevel = mapToIntensityLevel(trainingType);
+        Double load = userExercise.isBarbellExercise() ? calculateLoadPercent(trainingType, reps, sets) : null;
 
-        return new BlockExercise(trainingBlock, userExercise, reps, sets, intensityLevel);
+        return BlockExercise.builder()
+                            .trainingBlock(trainingBlock)
+                            .userExercise(userExercise)
+                            .intensity(intensityLevel)
+                            .reps(reps)
+                            .sets(sets)
+                            .calculatedWeight(load)
+                            .build();
     }
 
     private UserExercise pickExercise(List<UserExercise> exercises, Set<UserExercise> usedExercises) {
@@ -97,6 +99,22 @@ public class TrainingPlanGenerator {
 
     private UserExercise getRandomUserExercise(List<UserExercise> userExercises) {
         return userExercises.get(ThreadLocalRandom.current().nextInt(userExercises.size()));
+    }
+
+    private int getRandomReps(TrainingType trainingType) {
+        return ThreadLocalRandom.current().nextInt(trainingType.getMinReps(), trainingType.getMaxReps() + 1);
+    }
+
+    private int getRandomSets(TrainingType trainingType) {
+        return ThreadLocalRandom.current().nextInt(trainingType.getMinSets(), trainingType.getMaxSets() + 1);
+    }
+
+    private IntensityLevel mapToIntensityLevel(TrainingType trainingType) {
+        return switch (trainingType) {
+            case STRENGTH -> IntensityLevel.HIGH;
+            case HYPERTROPHY -> IntensityLevel.MEDIUM;
+            case ENDURANCE -> IntensityLevel.LIGHT;
+        };
     }
 
     private TrainingPlan mapToTrainingPlan(TrainingPlanRequest request) {
