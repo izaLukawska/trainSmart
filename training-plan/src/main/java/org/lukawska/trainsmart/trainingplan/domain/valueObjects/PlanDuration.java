@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum Duration {
+public enum PlanDuration {
 
     FOUR_WEEKS(4), EIGHT_WEEKS(8), TWELVE_WEEKS(12);
 

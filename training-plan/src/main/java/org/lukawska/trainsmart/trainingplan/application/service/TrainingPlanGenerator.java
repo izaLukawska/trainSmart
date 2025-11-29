@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.application.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
@@ -16,30 +17,39 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.lukawska.trainsmart.trainingplan.application.service.ExerciseLoadCalculator.calculateLoadPercent;
-
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TrainingPlanGenerator {
 
     private final UserService userService;
 
     private final UserExerciseService userExerciseService;
 
+    private final BlockExerciseLoadCalculator exerciseLoadCalculator;
+
     @Transactional
-    public TrainingPlan generateTrainingPlan(TrainingPlanRequest request) {
+    public TrainingPlan generateTrainingPlan(Long userId, TrainingPlanRequest request) {
+        int weekCount = request.planDuration().getWeeksCount();
+        int daysPerkWeek = request.daysPerWeek();
+        log.info("Generating {} plan for {} weeks and {} days per week.",
+                 request.trainingType().name(), weekCount, daysPerkWeek);
         Map<MuscleGroup, List<UserExercise>> groups =
-                userExerciseService.getEnabledUserExercisesByMuscleGroup(request.userId());
-        TrainingPlan trainingPlan = mapToTrainingPlan(request);
+                userExerciseService.getEnabledUserExercisesByMuscleGroup(userId);
+
+        TrainingPlan trainingPlan = mapToTrainingPlan(userId, request);
         TrainingType trainingType = trainingPlan.getTrainingType();
         Set<UserExercise> usedExercises = new HashSet<>();
 
-        for (int week = 1; week <= request.duration().getWeeksCount(); week++) {
+        for (int week = 1; week <= weekCount; week++) {
             TrainingWeek trainingWeek = new TrainingWeek(trainingPlan, week);
-            for (int day = 1; day <= request.daysPerWeek(); day++) {
+
+            for (int day = 1; day <= daysPerkWeek; day++) {
                 TrainingBlock trainingBlock = generateTrainingBlock(trainingWeek, groups, usedExercises, trainingType);
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
+
+            trainingPlan.addTrainingWeek(trainingWeek);
         }
 
         return trainingPlan;
@@ -69,18 +79,21 @@ public class TrainingPlanGenerator {
                                                 TrainingType trainingType) {
         int reps = getRandomReps(trainingType);
         int sets = getRandomSets(trainingType);
+        IntensityLevel intensityLevel = trainingType.getDefaultIntensityLevel();
 
-        IntensityLevel intensityLevel = mapToIntensityLevel(trainingType);
-        Double load = userExercise.isBarbellExercise() ? calculateLoadPercent(trainingType, reps, sets) : null;
+        BlockExercise blockExercise = BlockExercise.builder()
+                                                   .trainingBlock(trainingBlock)
+                                                   .userExercise(userExercise)
+                                                   .intensity(intensityLevel)
+                                                   .reps(reps)
+                                                   .sets(sets)
+                                                   .build();
 
-        return BlockExercise.builder()
-                            .trainingBlock(trainingBlock)
-                            .userExercise(userExercise)
-                            .intensity(intensityLevel)
-                            .reps(reps)
-                            .sets(sets)
-                            .calculatedWeight(load)
-                            .build();
+        Double load = userExercise.isBarbellExercise() ?
+                exerciseLoadCalculator.calculateLoadPercent(blockExercise, trainingType) : null;
+        blockExercise.setLoadPercent(load);
+
+        return blockExercise;
     }
 
     private UserExercise pickExercise(List<UserExercise> exercises, Set<UserExercise> usedExercises) {
@@ -109,18 +122,10 @@ public class TrainingPlanGenerator {
         return ThreadLocalRandom.current().nextInt(trainingType.getMinSets(), trainingType.getMaxSets() + 1);
     }
 
-    private IntensityLevel mapToIntensityLevel(TrainingType trainingType) {
-        return switch (trainingType) {
-            case STRENGTH -> IntensityLevel.HIGH;
-            case HYPERTROPHY -> IntensityLevel.MEDIUM;
-            case ENDURANCE -> IntensityLevel.LIGHT;
-        };
-    }
-
-    private TrainingPlan mapToTrainingPlan(TrainingPlanRequest request) {
-        return new TrainingPlan(userService.getUserById(request.userId()),
+    private TrainingPlan mapToTrainingPlan(Long userId, TrainingPlanRequest request) {
+        return new TrainingPlan(userService.getUserById(userId),
                                 request.trainingType(),
-                                request.duration(),
+                                request.planDuration(),
                                 request.daysPerWeek());
     }
 }

@@ -28,12 +28,6 @@ public class TrainingBlock {
     @OneToMany(mappedBy = "trainingBlock", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BlockExercise> blockExercises = new ArrayList<>();
 
-    public TrainingBlock(WeekDay weekDay, TrainingWeek trainingWeek, List<BlockExercise> blockExercises) {
-        this.weekDay = weekDay;
-        this.trainingWeek = trainingWeek;
-        this.blockExercises = blockExercises;
-    }
-
     public TrainingBlock(TrainingWeek trainingWeek) {
         this.trainingWeek = trainingWeek;
     }

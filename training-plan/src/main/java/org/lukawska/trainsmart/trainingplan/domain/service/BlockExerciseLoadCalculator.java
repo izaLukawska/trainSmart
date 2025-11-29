@@ -1,12 +1,33 @@
-package org.lukawska.trainsmart.trainingplan.application.service;
-
-import lombok.experimental.UtilityClass;
+import org.lukawska.trainsmart.trainingplan.domain.entity.BlockExercise;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
+import org.springframework.stereotype.Service;
 
-@UtilityClass
-public class ExerciseLoadCalculator {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-    public static double calculateLoadPercent(TrainingType trainingType, int reps, int sets) {
+@Service
+public class BlockExerciseLoadCalculator {
+
+    private static final double FATIGUE_ADJUSTMENT_RATE = 0.02;
+
+    private static final double RIR_PERCENTAGE_REDUCTION = 0.03;
+
+    /**
+     * Calculates the target load percentage of 1RM for the given block exercise and training type.
+     * Algorithm:
+     * 1. Interpolates between {@code trainingType.getMaxPercent()} and {@code trainingType.getMinPercent()}
+     * based on the number of repetitions within {@code minReps..maxReps}.
+     * 2. Adjusts the interpolated percentage for fatigue: the percentage is reduced proportionally
+     * to extra sets beyond {@code minSets} using {@code FATIGUE_ADJUSTMENT_RATE}.
+     * 3. Applies a linear reduction based on Reps In Reserve (RIR) using
+     * {@code RIR_PERCENTAGE_REDUCTION} per RIR step.
+     * 4. Clamps the final value to the range {@code [minPercent, maxPercent]}.
+     *
+     * @param blockExercise Object containing data  (e.g. reps, sets) for load calculation.
+     * @param trainingType  Object containing data (e.g. intensity level) for specific training type.
+     * @return Calculated percent for BlockExercise.
+     */
+    public double calculateLoadPercent(BlockExercise blockExercise, TrainingType trainingType) {
         double minPercent = trainingType.getMinPercent();
         double maxPercent = trainingType.getMaxPercent();
 
@@ -16,11 +37,12 @@ public class ExerciseLoadCalculator {
         int minSets = trainingType.getMinSets();
         int repsInReserve = trainingType.getRepsInReserve();
 
-        double ratio = calculateRepsNormalizationRatio(reps, minReps, maxReps);
+        double ratio = calculateRepsNormalizationRatio(blockExercise.getReps(), minReps, maxReps);
         double percent = maxPercent - (maxPercent - minPercent) * ratio;
 
-        percent = adjustPercentForFatigue(percent, sets, minSets);
+        percent = adjustPercentForFatigue(percent, blockExercise.getSets(), minSets);
         percent = reduceRepsInReserve(percent, repsInReserve);
+        percent = BigDecimal.valueOf(percent).setScale(2, RoundingMode.HALF_DOWN).doubleValue();
 
         return Math.max(minPercent, Math.min(maxPercent, percent));
     }
@@ -51,7 +73,7 @@ public class ExerciseLoadCalculator {
      * @return adjusted percent accounting for fatigue
      */
     private double adjustPercentForFatigue(double percent, int sets, int minSets) {
-        double adjustment = 1.0 - 0.02 * (sets - minSets);
+        double adjustment = 1.0 - FATIGUE_ADJUSTMENT_RATE * (sets - minSets);
         return percent * adjustment;
     }
 
@@ -64,6 +86,6 @@ public class ExerciseLoadCalculator {
      * @return The percentage value after RIR-based reduction.
      */
     private double reduceRepsInReserve(double percent, int rir) {
-        return percent - 0.03 * rir;
+        return percent - RIR_PERCENTAGE_REDUCTION * rir;
     }
 }

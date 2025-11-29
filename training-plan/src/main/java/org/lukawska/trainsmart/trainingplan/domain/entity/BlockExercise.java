@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
 
 @Table(name = "block_exercise")
@@ -31,20 +32,21 @@ public class BlockExercise {
     @Enumerated(EnumType.STRING)
     private IntensityLevel intensity;
 
-    private Double calculatedWeight;
+    @Setter
+    private Double loadPercent;
+
+    @Setter
+    private Double load;
 
     @Builder
-    public BlockExercise(TrainingBlock trainingBlock, UserExercise userExercise,
-                         int sets, int reps, IntensityLevel intensity, Double calculatedWeight) {
+    public BlockExercise(TrainingBlock trainingBlock, UserExercise userExercise, int sets, int reps,
+                         IntensityLevel intensity, Double loadPercent, Double load) {
         this.trainingBlock = trainingBlock;
         this.userExercise = userExercise;
         this.sets = sets;
         this.reps = reps;
         this.intensity = intensity;
-        this.calculatedWeight = calculatedWeight;
-    }
-
-    public void setWeight(Double weight) {
-        this.calculatedWeight = weight;
+        this.loadPercent = loadPercent;
+        this.load = load;
     }
 }

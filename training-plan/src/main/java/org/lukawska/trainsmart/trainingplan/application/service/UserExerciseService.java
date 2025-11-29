@@ -82,9 +82,12 @@ public class UserExerciseService {
     }
 
     public Map<MuscleGroup, List<UserExercise>> getEnabledUserExercisesByMuscleGroup(@NotNull Long userId) {
-        return getUserExercises(userId, true).stream()
-                                             .collect(Collectors.groupingBy(
-                                                     userExercise -> userExercise.getExercise().getMuscleGroup()));
+        Map<MuscleGroup, List<UserExercise>> exercisesByMuscleGroup =
+                getUserExercises(userId, true).stream()
+                                              .collect(Collectors.groupingBy(
+                                                      userExercise -> userExercise.getExercise().getMuscleGroup()));
+        log.info("Found {} muscle groups for user with ID: {}", exercisesByMuscleGroup.size(), userId);
+        return exercisesByMuscleGroup;
     }
 
     public List<String> getAllExerciseNames(@NotNull Long userId) {
