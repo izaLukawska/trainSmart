@@ -6,6 +6,7 @@ import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
 import org.lukawska.trainsmart.trainingplan.domain.entity.*;
+import org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.springframework.stereotype.Service;

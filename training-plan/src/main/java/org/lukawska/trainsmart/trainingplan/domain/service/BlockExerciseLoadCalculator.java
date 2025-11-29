@@ -1,3 +1,5 @@
+package org.lukawska.trainsmart.trainingplan.domain.service;
+
 import org.lukawska.trainsmart.trainingplan.domain.entity.BlockExercise;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.springframework.stereotype.Service;
