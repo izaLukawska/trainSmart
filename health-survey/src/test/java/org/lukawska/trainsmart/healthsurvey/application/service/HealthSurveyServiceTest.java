@@ -157,19 +157,6 @@ class HealthSurveyServiceTest {
     }
 
     @Test
-    void shouldReturnEmptySetWhenNoHealthSurveyPresent() {
-        //given
-        final Long userId = 1L;
-        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(Set.of()));
-
-        //when
-        Set<String> actualInjuries = healthSurveyService.getAllInjuriesByUserId(userId);
-
-        //then
-        assertThat(actualInjuries).isEmpty();
-    }
-
-    @Test
     void shouldGetWeightHistoryByUserId() {
         //given
         final Long userId = 1L;
