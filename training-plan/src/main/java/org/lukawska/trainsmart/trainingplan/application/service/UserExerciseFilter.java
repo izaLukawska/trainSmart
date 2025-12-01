@@ -1,10 +1,12 @@
 package org.lukawska.trainsmart.trainingplan.application.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.lukawska.trainsmart.openai.infra.adapter.OpenAiAdapter;
 import org.lukawska.trainsmart.openai.infra.dto.ChatRolesRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Validated
 public class UserExerciseFilter {
 
     private final HealthSurveyService healthSurveyService;
@@ -20,7 +23,19 @@ public class UserExerciseFilter {
 
     private final OpenAiAdapter openAiAdapter;
 
-    public void updateUnsafeExercises(Long userId) {
+    private static final String SYSTEM_PROMPT = "You are an expert in safe workout and exercise selection.";
+
+    private static final String USER_PROMPT_TEMPLATE =
+            "Given the following injuries: %s, return only the exercises from this list that CANNOT be safely " +
+                    "performed: %s. Return the names in lower case and as a comma-separated list.";
+
+    private static String buildUserPrompt(Set<String> injuries, List<String> exerciseNames) {
+        String injuriesStr = String.join(", ", injuries);
+        String exercisesStr = String.join(", ", exerciseNames);
+        return String.format(USER_PROMPT_TEMPLATE, injuriesStr, exercisesStr);
+    }
+
+    public void updateUnsafeExercises(@NotNull Long userId) {
         Set<String> injuries = healthSurveyService.getAllInjuriesByUserId(userId);
         List<String> exercisesName = userExerciseService.getAllExerciseNames(userId);
 
@@ -32,16 +47,8 @@ public class UserExerciseFilter {
     }
 
     private ChatRolesRequest prepareRequest(Set<String> injuries, List<String> exerciseNames) {
-        String injuriesStr = String.join(", ", injuries);
-        String exercisesStr = String.join(", ", exerciseNames);
-        String systemPrompt = "You are an expert in safe workout and exercise selection.";
-        String userPrompt = String.format(
-                "Given the following injuries: %s, return only the exercises from this list that CANNOT be safely " +
-                        "performed: %s. Return the names in lower case and as a comma-separated list.",
-                injuriesStr, exercisesStr
-        );
-
-        return new ChatRolesRequest(systemPrompt, userPrompt);
+        String userPrompt = buildUserPrompt(injuries, exerciseNames);
+        return new ChatRolesRequest(SYSTEM_PROMPT, userPrompt);
     }
 
     private List<String> getDisabledExerciseList(String disabledExercisesStr) {
