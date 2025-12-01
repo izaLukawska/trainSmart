@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.sharedpersistence.infrastructure.config;
+package org.lukawska.trainsmart.config.persistence;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

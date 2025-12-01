@@ -35,13 +35,11 @@ class ExerciseControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Test
     void shouldCreateExercise() throws Exception {
         //given
         final ExerciseRequest exerciseRequest = new ExerciseRequest("pull up", MuscleGroup.BACK, ExerciseType.OTHER);
+        final ObjectMapper objectMapper = new ObjectMapper();
 
         //when && then
         RequestBuilder request = post("/exercises").contentType(MediaType.APPLICATION_JSON)
