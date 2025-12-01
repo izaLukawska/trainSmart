@@ -17,7 +17,7 @@ public class UserExerciseController {
 
     @PostMapping
     public ResponseEntity<Void> syncExercises(@PathVariable Long userId) {
-        userExerciseService.syncUserExercise(userId);
+        int exercises = userExerciseService.syncUserExercise(userId);
         return ResponseEntity.status(201).build();
     }
 

@@ -33,9 +33,12 @@ public class TrainingPlanGenerator {
     private final UserExerciseValidator userExerciseValidator;
 
     public TrainingPlan generateTrainingPlan(User user, TrainingPlanRequest request) {
+        userExerciseService.syncUserExercise(user.getId());
+        //+ update for injuries if present -> if not enable all.
+        
         Map<MuscleGroup, List<UserExercise>> exerciseGroups =
                 userExerciseService.getEnabledUserExercisesByMuscleGroup(user.getId());
-        
+
         userExerciseValidator.validateUserExercises(exerciseGroups);
 
         TrainingPlan trainingPlan = mapToTrainingPlan(user, request);

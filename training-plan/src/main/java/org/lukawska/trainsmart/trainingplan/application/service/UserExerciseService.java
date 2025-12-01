@@ -39,20 +39,21 @@ public class UserExerciseService {
     private final ExerciseService exerciseService;
 
     @Transactional
-    public void syncUserExercise(@NotNull Long userId) {
+    public int syncUserExercise(@NotNull Long userId) {
         User user = userService.getUserById(userId);
         log.info("Searching for all exercises for user: {}", userId);
         List<UserExercise> currentUserExercises = userExerciseRepository.findAllByUserId(userId);
         List<Exercise> exercises = getNewExercises(currentUserExercises);
         if (exercises.isEmpty()) {
-            return;
+            return 0;
         }
 
         List<UserExercise> newUserExercises = mapToUserExercises(exercises, user);
+        log.info("Saving {} exercises for user {}", newUserExercises.size(), userId);
 
         try {
-            log.info("Saving {} exercises for user {}", newUserExercises.size(), userId);
-            userExerciseRepository.saveAll(newUserExercises);
+            List<UserExercise> savedUserExercises = userExerciseRepository.saveAll(newUserExercises);
+            return savedUserExercises.size();
         } catch (DataIntegrityViolationException e) {
             throw new UserExerciseAlreadyExistsException(userId);
         }
@@ -87,7 +88,7 @@ public class UserExerciseService {
                                               .collect(Collectors.groupingBy(
                                                       userExercise -> userExercise.getExercise().getMuscleGroup()));
 
-        log.info("Found {} muscle groups for user with ID: {}", exercisesByMuscleGroup.size(), userId);
+        log.info("Found exercises for: {} muscle groups for user with ID: {}", exercisesByMuscleGroup.size(), userId);
         return exercisesByMuscleGroup;
     }
 

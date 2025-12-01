@@ -36,11 +36,6 @@ public class UserExerciseFilter {
         log.info("Updating user exercise enabled status for user: {}", userId);
 
         Set<String> injuries = healthSurveyService.getAllInjuriesByUserId(userId);
-
-        if (injuries.isEmpty()) {
-            return;
-        }
-
         List<String> exercisesName = userExerciseService.getAllExerciseNames(userId);
 
         ChatRolesRequest request = prepareRequest(injuries, exercisesName);
