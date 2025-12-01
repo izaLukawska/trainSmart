@@ -33,9 +33,10 @@ public class TrainingPlanGenerator {
     private final UserExerciseValidator userExerciseValidator;
 
     public TrainingPlan generateTrainingPlan(User user, TrainingPlanRequest request) {
-        userExerciseService.syncUserExercise(user.getId());
-        //+ update for injuries if present -> if not enable all.
-        
+        int syncedUserExercise = userExerciseService.syncUserExercise(user.getId());
+        //jesli synced = 0 && health survey injuries sie nie zmienily od ostatniej generacji planu -> generuj
+        //else -> open ai filter
+
         Map<MuscleGroup, List<UserExercise>> exerciseGroups =
                 userExerciseService.getEnabledUserExercisesByMuscleGroup(user.getId());
 

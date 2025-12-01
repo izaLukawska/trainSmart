@@ -49,7 +49,7 @@ public class UserExerciseService {
         }
 
         List<UserExercise> newUserExercises = mapToUserExercises(exercises, user);
-        log.info("Saving {} exercises for user {}", newUserExercises.size(), userId);
+        log.info("Saving {} new exercises for user {}", newUserExercises.size(), userId);
 
         try {
             List<UserExercise> savedUserExercises = userExerciseRepository.saveAll(newUserExercises);
