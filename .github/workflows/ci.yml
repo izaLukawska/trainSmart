@@ -95,7 +95,7 @@ jobs:
       - name: Smoke test (healthcheck)
         run: |
           for i in {1..15}; do
-            if curl -sSf http://localhost:8080/actuator/health; then
+            if curl -sSf http://localhost:8080/api/v1/actuator/health; then
               echo "Application run successfully"
               docker compose down
               exit 0
