@@ -1,22 +1,16 @@
 package org.lukawska.trainsmart.trainingplan.application.service;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
-import org.lukawska.trainsmart.trainingplan.application.validation.UserExerciseValidator;
 import org.lukawska.trainsmart.trainingplan.domain.entity.*;
 import org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.HashSet;
 import java.util.List;
@@ -29,25 +23,13 @@ import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPl
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class TrainingPlanGenerator {
-
-    private final UserService userService;
-
-    private final UserExerciseService userExerciseService;
 
     private final BlockExerciseLoadCalculator loadCalculator;
 
-    private final UserExerciseValidator userExerciseValidator;
-
-    @Transactional
-    public TrainingPlan generateTrainingPlan(@NotNull Long userId, @Valid TrainingPlanRequest request) {
-        User existingUser = userService.getUserById(userId);
-        Map<MuscleGroup, List<UserExercise>> groups = userExerciseService.getEnabledUserExercisesByMuscleGroup(userId);
-        userExerciseValidator.validateUserExercises(groups);
-
-        TrainingPlan trainingPlan = mapToTrainingPlan(existingUser, request);
-
+    public TrainingPlan generateTrainingPlan(User user, Map<MuscleGroup, List<UserExercise>> userExercises,
+                                             TrainingPlanRequest request) {
+        TrainingPlan trainingPlan = mapToTrainingPlan(user, request);
         int weekCount = request.planDuration().getWeeksCount();
         int daysPerWeek = request.preferredDays().size();
         TrainingType trainingType = trainingPlan.getTrainingType();
@@ -63,7 +45,7 @@ public class TrainingPlanGenerator {
             for (int day = 1; day <= daysPerWeek; day++) {
                 WeekDay scheduledDay = WeekDay.values()[day - 1];
                 TrainingBlock trainingBlock =
-                        generateTrainingBlock(trainingWeek, groups, usedExercises, trainingType, scheduledDay);
+                        generateTrainingBlock(trainingWeek, userExercises, usedExercises, trainingType, scheduledDay);
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
 
