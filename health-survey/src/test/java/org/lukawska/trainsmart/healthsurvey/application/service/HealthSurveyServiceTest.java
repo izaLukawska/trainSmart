@@ -21,6 +21,7 @@ import org.springframework.data.history.Revision;
 import org.springframework.data.history.RevisionMetadata;
 import org.springframework.data.history.Revisions;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -140,6 +141,22 @@ class HealthSurveyServiceTest {
     }
 
     @Test
+    void shouldGetAllInjuriesUpdatedAfterByUserId() {
+        //given
+        final Long userId = 1L;
+        final Instant date = Instant.now();
+        when(healthSurveyRepository.findAllInjuriesUpdatedAtAfter(userId, date))
+                .thenReturn(Optional.of(defaultInjuries()));
+
+        //when
+        Set<String> actualInjuries = healthSurveyService.getAllInjuriesUpdatedAtAfter(userId, date);
+
+        //then
+        assertThat(actualInjuries).hasSize(3);
+        assertThat(actualInjuries).isEqualTo(defaultInjuries());
+    }
+
+    @Test
     void shouldReturnEmptySetWhenNoHealthSurveyPresent() {
         //given
         final Long userId = 1L;
@@ -208,6 +225,29 @@ class HealthSurveyServiceTest {
         assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(userId, createHealthSurveyRequest))
                 .isInstanceOf(HealthSurveyException.class)
                 .hasMessage(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS.getMessage());
+    }
+
+    @Test
+    void shouldThrowHealthSurveyNotFoundExceptionWhenGetAllInjuriesByUserId() {
+        //given
+        final Long userId = 1L;
+
+        //when && then
+        assertThatThrownBy(() -> healthSurveyService.getAllInjuriesByUserId(userId))
+                .isInstanceOf(HealthSurveyException.class)
+                .hasMessage(ExceptionType.HEALTH_SURVEY_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    void shouldThrowHealthSurveyNotFoundExceptionWhenGetAllInjuriesByUserIdUpdatedAtAfter() {
+        //given
+        final Long userId = 1L;
+        final Instant date = Instant.now();
+
+        //when && then
+        assertThatThrownBy(() -> healthSurveyService.getAllInjuriesUpdatedAtAfter(userId, date))
+                .isInstanceOf(HealthSurveyException.class)
+                .hasMessage(ExceptionType.HEALTH_SURVEY_NOT_FOUND.getMessage());
     }
 
     @Test
