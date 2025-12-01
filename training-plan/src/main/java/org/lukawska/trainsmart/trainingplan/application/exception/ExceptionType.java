@@ -10,9 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum ExceptionType {
 
     NOT_ENOUGH_MUSCLE_GROUPS(HttpStatus.UNPROCESSABLE_ENTITY, "Not enough muscle groups to generate a training plan"),
-    NOT_ENOUGH_EXERCISES(HttpStatus.UNPROCESSABLE_ENTITY, "Not enough exercises to generate a training plan"),
-    TRAINING_PLAN_CREATION_ERROR(HttpStatus.CONFLICT, "Error during training plan creation"),
-    USER_EXERCISE_ALREADY_EXISTS(HttpStatus.CONFLICT, "Duplicate user exercise");
+    NOT_ENOUGH_EXERCISES(HttpStatus.UNPROCESSABLE_ENTITY, "Not enough exercises to generate a training plan");
 
     private final HttpStatus httpStatus;
     private final String message;
