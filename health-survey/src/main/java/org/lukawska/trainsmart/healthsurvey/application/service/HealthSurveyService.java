@@ -38,9 +38,9 @@ public class HealthSurveyService {
     public HealthSurveyResponse submitHealthSurvey(Long userId, HealthSurveyCreateRequest surveyRequest) {
         User user = userService.getUserById(userId);
         log.info("Creating health survey for user: {}", user.getId());
+        HealthSurvey healthSurvey = mapToEntity(surveyRequest, user);
 
         try {
-            HealthSurvey healthSurvey = mapToEntity(surveyRequest, user);
             healthSurveyRepository.save(healthSurvey);
             log.info("Saved health survey: {}", healthSurvey.getId());
             return mapToHealthSurveyResponse(healthSurvey);
@@ -54,6 +54,7 @@ public class HealthSurveyService {
     public HealthSurveyResponse updateHealthSurvey(Long userId, HealthSurveyUpdateRequest healthSurveyUpdateRequest) {
         HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
 
+        log.info("Updating health survey for user: {}", userId);
         updateWeight(healthSurveyUpdateRequest, healthSurvey);
         updateInjuries(healthSurveyUpdateRequest, healthSurvey);
         healthSurveyRepository.save(healthSurvey);

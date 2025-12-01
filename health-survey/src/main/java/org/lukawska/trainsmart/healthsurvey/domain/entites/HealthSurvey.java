@@ -9,6 +9,7 @@ import org.hibernate.envers.Audited;
 import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,9 @@ public class HealthSurvey {
     @Column(nullable = false)
     private Set<String> injuries;
 
+    @Column(name = "injuries_updated_at")
+    private Instant injuriesUpdatedAt;
+
     @Builder
     private HealthSurvey(User user, Gender gender, Integer height, Integer weight, Set<String> injuries) {
         this.user = user;
@@ -57,6 +61,16 @@ public class HealthSurvey {
     }
 
     public void updateInjuries(Set<String> injuries) {
-        this.injuries = injuries;
+        if (!this.injuries.equals(injuries)) {
+            this.injuries = injuries;
+            injuriesUpdatedAt = Instant.now();
+        }
+    }
+
+    @PrePersist
+    protected void onPersist() {
+        if (this.injuriesUpdatedAt == null) {
+            this.injuriesUpdatedAt = Instant.now();
+        }
     }
 }
