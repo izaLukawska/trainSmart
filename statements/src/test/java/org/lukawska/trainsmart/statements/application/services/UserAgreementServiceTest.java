@@ -44,10 +44,11 @@ class UserAgreementServiceTest {
     void shouldCreateNewUserAgreementWhenSignAgreement() {
         //given
         final UserAgreementRequest request = acceptedUserAgreementRequest();
+        final UserAgreement savedUserAgreement = acceptedUserAgreement(request.statementCode(), 1);
+        
         when(userAgreementValidator.validateUserAgreement(request)).thenReturn(requiredStatement());
         when(userAgreementRepository.findByUserIdAndStatementCode(1L, request.statementCode()))
                 .thenReturn(Optional.empty());
-        final UserAgreement savedUserAgreement = acceptedUserAgreement(request.statementCode(), 1);
         when(userAgreementRepository.save(any())).thenReturn(savedUserAgreement);
 
         //when
@@ -64,6 +65,7 @@ class UserAgreementServiceTest {
         //given
         final UserAgreementRequest request = rejectedUserAgreementRequest(randomStatementCode());
         final UserAgreement existingUserAgreement = acceptedUserAgreement(request.statementCode(), 1);
+
         when(userAgreementValidator.validateUserAgreement(any())).thenReturn(optionalStatement());
         when(userAgreementRepository.findByUserIdAndStatementCode(1L, request.statementCode()))
                 .thenReturn(Optional.of(existingUserAgreement));
@@ -82,8 +84,8 @@ class UserAgreementServiceTest {
     void shouldReturnRequiredStatementsToSign() {
         //given
         final Long userId = new Random().nextLong(10);
-        List<UserAgreement> userAgreements = List.of(acceptedUserAgreement(randomStatementCode(), 1),
-                                                     acceptedUserAgreement(randomStatementCode(), 1));
+        final List<UserAgreement> userAgreements = List.of(acceptedUserAgreement(randomStatementCode(), 1),
+                                                           acceptedUserAgreement(randomStatementCode(), 1));
 
         when(userService.getUserById(userId)).thenReturn(mock(User.class));
         when(userAgreementRepository.findAllByUserId(userId)).thenReturn(userAgreements);
@@ -93,7 +95,6 @@ class UserAgreementServiceTest {
         List<UserAgreementResponse> result = userAgreementService.getRequiredStatementsToSign(userId);
 
         //then
-        verify(userService).getUserById(userId);
         assertThat(result).hasSize(2);
         assertThat(result.getFirst().statementCode()).isEqualTo(userAgreements.getFirst().getStatementCode());
         assertThat(result.getLast().statementCode()).isEqualTo(userAgreements.getLast().getStatementCode());

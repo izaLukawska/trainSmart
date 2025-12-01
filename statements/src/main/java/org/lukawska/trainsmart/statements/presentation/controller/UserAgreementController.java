@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users/{userId}/agreements")
+@RequestMapping("/users/{userId}/agreements")
 @RequiredArgsConstructor
 @Slf4j
 @Validated

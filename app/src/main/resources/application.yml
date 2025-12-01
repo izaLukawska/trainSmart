@@ -17,3 +17,5 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+    servlet:
+      path: /api/v1
