@@ -19,7 +19,7 @@ public class TrainingBlock {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private WeekDay weekDay;
+    private WeekDay assignedDay;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "training_week_id")
@@ -28,8 +28,9 @@ public class TrainingBlock {
     @OneToMany(mappedBy = "trainingBlock", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BlockExercise> blockExercises = new ArrayList<>();
 
-    public TrainingBlock(TrainingWeek trainingWeek) {
+    public TrainingBlock(TrainingWeek trainingWeek, WeekDay assignedDay) {
         this.trainingWeek = trainingWeek;
+        this.assignedDay = assignedDay;
     }
 
     public void addBlockExercise(BlockExercise blockExercise) {
