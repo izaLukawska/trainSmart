@@ -32,12 +32,6 @@ public class UserExerciseFilter {
             performed: %s. Return the names in lower case and as a comma-separated list.
             """).replace("\n", " ").trim();
 
-    private static String buildUserPrompt(Set<String> injuries, List<String> exerciseNames) {
-        String injuriesStr = String.join(", ", injuries);
-        String exercisesStr = String.join(", ", exerciseNames);
-        return String.format(USER_PROMPT_TEMPLATE, injuriesStr, exercisesStr);
-    }
-
     public void updateUnsafeExercises(@NotNull Long userId) {
         log.info("Updating user exercise enabled status for user: {}", userId);
 
@@ -55,6 +49,12 @@ public class UserExerciseFilter {
     private ChatRolesRequest prepareRequest(Set<String> injuries, List<String> exerciseNames) {
         String userPrompt = buildUserPrompt(injuries, exerciseNames);
         return new ChatRolesRequest(SYSTEM_PROMPT, userPrompt);
+    }
+
+    private String buildUserPrompt(Set<String> injuries, List<String> exerciseNames) {
+        String injuriesStr = String.join(", ", injuries);
+        String exercisesStr = String.join(", ", exerciseNames);
+        return String.format(USER_PROMPT_TEMPLATE, injuriesStr, exercisesStr);
     }
 
     private List<String> getDisabledExerciseList(String disabledExercisesStr) {
