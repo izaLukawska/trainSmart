@@ -8,13 +8,9 @@ import lombok.Getter;
 @Getter
 public enum TrainingType {
 
-    STRENGTH(0.70, 1.00, 1, 5, 1, 5, 1, IntensityLevel.HIGH),
-    HYPERTROPHY(0.60, 0.80, 8, 12, 3, 6, 2, IntensityLevel.MEDIUM),
-    ENDURANCE(0.40, 0.60, 15, 25, 2, 4, 3, IntensityLevel.LIGHT);
-
-    private final double minPercent;
-
-    private final double maxPercent;
+    STRENGTH(1, 5, 1, 5, IntensityLevel.HIGH),
+    HYPERTROPHY(8, 12, 3, 6, IntensityLevel.MEDIUM),
+    ENDURANCE(15, 25, 2, 4, IntensityLevel.LIGHT);
 
     private final int minReps;
 
@@ -23,8 +19,6 @@ public enum TrainingType {
     private final int minSets;
 
     private final int maxSets;
-
-    private final int repsInReserve;
 
     private final IntensityLevel defaultIntensityLevel;
 

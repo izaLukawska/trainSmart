@@ -86,6 +86,7 @@ public class UserExerciseService {
                 getUserExercises(userId, true).stream()
                                               .collect(Collectors.groupingBy(
                                                       userExercise -> userExercise.getExercise().getMuscleGroup()));
+
         log.info("Found {} muscle groups for user with ID: {}", exercisesByMuscleGroup.size(), userId);
         return exercisesByMuscleGroup;
     }
