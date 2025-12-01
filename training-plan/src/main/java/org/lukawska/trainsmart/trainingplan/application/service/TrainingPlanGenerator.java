@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.validation.UserExerciseValidator;
 import org.lukawska.trainsmart.trainingplan.domain.entity.*;
 import org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
@@ -27,8 +28,16 @@ public class TrainingPlanGenerator {
 
     private final BlockExerciseLoadCalculator loadCalculator;
 
-    public TrainingPlan generateTrainingPlan(User user, Map<MuscleGroup, List<UserExercise>> userExercises,
-                                             TrainingPlanRequest request) {
+    private final UserExerciseService userExerciseService;
+
+    private final UserExerciseValidator userExerciseValidator;
+
+    public TrainingPlan generateTrainingPlan(User user, TrainingPlanRequest request) {
+        Map<MuscleGroup, List<UserExercise>> exerciseGroups =
+                userExerciseService.getEnabledUserExercisesByMuscleGroup(user.getId());
+        
+        userExerciseValidator.validateUserExercises(exerciseGroups);
+
         TrainingPlan trainingPlan = mapToTrainingPlan(user, request);
         int weekCount = request.planDuration().getWeeksCount();
         int daysPerWeek = request.preferredDays().size();
@@ -45,7 +54,7 @@ public class TrainingPlanGenerator {
             for (int day = 1; day <= daysPerWeek; day++) {
                 WeekDay scheduledDay = WeekDay.values()[day - 1];
                 TrainingBlock trainingBlock =
-                        generateTrainingBlock(trainingWeek, userExercises, usedExercises, trainingType, scheduledDay);
+                        generateTrainingBlock(trainingWeek, exerciseGroups, usedExercises, trainingType, scheduledDay);
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
 

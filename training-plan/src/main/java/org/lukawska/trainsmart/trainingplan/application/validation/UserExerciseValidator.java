@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
-import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseService;
 import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +13,6 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class UserExerciseValidator {
-
-    private final UserExerciseService userExerciseService;
 
     public void validateUserExercises(Map<MuscleGroup, List<UserExercise>> userExercisesMuscleGroups) {
         validateMuscleGroupSize(userExercisesMuscleGroups);
