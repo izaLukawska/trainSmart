@@ -7,7 +7,6 @@ import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
-import org.lukawska.trainsmart.trainingplan.application.validation.UserExerciseValidator;
 import org.lukawska.trainsmart.trainingplan.domain.entity.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.repository.TrainingPlanRepository;
@@ -33,14 +32,11 @@ public class TrainingPlanService {
 
     private final TrainingPlanExerciseSelector exerciseSelector;
 
-    private final UserExerciseValidator userExerciseValidator;
-
     @Transactional
     public TrainingPlan createTrainingPlanForUser(@NotNull Long userId, @Valid TrainingPlanRequest request) {
         User existingUser = userService.getUserById(userId);
 
         Map<MuscleGroup, List<UserExercise>> muscleGroups = exerciseSelector.selectExercises(userId);
-        userExerciseValidator.validateUserExercises(muscleGroups);
 
         TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(existingUser, muscleGroups, request);
         trainingPlanRepository.save(generatedPlan);

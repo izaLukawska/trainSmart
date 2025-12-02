@@ -28,13 +28,12 @@ public class TrainingPlanGenerator {
 
     private final BlockExerciseLoadCalculator loadCalculator;
 
-    private final UserExerciseService userExerciseService;
-
     private final UserExerciseValidator userExerciseValidator;
 
-    public TrainingPlan generateTrainingPlan(User user, Map<MuscleGroup, List<UserExercise>> exerciseGroups,
+    public TrainingPlan generateTrainingPlan(User user,
+                                             Map<MuscleGroup, List<UserExercise>> muscleGroups,
                                              TrainingPlanRequest request) {
-        userExerciseValidator.validateUserExercises(exerciseGroups);
+        userExerciseValidator.validateUserExercises(muscleGroups);
 
         TrainingPlan trainingPlan = mapToTrainingPlan(user, request);
         int weekCount = request.planDuration().getWeeksCount();
@@ -52,7 +51,7 @@ public class TrainingPlanGenerator {
             for (int day = 1; day <= daysPerWeek; day++) {
                 WeekDay scheduledDay = WeekDay.values()[day - 1];
                 TrainingBlock trainingBlock =
-                        generateTrainingBlock(trainingWeek, exerciseGroups, usedExercises, trainingType, scheduledDay);
+                        generateTrainingBlock(trainingWeek, muscleGroups, usedExercises, trainingType, scheduledDay);
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
 
