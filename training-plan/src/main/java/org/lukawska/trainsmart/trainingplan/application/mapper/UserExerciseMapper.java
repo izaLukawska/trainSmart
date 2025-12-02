@@ -20,4 +20,10 @@ public class UserExerciseMapper {
     public static UserExerciseResponse mapToResponse(UserExercise userExercise) {
         return new UserExerciseResponse(userExercise.getId(), userExercise.getExercise().getName());
     }
+
+    public static List<String> mapToExerciseNames(List<UserExercise> userExercises) {
+        return userExercises.stream()
+                            .map(userExercise -> userExercise.getExercise().getName())
+                            .toList();
+    }
 }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper.mapToExerciseNames;
 import static org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper.mapToUserExercises;
 
 @Service
@@ -39,13 +40,13 @@ public class UserExerciseService {
     private final ExerciseService exerciseService;
 
     @Transactional
-    public int syncUserExercise(@NotNull Long userId) {
+    public List<String> syncUserExercise(@NotNull Long userId) {
         User user = userService.getUserById(userId);
         log.info("Searching for all exercises for user: {}", userId);
         List<UserExercise> currentUserExercises = userExerciseRepository.findAllByUserId(userId);
         List<Exercise> exercises = getNewExercises(currentUserExercises);
         if (exercises.isEmpty()) {
-            return 0;
+            return List.of();
         }
 
         List<UserExercise> newUserExercises = mapToUserExercises(exercises, user);
@@ -53,7 +54,7 @@ public class UserExerciseService {
 
         try {
             List<UserExercise> savedUserExercises = userExerciseRepository.saveAll(newUserExercises);
-            return savedUserExercises.size();
+            return mapToExerciseNames(savedUserExercises);
         } catch (DataIntegrityViolationException e) {
             throw new UserExerciseAlreadyExistsException(userId);
         }

@@ -1,9 +1,9 @@
 package org.lukawska.trainsmart.trainingplan.application.service;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.lukawska.trainsmart.openai.infra.adapter.OpenAiAdapter;
 import org.lukawska.trainsmart.openai.infra.dto.ChatRolesRequest;
 import org.springframework.stereotype.Component;
@@ -19,8 +19,6 @@ import java.util.Set;
 @Slf4j
 public class UserExerciseFilter {
 
-    private final HealthSurveyService healthSurveyService;
-
     private final UserExerciseService userExerciseService;
 
     private final OpenAiAdapter openAiAdapter;
@@ -32,13 +30,12 @@ public class UserExerciseFilter {
             performed: %s. Return the names in lower case and as a comma-separated list.
             """).replace("\n", " ").trim();
 
-    public void updateUnsafeExercises(@NotNull Long userId) {
+    public void updateUnsafeExercises(@NotNull Long userId,
+                                      @NotNull @NotEmpty Set<String> injuries,
+                                      @NotNull @NotEmpty List<String> exerciseNames) {
         log.info("Updating user exercise enabled status for user: {}", userId);
 
-        Set<String> injuries = healthSurveyService.getAllInjuriesByUserId(userId);
-        List<String> exercisesName = userExerciseService.getAllExerciseNames(userId);
-
-        ChatRolesRequest request = prepareRequest(injuries, exercisesName);
+        ChatRolesRequest request = prepareRequest(injuries, exerciseNames);
         String openAiResponse = openAiAdapter.sendPrompt(request);
         List<String> disabledExercises = getDisabledExerciseList(openAiResponse);
 

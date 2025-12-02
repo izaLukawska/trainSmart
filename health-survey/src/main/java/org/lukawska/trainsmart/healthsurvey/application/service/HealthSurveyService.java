@@ -69,6 +69,14 @@ public class HealthSurveyService {
         return mapToHealthSurveyResponse(healthSurvey);
     }
 
+    public HealthSurvey getExistingHealthSurvey(Long userId) {
+        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
+                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
+        log.info("Found health survey: {}.", healthSurvey.getId());
+
+        return healthSurvey;
+    }
+
     public Set<String> getAllInjuriesByUserId(Long userId) {
         Set<String> injuries = healthSurveyRepository.findAllInjuriesByUserId(userId).orElseThrow(
                 () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
@@ -106,14 +114,6 @@ public class HealthSurveyService {
         log.debug("Found {} weight update records.", weightHistory.size());
 
         return weightHistory;
-    }
-
-    private HealthSurvey getExistingHealthSurvey(Long userId) {
-        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
-                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-        log.info("Found health survey: {}.", healthSurvey.getId());
-
-        return healthSurvey;
     }
 
     private void updateWeight(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {
