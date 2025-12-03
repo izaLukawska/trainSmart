@@ -78,7 +78,6 @@
             <artifactId>spring-retry</artifactId>
             <version>${spring-retry.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -119,7 +118,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
 
     <build>
