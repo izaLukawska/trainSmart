@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock;
 public class HealthSurveyTestData {
 
     public static HealthSurveyCreateRequest healthSurveyRequest() {
-        return new HealthSurveyCreateRequest(Gender.FEMALE, 180, 60, defaultInjuries());
+        return new HealthSurveyCreateRequest(Gender.MALE, 180, 80, defaultInjuries());
     }
 
     public static HealthSurvey healthSurveyEntity() {

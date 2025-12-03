@@ -11,7 +11,31 @@
 
     <artifactId>app</artifactId>
 
+    <properties>
+        <spring-boot.maven-plugin.version>${spring-boot.version}</spring-boot.maven-plugin.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>openai</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>mailing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>statements</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>exercise-catalog</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>health-survey</artifactId>

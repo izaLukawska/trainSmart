@@ -1,0 +1,48 @@
+package org.lukawska.trainsmart.mailing.application.mapper;
+
+import lombok.experimental.UtilityClass;
+import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
+import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
+import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
+import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+
+import java.util.List;
+
+@UtilityClass
+public final class MailMapper {
+
+    public static MailEntity mapToEntity(MailRequest mailRequest) {
+        return MailEntity.builder()
+                         .recipients(mailRequest.recipients())
+                         .cc(defaultListIfNull(mailRequest.cc()))
+                         .bcc(defaultListIfNull(mailRequest.bcc()))
+                         .subject(mailRequest.subject())
+                         .text(mailRequest.text())
+                         .isHtml(mailRequest.isHtml())
+                         .attachments(mailRequest.attachments())
+                         .build();
+    }
+
+    public static MailResponse mapToResponse(MailEntity mail, String mailFrom, String replyTo) {
+        return new MailResponse(mail.getId(),
+                                defaultListIfNull(mail.getRecipients()),
+                                defaultListIfNull(mail.getCc()),
+                                mail.getSubject(),
+                                mailFrom,
+                                replyTo,
+                                mapToAttachmentMeta(mail.getAttachments()),
+                                mail.getSentAt());
+    }
+
+    private static List<AttachmentMeta> mapToAttachmentMeta(List<Attachment> attachments) {
+        return defaultListIfNull(attachments)
+                .stream()
+                .map(att -> new AttachmentMeta(att.getFileName(), att.getSize()))
+                .toList();
+    }
+
+    private static <T> List<T> defaultListIfNull(List<T> list) {
+        return list == null ? List.of() : list;
+    }
+}

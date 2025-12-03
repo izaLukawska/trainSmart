@@ -48,6 +48,7 @@ class HealthSurveyServiceTest {
         final Long userId = 2L;
         final HealthSurveyCreateRequest healthSurveyCreateRequest = healthSurveyRequest();
         when(userService.getUserById(userId)).thenReturn(mock(User.class));
+        when(healthSurveyRepository.save(any())).thenReturn(healthSurveyEntity());
 
         //when
         HealthSurveyResponse result = healthSurveyService.submitHealthSurvey(userId, healthSurveyCreateRequest);
