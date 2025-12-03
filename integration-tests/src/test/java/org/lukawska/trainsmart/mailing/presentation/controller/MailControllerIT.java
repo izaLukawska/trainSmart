@@ -29,7 +29,7 @@ class MailControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
-    
+
     @MockitoBean
     private MailService mailService;
 

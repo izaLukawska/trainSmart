@@ -23,8 +23,9 @@
     </developers>
     <modules>
         <module>app</module>
-        <module>statements</module>
+        <module>health-survey</module>
         <module>shared-persistence</module>
+        <module>statements</module>
         <module>mailing</module>
         <module>openai</module>
         <module>exercise-catalog</module>
@@ -99,6 +100,7 @@
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
@@ -116,6 +118,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

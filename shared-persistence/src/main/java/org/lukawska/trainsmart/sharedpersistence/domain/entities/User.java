@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@Entity
 @Table(name = "users")
+@Entity
 @Getter
 public class User {
 
@@ -16,10 +16,7 @@ public class User {
 
     private String username;
 
-    private String mail;
-
-    public User(String username, String mail) {
+    public User(String username) {
         this.username = username;
-        this.mail = mail;
     }
 }
