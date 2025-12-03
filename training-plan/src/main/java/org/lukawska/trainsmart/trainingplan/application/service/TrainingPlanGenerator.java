@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
-import org.lukawska.trainsmart.trainingplan.application.validation.UserExerciseValidator;
 import org.lukawska.trainsmart.trainingplan.domain.entity.*;
 import org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
@@ -20,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.mapToTrainingPlan;
+import static org.lukawska.trainsmart.trainingplan.application.validation.UserExerciseValidator.validateUserExercises;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +28,10 @@ public class TrainingPlanGenerator {
 
     private final BlockExerciseLoadCalculator loadCalculator;
 
-    private final UserExerciseValidator userExerciseValidator;
-
     public TrainingPlan generateTrainingPlan(User user,
                                              Map<MuscleGroup, List<UserExercise>> muscleGroups,
                                              TrainingPlanRequest request) {
-        userExerciseValidator.validateUserExercises(muscleGroups);
+        validateUserExercises(muscleGroups);
 
         TrainingPlan trainingPlan = mapToTrainingPlan(user, request);
         int weekCount = request.planDuration().getWeeksCount();

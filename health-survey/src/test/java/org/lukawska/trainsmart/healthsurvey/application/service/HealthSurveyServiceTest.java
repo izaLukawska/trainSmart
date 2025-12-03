@@ -141,22 +141,6 @@ class HealthSurveyServiceTest {
     }
 
     @Test
-    void shouldGetAllInjuriesUpdatedAfterByUserId() {
-        //given
-        final Long userId = 1L;
-        final Instant date = Instant.now();
-        when(healthSurveyRepository.findAllInjuriesUpdatedAtAfter(userId, date))
-                .thenReturn(Optional.of(defaultInjuries()));
-
-        //when
-        Set<String> actualInjuries = healthSurveyService.getAllInjuriesUpdatedAtAfter(userId, date);
-
-        //then
-        assertThat(actualInjuries).hasSize(3);
-        assertThat(actualInjuries).isEqualTo(defaultInjuries());
-    }
-
-    @Test
     void shouldGetWeightHistoryByUserId() {
         //given
         final Long userId = 1L;

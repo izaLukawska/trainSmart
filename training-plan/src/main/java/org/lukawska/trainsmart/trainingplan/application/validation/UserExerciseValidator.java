@@ -1,20 +1,18 @@
 package org.lukawska.trainsmart.trainingplan.application.validation;
 
-import lombok.RequiredArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
-@Component
-@RequiredArgsConstructor
+@UtilityClass
 public class UserExerciseValidator {
 
-    public void validateUserExercises(Map<MuscleGroup, List<UserExercise>> userExercisesMuscleGroups) {
+    public static void validateUserExercises(Map<MuscleGroup, List<UserExercise>> userExercisesMuscleGroups) {
         validateMuscleGroupSize(userExercisesMuscleGroups);
         validateUserExerciseSize(userExercisesMuscleGroups);
     }

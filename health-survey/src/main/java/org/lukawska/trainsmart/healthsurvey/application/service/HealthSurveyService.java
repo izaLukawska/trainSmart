@@ -17,7 +17,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -81,14 +80,6 @@ public class HealthSurveyService {
         Set<String> injuries = healthSurveyRepository.findAllInjuriesByUserId(userId).orElseThrow(
                 () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
         log.info("Found {} injuries.", injuries.size());
-
-        return injuries;
-    }
-
-    public Set<String> getAllInjuriesUpdatedAtAfter(Long userId, Instant date) {
-        Set<String> injuries = healthSurveyRepository.findAllInjuriesUpdatedAtAfter(userId, date).orElseThrow(
-                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-        log.info("Found {} injuries updated after: {}", injuries, date);
 
         return injuries;
     }

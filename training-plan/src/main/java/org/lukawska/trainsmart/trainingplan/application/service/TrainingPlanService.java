@@ -30,13 +30,13 @@ public class TrainingPlanService {
 
     private final TrainingPlanGenerator trainingPlanGenerator;
 
-    private final TrainingPlanExerciseSelector exerciseSelector;
+    private final EnableExerciseProcessor enableExerciseProcessor;
 
     @Transactional
     public TrainingPlan createTrainingPlanForUser(@NotNull Long userId, @Valid TrainingPlanRequest request) {
         User existingUser = userService.getUserById(userId);
-
-        Map<MuscleGroup, List<UserExercise>> muscleGroups = exerciseSelector.selectExercises(userId);
+        Map<MuscleGroup, List<UserExercise>> muscleGroups =
+                enableExerciseProcessor.enableUserExercises(userId, getLastPlanCreationDate(userId));
 
         TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(existingUser, muscleGroups, request);
         trainingPlanRepository.save(generatedPlan);
