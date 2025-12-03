@@ -1,11 +1,19 @@
 spring:
   application:
     name: trainSmart
+  web:
+    locale: en
+    locale-resolver: accept_header
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+  mvc:
+    problemdetails:
+      enabled: true
+    servlet:
+      path: /api/v1
   jpa:
     hibernate:
       ddl-auto: update
@@ -58,3 +66,5 @@ management:
   health:
     mail:
       enabled: false
+  config:
+    import: optional:classpath:statements.yml
