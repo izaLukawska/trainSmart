@@ -23,9 +23,9 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-class GlobalExceptionHandlerTest {
+class StatementsExceptionHandlerTest {
 
-    private final GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
+    private final StatementsExceptionHandler exceptionHandler = new StatementsExceptionHandler();
 
     @Test
     void shouldHandleUserNotFoundException() {

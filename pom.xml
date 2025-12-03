@@ -25,6 +25,9 @@
         <module>app</module>
         <module>statements</module>
         <module>shared-persistence</module>
+        <module>mailing</module>
+        <module>openai</module>
+        <module>integration-tests</module>
     </modules>
     <scm>
         <connection/>
@@ -38,12 +41,10 @@
         <spring-boot.version>3.5.6</spring-boot.version>
         <spring-webmvc.version>6.2.10</spring-webmvc.version>
         <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
+        <spring-retry.version>2.0.12</spring-retry.version>
         <postgresql.version>42.7.8</postgresql.version>
-        <testcontainers.version>1.21.3</testcontainers.version>
-        <spring-security-test.version>6.5.5</spring-security-test.version>
         <jacoco.version>0.8.13</jacoco.version>
         <logback.version>1.5.19</logback.version>
-        <commons-compress.version>1.28.0</commons-compress.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <!-- Plugin version -->
         <maven-compiler.plugin.version>3.14.0</maven-compiler.plugin.version>
@@ -59,15 +60,21 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+            <version>${spring-retry.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -92,19 +99,9 @@
             <version>${postgresql.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>${logback.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-            <version>${commons-compress.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -114,22 +111,11 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -140,6 +126,10 @@
                 <version>${maven-compiler.plugin.version}</version>
                 <configuration>
                     <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                        </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
@@ -169,6 +159,12 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*Controller.class</exclude>
+                                <exclude>**/*Controller$*.class</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>check</id>
@@ -176,6 +172,10 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <excludes>
+                                <exclude>**/*Controller.class</exclude>
+                                <exclude>**/*Controller$*.class</exclude>
+                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
