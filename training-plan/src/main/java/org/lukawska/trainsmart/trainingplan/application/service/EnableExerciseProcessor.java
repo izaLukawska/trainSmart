@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -25,21 +26,25 @@ public class EnableExerciseProcessor {
     private final EnableExerciseStrategyResolver strategyResolver;
 
     public Map<MuscleGroup, List<UserExercise>> enableUserExercises(Long userId, Optional<Instant> lastCreateDate) {
-        HealthSurvey healthSurvey = healthSurveyService.getExistingHealthSurvey(userId);
         List<String> newExerciseNames = userExerciseService.syncUserExercise(userId);
-        EnableExerciseStrategyContext context = buildContext(healthSurvey, newExerciseNames, lastCreateDate);
+
+        HealthSurvey healthSurvey = healthSurveyService.getExistingHealthSurvey(userId);
+        Set<String> injuries = healthSurvey.getInjuries();
+        Instant updatedAt = healthSurvey.getInjuriesUpdatedAt();
+
+        EnableExerciseStrategyContext context = buildContext(lastCreateDate, newExerciseNames, injuries, updatedAt);
 
         strategyResolver.chooseStrategy(context)
-                        .ifPresent(strategy -> strategy.updateStatus(userId, newExerciseNames));
+                        .ifPresent(strategy -> strategy.updateStatus(userId, injuries, newExerciseNames));
 
         return userExerciseService.getEnabledUserExercisesByMuscleGroup(userId);
     }
 
-    private EnableExerciseStrategyContext buildContext(HealthSurvey healthSurvey, List<String> newExerciseNames,
-                                                       Optional<Instant> lastCreateDate) {
-        boolean injuriesEmpty = healthSurvey.getInjuries().isEmpty();
+    private EnableExerciseStrategyContext buildContext(Optional<Instant> lastCreateDate, List<String> newExerciseNames,
+                                                       Set<String> injuries, Instant updatedAt) {
+        boolean injuriesEmpty = injuries.isEmpty();
         boolean hasNewExercises = !newExerciseNames.isEmpty();
-        boolean injuriesUpdated = injuriesUpdatedAfterDate(healthSurvey.getInjuriesUpdatedAt(), lastCreateDate);
+        boolean injuriesUpdated = injuriesUpdatedAfterDate(updatedAt, lastCreateDate);
 
         return new EnableExerciseStrategyContext(injuriesEmpty, injuriesUpdated, hasNewExercises);
 

@@ -5,6 +5,7 @@ import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseServ
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class NextPlanUpdatedInjuriesEmpty implements EnableExerciseStrategy {
     }
 
     @Override
-    public void updateStatus(Long userId, List<String> newExerciseNames) {
+    public void updateStatus(Long userId, Set<String> injuries, List<String> newExerciseNames) {
         userExerciseService.updateUserExerciseEnabledStatus(userId, List.of());
     }
 }

@@ -1,7 +1,6 @@
 package org.lukawska.trainsmart.trainingplan.application.service.strategy;
 
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseFilter;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +13,13 @@ public class InjuriesNotEmptyWithNewExercises implements EnableExerciseStrategy 
 
     private final UserExerciseFilter userExerciseFilter;
 
-    private final HealthSurveyService healthSurveyService;
-
     @Override
     public boolean matches(EnableExerciseStrategyContext context) {
         return !context.injuriesUpdated() && !context.injuriesEmpty() && context.hasNewExercises();
     }
 
     @Override
-    public void updateStatus(Long userId, List<String> newExerciseNames) {
-        Set<String> injuries = healthSurveyService.getAllInjuriesByUserId(userId);
+    public void updateStatus(Long userId, Set<String> injuries, List<String> newExerciseNames) {
         userExerciseFilter.updateUnsafeExercises(userId, injuries, newExerciseNames);
     }
 }
