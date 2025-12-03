@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.statements.testutil;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;

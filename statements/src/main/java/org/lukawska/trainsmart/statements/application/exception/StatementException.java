@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class StatementException extends RuntimeException {
 
-	private final ExceptionType exceptionType;
+    private final ExceptionType exceptionType;
 
-	public StatementException(ExceptionType exceptionType) {
-		super(exceptionType.getMessage());
-		this.exceptionType = exceptionType;
-	}
+    public StatementException(ExceptionType exceptionType) {
+        super(exceptionType.getMessage());
+        this.exceptionType = exceptionType;
+    }
 }

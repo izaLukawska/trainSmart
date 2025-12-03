@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.shared_persistence.application.exception;
+package org.lukawska.trainsmart.sharedpersistence.application.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

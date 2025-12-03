@@ -2,9 +2,9 @@ package org.lukawska.trainsmart.statements.application.services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.shared_persistence.application.exception.UserNotFoundException;
-import org.lukawska.trainsmart.shared_persistence.application.service.UserService;
-import org.lukawska.trainsmart.shared_persistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.validation.UserAgreementValidator;
@@ -45,7 +45,7 @@ class UserAgreementServiceTest {
         //given
         final UserAgreementRequest request = acceptedUserAgreementRequest();
         final UserAgreement savedUserAgreement = acceptedUserAgreement(request.statementCode(), 1);
-        
+
         when(userAgreementValidator.validateUserAgreement(request)).thenReturn(requiredStatement());
         when(userAgreementRepository.findByUserIdAndStatementCode(1L, request.statementCode()))
                 .thenReturn(Optional.empty());

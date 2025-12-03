@@ -14,6 +14,8 @@ spring:
       enabled: true
     servlet:
       path: /api/v1
+  config:
+    import: optional:classpath:statements.yml
   jpa:
     hibernate:
       ddl-auto: update
@@ -66,5 +68,3 @@ management:
   health:
     mail:
       enabled: false
-  config:
-    import: optional:classpath:statements.yml

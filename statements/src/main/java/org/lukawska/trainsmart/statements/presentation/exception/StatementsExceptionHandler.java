@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.lukawska.trainsmart.shared_persistence.application.exception.UserNotFoundException;
+import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.statements.application.exception.StatementException;
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;

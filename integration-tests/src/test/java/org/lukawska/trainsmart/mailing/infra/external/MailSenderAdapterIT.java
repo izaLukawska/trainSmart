@@ -28,7 +28,7 @@ import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailReque
 
 @Testcontainers
 @SpringBootTest
-public class MailSenderAdapterIT extends PostgresTestBase {
+class MailSenderAdapterIT extends PostgresTestBase {
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
