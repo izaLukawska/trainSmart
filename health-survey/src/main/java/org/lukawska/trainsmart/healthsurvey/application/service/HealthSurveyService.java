@@ -17,7 +17,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,9 +40,9 @@ public class HealthSurveyService {
         HealthSurvey healthSurvey = mapToEntity(surveyRequest, user);
 
         try {
-            healthSurveyRepository.save(healthSurvey);
-            log.info("Saved health survey: {}", healthSurvey.getId());
-            return mapToHealthSurveyResponse(healthSurvey);
+            HealthSurvey savedHealthSurvey = healthSurveyRepository.save(healthSurvey);
+            log.info("Saved health survey: {}", savedHealthSurvey.getId());
+            return mapToHealthSurveyResponse(savedHealthSurvey);
         } catch (DataIntegrityViolationException e) {
             log.warn("Failed to create health survey for user {}: {}", userId, e.getMessage());
             throw new HealthSurveyException(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS);
@@ -62,11 +61,17 @@ public class HealthSurveyService {
         return mapToHealthSurveyResponse(healthSurvey);
     }
 
-    public HealthSurveyResponse getHealthSurveyByUserIdResponse(Long userId) {
-        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
-        log.info("Found health survey: {}", healthSurvey.getId());
+    @Transactional
+    public void deleteHealthSurveyByUserId(Long userId) {
+        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
+                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
+        log.info("Deleting health survey {}", healthSurvey.getId());
 
-        return mapToHealthSurveyResponse(healthSurvey);
+        healthSurveyRepository.delete(healthSurvey);
+    }
+
+    public HealthSurveyResponse getHealthSurveyByUserIdResponse(Long userId) {
+        return mapToHealthSurveyResponse(getExistingHealthSurvey(userId));
     }
 
     public Set<String> getAllInjuriesByUserId(Long userId) {
@@ -75,23 +80,6 @@ public class HealthSurveyService {
         log.info("Found {} injuries.", injuries.size());
 
         return injuries;
-    }
-
-    public Set<String> getAllInjuriesUpdatedAtAfter(Long userId, Instant date) {
-        Set<String> injuries = healthSurveyRepository.findAllInjuriesUpdatedAtAfter(userId, date).orElseThrow(
-                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-        log.info("Found {} injuries updated after: {}", injuries, date);
-
-        return injuries;
-    }
-
-    @Transactional
-    public void deleteHealthSurveyByUserId(Long userId) {
-        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
-                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-        log.info("Deleting health survey {}", healthSurvey.getId());
-
-        healthSurveyRepository.delete(healthSurvey);
     }
 
     public List<WeightHistoryResponse> getWeightHistoryByUserId(Long userId) {
@@ -108,7 +96,7 @@ public class HealthSurveyService {
         return weightHistory;
     }
 
-    private HealthSurvey getExistingHealthSurvey(Long userId) {
+    public HealthSurvey getExistingHealthSurvey(Long userId) {
         HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
                 () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
         log.info("Found health survey: {}.", healthSurvey.getId());

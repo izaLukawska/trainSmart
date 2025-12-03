@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class HealthSurveyExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(HealthSurveyException.class)
     public ProblemDetail handleHealthSurveyException(HealthSurveyException ex) {
@@ -27,11 +27,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setTitle("Health survey exception");
 
         return problemDetail;
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGenericException() {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred");
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
