@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.config.security;
+package org.lukawska.trainsmart.persistence;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;

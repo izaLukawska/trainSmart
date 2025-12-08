@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.mailing.infrastructure.logging;
+package org.lukawska.trainsmart.logging;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

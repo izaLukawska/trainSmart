@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-@ConfigurationProperties(prefix = "mailing")
+@ConfigurationProperties(prefix = "app.mailing")
 @Getter
 @Setter
 public class MailingProperties {
