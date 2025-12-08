@@ -31,23 +31,20 @@ public class JwtUtil {
     }
 
     public String generateAccessToken(String name) {
-        Instant currDate = Instant.now();
-
-        return Jwts.builder()
-                   .subject(name)
-                   .issuedAt(Date.from(currDate))
-                   .expiration(Date.from(currDate.plusMillis(jwtProperties.getAccessExp())))
-                   .signWith(secretKey)
-                   .compact();
+        return generateToken(name, jwtProperties.getAccessExpMs());
     }
 
     public String generateRefreshToken(String name) {
+        return generateToken(name, jwtProperties.getRefreshExpMs());
+    }
+
+    private String generateToken(String name, long expiration) {
         Instant currDate = Instant.now();
 
         return Jwts.builder()
                    .subject(name)
                    .issuedAt(Date.from(currDate))
-                   .expiration(Date.from(currDate.plusMillis(jwtProperties.getRefreshExp())))
+                   .expiration(Date.from(currDate.plusMillis(expiration)))
                    .signWith(secretKey)
                    .compact();
     }
