@@ -34,13 +34,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ExerciseControllerIT {
 
     @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
     private ExerciseService exerciseService;
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockitoBean
-    private JwtService jwtService;
 
     @Test
     void shouldCreateExercise() throws Exception {

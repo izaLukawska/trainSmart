@@ -2,7 +2,6 @@ package org.lukawska.trainsmart.mailing.application.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestBase;
 import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
@@ -40,11 +39,6 @@ class MailServiceIT extends PostgresTestBase {
 
     @Autowired
     private MailService mailService;
-
-    @AfterEach
-    void cleanUp() {
-        mailRepository.deleteAll();
-    }
 
     @Test
     void shouldSendAndSaveMailSuccess() throws MessagingException {

@@ -37,6 +37,12 @@ class MailSenderAdapterIT extends PostgresTestBase {
     static GenericContainer<?> mailhog = new GenericContainer<>("mailhog/mailhog:latest")
             .withExposedPorts(1025, 8025);
 
+    @DynamicPropertySource
+    static void registerMailhog(DynamicPropertyRegistry registry) {
+        registry.add("spring.mail.host", mailhog::getHost);
+        registry.add("spring.mail.port", () -> mailhog.getMappedPort(1025));
+    }
+
     @Autowired
     private MailingProperties mailingProperties;
 
@@ -45,12 +51,6 @@ class MailSenderAdapterIT extends PostgresTestBase {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @DynamicPropertySource
-    static void properties(DynamicPropertyRegistry registry) {
-        registry.add("spring.mail.host", mailhog::getHost);
-        registry.add("spring.mail.port", () -> mailhog.getMappedPort(1025));
-    }
 
     @Test
     void shouldSendMailSuccess() throws Exception {
