@@ -7,11 +7,11 @@ spring:
       ddl-auto: create
   mail:
     protocol: smtp
-
-mailing:
-  from: test-from@example.com
-  reply-to: test-replyto@example.com
-  validMimeTypes:
-    pdf:
-      - application/pdf
-  maxSizeBytes: 10485760
+app:
+  mailing:
+    from: test-from@example.com
+    reply-to: test-replyto@example.com
+    validMimeTypes:
+      pdf:
+        - application/pdf
+    maxSizeBytes: 10485760

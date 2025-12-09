@@ -1,8 +1,10 @@
 package org.lukawska.trainsmart.config;
 
+import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -26,4 +28,8 @@ public abstract class PostgresTestBase {
         registry.add("spring.datasource.password", POSTGRES::getPassword);
         registry.add("spring.datasource.driver-class-name", POSTGRES::getDriverClassName);
     }
+
+    @MockitoBean
+    private JwtService jwtService;
+
 }

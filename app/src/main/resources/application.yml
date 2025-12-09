@@ -12,8 +12,6 @@ spring:
   mvc:
     problemdetails:
       enabled: true
-    servlet:
-      path: /api/v1
   config:
     import: optional:classpath:statements.yml
   jpa:
@@ -68,3 +66,7 @@ app:
       xlsx:
         - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
     maxSizeBytes: 10485760
+
+server:
+  servlet:
+    context-path: /api/v1

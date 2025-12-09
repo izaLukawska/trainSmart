@@ -23,8 +23,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
-                           .requestMatchers("/api/v1/mail/**").hasAnyRole("ADMIN", "SYSTEM")
-                           .requestMatchers("/api/v1/exercises/**").hasRole("ADMIN")
+                           .requestMatchers("/mail/**").hasAnyRole("ADMIN", "SYSTEM")
+                           .requestMatchers("/exercises/**").hasRole("ADMIN")
                            .anyRequest().authenticated())
                    .csrf(AbstractHttpConfigurer::disable)
                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

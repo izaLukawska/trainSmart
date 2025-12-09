@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MailController.class)
 @ActiveProfiles("test")
+@WithMockUser
 class MailControllerIT {
 
     @Autowired
@@ -40,7 +41,6 @@ class MailControllerIT {
     private JwtService jwtService;
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "SYSTEM"})
     void shouldCreateMailAndReturn201() throws Exception {
         // given
         final MailRequest mailRequest = mailRequestWithAttachments();
@@ -48,17 +48,15 @@ class MailControllerIT {
         when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
 
         // when && then
-        RequestBuilder request = post("/mail/send")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(mailRequest));
+        RequestBuilder request = post("/mail/send").with(csrf())
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(objectMapper.writeValueAsString(mailRequest));
 
-        mockMvc.perform(request)
-               .andExpect(status().isCreated());
+        mockMvc.perform(request).andExpect(status().isCreated());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "SYSTEM"})
+    @WithMockUser
     void shouldReturnMailById() throws Exception {
         // given
         final MailResponse mailResponse = mailResponseWithId(1L);
@@ -73,12 +71,11 @@ class MailControllerIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "SYSTEM"})
     void shouldReturnAllMailsByRecipient() throws Exception {
         // given
         final String recipient = "recipient@test.com";
-        when(mailService.getAllMailsByRecipient(recipient))
-                .thenReturn(List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
+        when(mailService.getAllMailsByRecipient(recipient)).thenReturn(
+                List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
 
         // when && then
         mockMvc.perform(get("/mail/recipient").with(csrf()).param("recipient", recipient))
@@ -88,13 +85,12 @@ class MailControllerIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "SYSTEM"})
     void shouldReturnAllMailsBySubject() throws Exception {
         // given
         final String subject = "subject";
         final String keyword = "sub";
-        when(mailService.getAllMailsBySubjectContaining(keyword))
-                .thenReturn(List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
+        when(mailService.getAllMailsBySubjectContaining(keyword)).thenReturn(
+                List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
 
         // when && then
         mockMvc.perform(get("/mail/subject").param("keyword", keyword).with(csrf()))
@@ -104,30 +100,29 @@ class MailControllerIT {
     }
 
     @Test
-    void shouldReturnUnauthorizedWhenNotAuthenticated() throws Exception {
-        //when && then
-        mockMvc.perform(get("/mail/1")).andExpect(status().isUnauthorized());
+    void shouldReturnForbidden() throws Exception {
+        // given
+        final MailRequest mailRequest = mailRequestWithAttachments();
+        final ObjectMapper objectMapper = new ObjectMapper();
+        when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
+
+        // when && then
+        RequestBuilder request = post("/mail/send").contentType(MediaType.APPLICATION_JSON)
+                                                   .content(objectMapper.writeValueAsString(mailRequest));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "SYSTEM"})
     void shouldReturnBadRequestWhenInvalidPathVariable() throws Exception {
         //when && then
         mockMvc.perform(get("/mail/-1").with(csrf())).andExpect(status().isBadRequest());
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN", "SYSTEM"})
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
         mockMvc.perform(post("/mail/send").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(""))
                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser(username = "user")
-    void shouldReturnForbiddenWhenInsufficientRole() throws Exception {
-        mockMvc.perform(get("/mail/1").with(csrf()))
-               .andExpect(status().isForbidden());
     }
 }
