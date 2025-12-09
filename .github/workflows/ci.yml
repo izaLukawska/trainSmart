@@ -47,8 +47,11 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
 
-      - name: Build project
+      - name: Build exec JAR for IT
         run: mvn -B -U -DskipTests package
+
+      - name: Build normal bootable JAR for Docker
+        run: mvn package -DskipTests -Dclassifier=
 
       - name: Run tests and check coverage
         run: mvn verify
@@ -82,6 +85,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: jar-artifacts
+          path: ./app/target
+
       - name: Generate .env from secrets
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -96,7 +105,6 @@ jobs:
 
       - name: Smoke test (healthcheck)
         run: |
-          sleep 10
           for i in {1..15}; do
             if curl -sSf http://localhost:8080/api/v1/actuator/health; then
               echo "Application run successfully"
