@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.exercisecatalog.application.service;
 
-import com.zaxxer.hikari.util.IsolationLevel;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestBase;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
@@ -148,17 +147,5 @@ class ExerciseServiceIT extends PostgresTestBase {
         assertThatThrownBy(() -> exerciseService.createExercise(request))
                 .isInstanceOf(ExerciseException.class)
                 .hasMessage(ExceptionType.EXERCISE_ALREADY_EXISTS.getMessage());
-    }
-
-    @Test
-    void INVALID_TEST() {
-        //given
-        final ExerciseRequest request = new ExerciseRequest("front squat", MuscleGroup.QUADS, ExerciseType.BARBELL);
-        final Exercise exercise = new Exercise(request.name(), request.muscleGroup(), request.exerciseType());
-        exerciseRepository.save(exercise);
-
-        //when && then
-        assertThatThrownBy(() -> exerciseService.createExercise(request))
-                .isInstanceOf(IsolationLevel.class);
     }
 }
