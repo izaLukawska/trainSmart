@@ -30,6 +30,7 @@
         <module>openai</module>
         <module>exercise-catalog</module>
         <module>integration-tests</module>
+        <module>commons</module>
     </modules>
     <scm>
         <connection/>

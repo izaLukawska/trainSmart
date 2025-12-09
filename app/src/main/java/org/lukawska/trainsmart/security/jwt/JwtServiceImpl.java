@@ -1,8 +1,10 @@
 package org.lukawska.trainsmart.security.jwt;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -10,18 +12,29 @@ import java.time.Instant;
 import java.util.Date;
 
 @Component
-public class JwtUtil {
+public class JwtServiceImpl implements JwtService {
 
     private final JwtProperties jwtProperties;
 
     private final SecretKey secretKey;
 
-    public JwtUtil(JwtProperties jwtProperties) {
+    public JwtServiceImpl(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getSecret()));
     }
 
-    public String validateToken(String token) {
+    @Override
+    public String generateAccessToken(String username) {
+        return generateToken(username, jwtProperties.getAccessExpMs());
+    }
+
+    @Override
+    public String generateRefreshToken(String username) {
+        return generateToken(username, jwtProperties.getRefreshExpMs());
+    }
+
+    @Override
+    public String extractUsername(String token) {
         return Jwts.parser()
                    .verifyWith(secretKey)
                    .build()
@@ -30,12 +43,17 @@ public class JwtUtil {
                    .getSubject();
     }
 
-    public String generateAccessToken(String name) {
-        return generateToken(name, jwtProperties.getAccessExpMs());
-    }
-
-    public String generateRefreshToken(String name) {
-        return generateToken(name, jwtProperties.getRefreshExpMs());
+    @Override
+    public boolean validToken(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 
     private String generateToken(String name, long expiration) {
