@@ -1,11 +1,12 @@
-package org.lukawska.trainsmart.trainingplan.application.service;
+package org.lukawska.trainsmart.trainingplan.application.preparation.processors;
 
 import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
-import org.lukawska.trainsmart.trainingplan.application.service.strategy.EnableExerciseStrategyContext;
-import org.lukawska.trainsmart.trainingplan.application.service.strategy.EnableExerciseStrategyResolver;
+import org.lukawska.trainsmart.trainingplan.application.preparation.dto.EnableExerciseStrategyContext;
+import org.lukawska.trainsmart.trainingplan.application.preparation.strategies.EnableExerciseStrategyResolver;
+import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseService;
 import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
 import org.springframework.stereotype.Component;
 
@@ -25,14 +26,14 @@ public class EnableExerciseProcessor {
 
     private final EnableExerciseStrategyResolver strategyResolver;
 
-    public Map<MuscleGroup, List<UserExercise>> enableUserExercises(Long userId, Optional<Instant> lastCreateDate) {
+    public Map<MuscleGroup, List<UserExercise>> enableUserExercises(Long userId, Optional<Instant> lastPlanCreateDate) {
         List<String> newExerciseNames = userExerciseService.syncUserExercise(userId);
 
         HealthSurvey healthSurvey = healthSurveyService.getExistingHealthSurvey(userId);
         Set<String> injuries = healthSurvey.getInjuries();
         Instant updatedAt = healthSurvey.getInjuriesUpdatedAt();
 
-        EnableExerciseStrategyContext context = buildContext(lastCreateDate, newExerciseNames, injuries, updatedAt);
+        EnableExerciseStrategyContext context = buildContext(lastPlanCreateDate, newExerciseNames, injuries, updatedAt);
 
         strategyResolver.chooseStrategy(context)
                         .ifPresent(strategy -> strategy.updateStatus(userId, injuries, newExerciseNames));

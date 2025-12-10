@@ -1,10 +1,9 @@
-package org.lukawska.trainsmart.trainingplan.application.service;
+package org.lukawska.trainsmart.trainingplan.application.generation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
-import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.domain.entity.*;
 import org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
@@ -18,8 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.mapToTrainingPlan;
-import static org.lukawska.trainsmart.trainingplan.application.validation.UserExerciseValidator.validateUserExercises;
+import static org.lukawska.trainsmart.trainingplan.application.generation.UserExercisePicker.pickExercise;
 
 @Service
 @RequiredArgsConstructor
@@ -28,15 +26,14 @@ public class TrainingPlanGenerator {
 
     private final BlockExerciseLoadCalculator loadCalculator;
 
-    public TrainingPlan generateTrainingPlan(User user,
-                                             Map<MuscleGroup, List<UserExercise>> muscleGroups,
-                                             TrainingPlanRequest request) {
-        validateUserExercises(muscleGroups);
+    public TrainingPlan generateTrainingPlan(TrainingPlanGenerationData generationData) {
+        TrainingPlan trainingPlan = new TrainingPlan(generationData.user(), generationData.trainingType(),
+                                                     generationData.planDuration(),
+                                                     generationData.preferredDays().size());
+        TrainingType trainingType = generationData.trainingType();
 
-        TrainingPlan trainingPlan = mapToTrainingPlan(user, request);
-        int weekCount = request.planDuration().getWeeksCount();
-        int daysPerWeek = request.preferredDays().size();
-        TrainingType trainingType = trainingPlan.getTrainingType();
+        int weekCount = generationData.planDuration().getWeeksCount();
+        int daysPerWeek = generationData.preferredDays().size();
 
         log.info("Generating {} plan for {} weeks and {} days per week.", trainingType.name(), weekCount, daysPerWeek);
 
@@ -47,9 +44,9 @@ public class TrainingPlanGenerator {
             TrainingWeek trainingWeek = new TrainingWeek(trainingPlan, week);
 
             for (int day = 1; day <= daysPerWeek; day++) {
-                WeekDay scheduledDay = WeekDay.values()[day - 1];
-                TrainingBlock trainingBlock =
-                        generateTrainingBlock(trainingWeek, muscleGroups, usedExercises, trainingType, scheduledDay);
+                WeekDay scheduledDay = generationData.preferredDays().get(day - 1);
+                TrainingBlock trainingBlock = generateTrainingBlock(
+                        trainingWeek, generationData.muscleGroups(), usedExercises, trainingType, scheduledDay);
                 trainingWeek.addTrainingBlock(trainingBlock);
             }
 
@@ -103,34 +100,6 @@ public class TrainingPlanGenerator {
                   reps, sets, intensityLevel.name(), load);
 
         return blockExercise;
-    }
-
-    private UserExercise pickExercise(List<UserExercise> exercises, Set<UserExercise> usedExercises) {
-        List<UserExercise> notUsedExercises = exercises.stream()
-                                                       .filter(userExercise -> !usedExercises.contains(userExercise))
-                                                       .toList();
-        if (notUsedExercises.isEmpty()) {
-            log.debug("All exercises performed at least once in this plan. Choosing random exercise.");
-            return getRandomUserExercise(exercises);
-        }
-
-        return notUsedExercises.stream()
-                               .filter(userExercise -> userExercise.getLastUsedAt() == null)
-                               .findAny()
-                               .map(userExercise -> {
-                                   log.debug("Picked never performed exercise: {}", userExercise.getId());
-                                   return userExercise;
-                               })
-                               .orElseGet(() -> {
-                                   log.debug("All exercises used at least once. Picking exercise not used in plan");
-                                   return getRandomUserExercise(notUsedExercises);
-                               });
-    }
-
-    private UserExercise getRandomUserExercise(List<UserExercise> userExercises) {
-        UserExercise pickedExercise = userExercises.get(ThreadLocalRandom.current().nextInt(userExercises.size()));
-        log.debug("Picked exercise: {}", pickedExercise.getId());
-        return pickedExercise;
     }
 
     private int getExerciseReps(TrainingType trainingType) {

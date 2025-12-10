@@ -1,6 +1,7 @@
-package org.lukawska.trainsmart.trainingplan.application.service.strategy;
+package org.lukawska.trainsmart.trainingplan.application.preparation.strategies;
 
 import lombok.RequiredArgsConstructor;
+import org.lukawska.trainsmart.trainingplan.application.preparation.dto.EnableExerciseStrategyContext;
 import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseService;
 import org.springframework.stereotype.Component;
 

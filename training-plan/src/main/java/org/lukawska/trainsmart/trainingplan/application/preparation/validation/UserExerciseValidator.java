@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.validation;
+package org.lukawska.trainsmart.trainingplan.application.preparation.validation;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;

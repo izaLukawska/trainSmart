@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.service;
+package org.lukawska.trainsmart.trainingplan.application.preparation.processors;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.openai.infra.adapter.OpenAiAdapter;
 import org.lukawska.trainsmart.openai.infra.dto.ChatRolesRequest;
+import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseService;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 

@@ -1,4 +1,6 @@
-package org.lukawska.trainsmart.trainingplan.application.service.strategy;
+package org.lukawska.trainsmart.trainingplan.application.preparation.strategies;
+
+import org.lukawska.trainsmart.trainingplan.application.preparation.dto.EnableExerciseStrategyContext;
 
 import java.util.List;
 import java.util.Set;

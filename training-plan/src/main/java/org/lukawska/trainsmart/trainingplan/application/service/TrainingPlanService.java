@@ -3,20 +3,19 @@ package org.lukawska.trainsmart.trainingplan.application.service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
+import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
+import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entity.TrainingPlan;
-import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.repository.TrainingPlanRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -30,15 +29,15 @@ public class TrainingPlanService {
 
     private final TrainingPlanGenerator trainingPlanGenerator;
 
-    private final EnableExerciseProcessor enableExerciseProcessor;
+    private final TrainingPlanDataResolver trainingPlanDataResolver;
 
     @Transactional
     public TrainingPlan createTrainingPlanForUser(@NotNull Long userId, @Valid TrainingPlanRequest request) {
         User existingUser = userService.getUserById(userId);
-        Map<MuscleGroup, List<UserExercise>> muscleGroups =
-                enableExerciseProcessor.enableUserExercises(userId, getLastPlanCreationDate(userId));
+        TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
+                existingUser, request, getLastPlanCreationDate(userId));
 
-        TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(existingUser, muscleGroups, request);
+        TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(generationData);
         trainingPlanRepository.save(generatedPlan);
 
         return generatedPlan;
