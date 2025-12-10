@@ -7,7 +7,7 @@ import org.apache.tika.Tika;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.application.validation.AttachmentValidator;
-import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;

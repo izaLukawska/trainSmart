@@ -1,16 +1,16 @@
-package org.lukawska.trainsmart.mailing.domain.repository;
+package org.lukawska.trainsmart.mailing.domain.repositories;
 
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
-import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.config.PostgresTestBase;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.testutil.MailingTestData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.List;
 
@@ -20,11 +20,10 @@ import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailWithR
 
 @DataJpaTest
 @Transactional
+@EnableJpaRepositories(basePackages = "org.lukawska.trainsmart.mailing.domain.repositories")
+@EntityScan(basePackages = "org.lukawska.trainsmart.mailing.domain")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class MailingRepositoryIT extends PostgresTestBase {
-
-    @MockitoBean
-    private JwtService jwtService;
+class MailRepositoryIT extends PostgresTestBase {
 
     @Autowired
     private MailRepository mailRepository;

@@ -23,9 +23,9 @@ import static org.lukawska.trainsmart.mailing.testdata.ExceptionTestData.mockVio
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class GlobalExceptionHandlerTest {
+class MailingExceptionHandlerTest {
 
-    private final GlobalExceptionHandler exceptionHandler = new GlobalExceptionHandler();
+    private final MailingExceptionHandler exceptionHandler = new MailingExceptionHandler();
 
     @Test
     void shouldReturn404WithProblemDetailWhenHandleMailingException() {

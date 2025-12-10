@@ -8,6 +8,7 @@ import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.MailSenderAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.MailException;
 import org.springframework.test.annotation.DirtiesContext;
@@ -37,11 +38,8 @@ class MailSenderAdapterIT extends PostgresTestBase {
     static GenericContainer<?> mailhog = new GenericContainer<>("mailhog/mailhog:latest")
             .withExposedPorts(1025, 8025);
 
-    @DynamicPropertySource
-    static void registerMailhog(DynamicPropertyRegistry registry) {
-        registry.add("spring.mail.host", mailhog::getHost);
-        registry.add("spring.mail.port", () -> mailhog.getMappedPort(1025));
-    }
+    @Value("${test.mailhog.api.url}")
+    private String mailhogApiUrl;
 
     @Autowired
     private MailingProperties mailingProperties;
@@ -52,6 +50,14 @@ class MailSenderAdapterIT extends PostgresTestBase {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @DynamicPropertySource
+    static void registerMailhog(DynamicPropertyRegistry registry) {
+        registry.add("spring.mail.host", mailhog::getHost);
+        registry.add("spring.mail.port", () -> mailhog.getMappedPort(1025));
+        registry.add("test.mailhog.api.url",
+                     () -> String.format("http://%s:%d", mailhog.getHost(), mailhog.getMappedPort(8025)));
+    }
+
     @Test
     void shouldSendMailSuccess() throws Exception {
         //given
@@ -61,8 +67,7 @@ class MailSenderAdapterIT extends PostgresTestBase {
         mailSenderAdapter.sendEmail(mailRequest);
 
         //then
-        URI uri = URI.create(String.format("http://%s:%d/api/v2/messages",
-                                           mailhog.getHost(), mailhog.getMappedPort(8025)));
+        URI uri = URI.create(mailhogApiUrl + "/api/v2/messages");
 
         HttpRequest httpRequest = HttpRequest.newBuilder(uri).GET().build();
         HttpResponse<String> httpResponse = HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString());

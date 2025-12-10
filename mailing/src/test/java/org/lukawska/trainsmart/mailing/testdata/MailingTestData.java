@@ -3,7 +3,7 @@ package org.lukawska.trainsmart.mailing.testdata;
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
-import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 
 import java.util.List;
 import java.util.Random;

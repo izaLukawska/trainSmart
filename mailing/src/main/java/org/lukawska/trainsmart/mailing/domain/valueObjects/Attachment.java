@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.mailing.domain.valueObject;
+package org.lukawska.trainsmart.mailing.domain.valueObjects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

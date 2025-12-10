@@ -3,7 +3,7 @@ package org.lukawska.trainsmart.exercisecatalog.application.mapper;
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
-import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
 
 @UtilityClass
 public class ExerciseMapper {

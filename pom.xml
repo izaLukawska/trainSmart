@@ -23,12 +23,12 @@
     </developers>
     <modules>
         <module>app</module>
-        <module>health-survey</module>
+        <module>commons</module>
         <module>shared-persistence</module>
+        <module>health-survey</module>
         <module>statements</module>
         <module>mailing</module>
         <module>openai</module>
-        <module>commons</module>
         <module>exercise-catalog</module>
         <module>integration-tests</module>
     </modules>
@@ -79,6 +79,12 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>

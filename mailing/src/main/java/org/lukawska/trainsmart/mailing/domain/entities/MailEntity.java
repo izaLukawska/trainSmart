@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 
 import java.time.Instant;
 import java.util.ArrayList;

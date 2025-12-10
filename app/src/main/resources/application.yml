@@ -4,6 +4,10 @@ spring:
   web:
     locale: en
     locale-resolver: accept_header
+  devtools:
+    remote:
+      restart:
+        enabled: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -67,7 +71,7 @@ app:
         - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
         -
     maxSizeBytes: 10485760
-    
+
 server:
   servlet:
     context-path: /api/v1

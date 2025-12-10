@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

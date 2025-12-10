@@ -7,7 +7,6 @@ spring:
       ddl-auto: create
   mail:
     protocol: smtp
-
 app:
   mailing:
     from: test-from@example.com
@@ -16,3 +15,8 @@ app:
       pdf:
         - application/pdf
     maxSizeBytes: 10485760
+  jwt:
+    secret: MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=
+    accessExpMs: 3600000
+    refreshExpMs: 86400000
+
