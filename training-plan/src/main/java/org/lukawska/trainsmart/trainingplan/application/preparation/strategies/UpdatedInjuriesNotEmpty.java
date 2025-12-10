@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class NextPlanUpdatedInjuriesNotEmpty implements EnableExerciseStrategy {
+public class UpdatedInjuriesNotEmpty implements EnableExerciseStrategy {
 
     private final UserExerciseService userExerciseService;
 

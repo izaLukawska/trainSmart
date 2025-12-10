@@ -1,6 +1,6 @@
-package org.lukawska.trainsmart.trainingplan.domain.repository;
+package org.lukawska.trainsmart.trainingplan.domain.repositories;
 
-import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
+import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

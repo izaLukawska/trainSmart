@@ -9,8 +9,8 @@ import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
-import org.lukawska.trainsmart.trainingplan.domain.entity.TrainingPlan;
-import org.lukawska.trainsmart.trainingplan.domain.repository.TrainingPlanRepository;
+import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
+import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +32,7 @@ public class TrainingPlanService {
     private final TrainingPlanDataResolver trainingPlanDataResolver;
 
     @Transactional
-    public TrainingPlan createTrainingPlanForUser(@NotNull Long userId, @Valid TrainingPlanRequest request) {
+    public TrainingPlan createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanRequest request) {
         User existingUser = userService.getUserById(userId);
         TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
                 existingUser, request, getLastPlanCreationDate(userId));
@@ -43,7 +43,16 @@ public class TrainingPlanService {
         return generatedPlan;
     }
 
+    @Transactional
+    public void deleteTrainingPlan(Long planId) {
+        trainingPlanRepository.deleteById(planId);
+    }
+
+    public TrainingPlan getTrainingPlan(Long planId) {
+        return trainingPlanRepository.findById(planId).orElseThrow();
+    }
+
     public Optional<Instant> getLastPlanCreationDate(Long userId) {
-        return trainingPlanRepository.findTopCreatedAtByUserIdOrderByCreatedAtDesc(userId);
+        return trainingPlanRepository.findFirstCreatedAtByUserId(userId);
     }
 }

@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.domain.entity;
+package org.lukawska.trainsmart.trainingplan.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;

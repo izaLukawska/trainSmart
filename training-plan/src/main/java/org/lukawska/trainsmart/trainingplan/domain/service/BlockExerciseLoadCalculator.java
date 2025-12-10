@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.domain.service;
 
 import jakarta.validation.constraints.NotNull;
-import org.lukawska.trainsmart.trainingplan.domain.entity.BlockExercise;
+import org.lukawska.trainsmart.trainingplan.domain.entities.BlockExercise;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 

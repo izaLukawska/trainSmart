@@ -2,7 +2,7 @@ package org.lukawska.trainsmart.trainingplan.application.generation;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
+import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 
 import java.util.List;
 import java.util.Set;

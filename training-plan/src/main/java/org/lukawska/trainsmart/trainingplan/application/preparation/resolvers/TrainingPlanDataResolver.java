@@ -6,7 +6,7 @@ import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.application.preparation.processors.EnableExerciseProcessor;
-import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
+import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
 import org.springframework.stereotype.Component;
 

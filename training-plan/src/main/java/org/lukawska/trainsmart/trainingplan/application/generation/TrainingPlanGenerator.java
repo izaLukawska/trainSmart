@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
-import org.lukawska.trainsmart.trainingplan.domain.entity.*;
+import org.lukawska.trainsmart.trainingplan.domain.entities.*;
 import org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;

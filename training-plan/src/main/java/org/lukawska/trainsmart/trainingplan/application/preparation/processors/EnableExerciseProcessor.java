@@ -5,9 +5,9 @@ import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.EnableExerciseStrategyContext;
-import org.lukawska.trainsmart.trainingplan.application.preparation.strategies.EnableExerciseStrategyResolver;
+import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.EnableExerciseStrategyResolver;
 import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseService;
-import org.lukawska.trainsmart.trainingplan.domain.entity.UserExercise;
+import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
