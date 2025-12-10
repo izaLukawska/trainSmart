@@ -1,0 +1,5 @@
+[[allowlist]]
+
+[[allowlist.fingerprint]]
+fingerprint = "a80482bc74c4b3991fb912908f98f3e7b747ee6a:integration-tests/src/main/resources/application-test.yml:generic-api-key:19"
+description = "Zignorowany stary, nieaktywny klucz API w commicie a80482bc74c4b3991fb912908f98f3e7b747ee6a."
