@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.mailing.application.dto;
 
 import jakarta.validation.constraints.*;
-import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 
 import java.util.List;
 

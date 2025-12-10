@@ -9,7 +9,7 @@ import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
-import org.lukawska.trainsmart.mailing.domain.repository.MailRepository;
+import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
 import org.springframework.mail.MailException;

@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.mailing.domain.repository;
+package org.lukawska.trainsmart.mailing.domain.repositories;
 
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

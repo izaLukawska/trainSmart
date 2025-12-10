@@ -2,12 +2,14 @@ package org.lukawska.trainsmart.mailing.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +20,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -25,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MailController.class)
 @ActiveProfiles("test")
+@WithMockUser
 class MailControllerIT {
 
     @Autowired
@@ -32,6 +36,9 @@ class MailControllerIT {
 
     @MockitoBean
     private MailService mailService;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @Test
     void shouldCreateMailAndReturn201() throws Exception {
@@ -41,7 +48,8 @@ class MailControllerIT {
         when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
 
         // when && then
-        RequestBuilder request = post("/api/mail/send").contentType(MediaType.APPLICATION_JSON)
+        RequestBuilder request = post("/api/mail/send").with(csrf())
+                                                       .contentType(MediaType.APPLICATION_JSON)
                                                        .content(objectMapper.writeValueAsString(mailRequest));
 
         mockMvc.perform(request)
@@ -55,7 +63,7 @@ class MailControllerIT {
         when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
 
         // when && then
-        mockMvc.perform(get("/api/mail/1"))
+        mockMvc.perform(get("/api/mail/1").with(csrf()))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id").value(mailResponse.id()))
                .andExpect(jsonPath("$.subject").value(mailResponse.subject()))
@@ -70,7 +78,7 @@ class MailControllerIT {
                 .thenReturn(List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
 
         // when && then
-        mockMvc.perform(get("/api/mail/recipient").param("recipient", recipient))
+        mockMvc.perform(get("/api/mail/recipient").with(csrf()).param("recipient", recipient))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].recipients", everyItem(hasItem(recipient))));
@@ -85,7 +93,7 @@ class MailControllerIT {
                 .thenReturn(List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
 
         // when && then
-        mockMvc.perform(get("/api/mail/subject").param("keyword", keyword))
+        mockMvc.perform(get("/api/mail/subject").with(csrf()).param("keyword", keyword))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].subject", everyItem(containsString(keyword))));
@@ -94,13 +102,13 @@ class MailControllerIT {
     @Test
     void shouldReturnBadRequestWhenInvalidPathVariable() throws Exception {
         //when && then
-        mockMvc.perform(get("/api/mail/-1")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/mail/-1").with(csrf())).andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
-        mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/api/mail/send").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
                .andExpect(status().isBadRequest());
     }
 }

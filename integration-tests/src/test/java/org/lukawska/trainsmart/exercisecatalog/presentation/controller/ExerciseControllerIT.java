@@ -2,16 +2,18 @@ package org.lukawska.trainsmart.exercisecatalog.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,7 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ExerciseController.class)
 @ActiveProfiles("test")
+@WithMockUser
 class ExerciseControllerIT {
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @MockitoBean
     private ExerciseService exerciseService;
@@ -43,6 +50,7 @@ class ExerciseControllerIT {
 
         //when && then
         RequestBuilder request = post("/exercises").contentType(MediaType.APPLICATION_JSON)
+                                                   .with(csrf())
                                                    .content(objectMapper.writeValueAsString(exerciseRequest));
         mockMvc.perform(request)
                .andExpect(status().isCreated());
@@ -56,7 +64,11 @@ class ExerciseControllerIT {
         when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
 
         //when && then
-        mockMvc.perform(get("/exercises/name").param("name", name).contentType(MediaType.APPLICATION_JSON))
+        RequestBuilder request = get("/exercises/name").with(csrf())
+                                                       .param("name", name)
+                                                       .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.name").value(name));
     }
@@ -71,7 +83,8 @@ class ExerciseControllerIT {
         when(exerciseService.getExercisesByMuscleGroup(muscleGroup)).thenReturn(expectedResponse);
 
         //when && then
-        RequestBuilder request = get("/exercises/muscle-group").param("muscleGroup", muscleGroup.name())
+        RequestBuilder request = get("/exercises/muscle-group").with(csrf())
+                                                               .param("muscleGroup", muscleGroup.name())
                                                                .contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(request)
                .andExpect(status().isOk())
@@ -83,7 +96,7 @@ class ExerciseControllerIT {
     @Test
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
-        mockMvc.perform(post("/exercises").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/exercises").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
                .andExpect(status().isBadRequest());
     }
 
@@ -95,7 +108,10 @@ class ExerciseControllerIT {
                 new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
         //when && then
-        mockMvc.perform(get("/exercises/name").contentType(MediaType.APPLICATION_JSON).param("name", name))
+        RequestBuilder request = get("/exercises/name").with(csrf())
+                                                       .contentType(MediaType.APPLICATION_JSON)
+                                                       .param("name", name);
+        mockMvc.perform(request)
                .andExpect(status().isNotFound());
     }
 }

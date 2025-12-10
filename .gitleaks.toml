@@ -1,0 +1,5 @@
+[allowlist]
+
+[[allowlist.path]]
+regex = 'integration-tests/src/main/resources/application-test.yml$'
+description = "Ignoring application-test properties warning."
