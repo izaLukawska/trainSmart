@@ -71,3 +71,8 @@ app:
 server:
   servlet:
     context-path: /api/v1
+
+management:
+  health:
+    mail:
+      enabled: false
