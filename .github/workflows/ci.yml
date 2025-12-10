@@ -50,9 +50,6 @@ jobs:
       - name: Build exec JAR for IT
         run: mvn -B -U -DskipTests package
 
-      - name: Build normal bootable JAR for Docker
-        run: mvn package -DskipTests -Dclassifier=
-
       - name: Run tests and check coverage
         run: mvn verify
 
