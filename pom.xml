@@ -50,6 +50,7 @@
         <postgresql.version>42.7.8</postgresql.version>
         <jacoco.version>0.8.13</jacoco.version>
         <logback.version>1.5.19</logback.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
         <!-- Plugin version -->
         <maven-compiler.plugin.version>3.14.0</maven-compiler.plugin.version>
     </properties>
@@ -122,6 +123,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -139,6 +145,16 @@
                 <version>${maven-compiler.plugin.version}</version>
                 <configuration>
                     <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
                         <path>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>

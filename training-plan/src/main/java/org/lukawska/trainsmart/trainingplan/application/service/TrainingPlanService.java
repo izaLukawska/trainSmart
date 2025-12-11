@@ -3,10 +3,15 @@ package org.lukawska.trainsmart.trainingplan.application.service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanResponse;
+import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
+import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
+import org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
@@ -21,6 +26,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class TrainingPlanService {
 
     private final TrainingPlanRepository trainingPlanRepository;
@@ -31,8 +37,10 @@ public class TrainingPlanService {
 
     private final TrainingPlanDataResolver trainingPlanDataResolver;
 
+    private final TrainingPlanMapper trainingPlanMapper;
+
     @Transactional
-    public TrainingPlan createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanRequest request) {
+    public TrainingPlanResponse createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanRequest request) {
         User existingUser = userService.getUserById(userId);
         TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
                 existingUser, request, getLastPlanCreationDate(userId));
@@ -40,19 +48,26 @@ public class TrainingPlanService {
         TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(generationData);
         trainingPlanRepository.save(generatedPlan);
 
-        return generatedPlan;
+        return trainingPlanMapper.toResponse(generatedPlan);
     }
 
     @Transactional
     public void deleteTrainingPlan(Long planId) {
+        log.info("Deleting plan: {}", planId);
         trainingPlanRepository.deleteById(planId);
     }
 
-    public TrainingPlan getTrainingPlan(Long planId) {
-        return trainingPlanRepository.findById(planId).orElseThrow();
+    public TrainingPlanResponse getTrainingPlanResponseByPlanId(Long planId) {
+        return trainingPlanMapper.toResponse(getTrainingPlanPlanId(planId));
     }
 
-    public Optional<Instant> getLastPlanCreationDate(Long userId) {
-        return trainingPlanRepository.findFirstCreatedAtByUserId(userId);
+    public TrainingPlan getTrainingPlanPlanId(Long planId) {
+        log.info("Fetching plan: {}", planId);
+        return trainingPlanRepository.findById(planId).orElseThrow(
+                () -> new TrainingPlanException(ExceptionType.TRAINING_PLAN_NOT_FOUND));
+    }
+
+    private Optional<Instant> getLastPlanCreationDate(Long userId) {
+        return trainingPlanRepository.findMaxCreatedAtByUserId(userId);
     }
 }

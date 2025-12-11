@@ -1,29 +1,24 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
-import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
-import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@UtilityClass
-public class UserExerciseMapper {
+@Mapper(componentModel = "spring")
+public interface UserExerciseMapper {
 
-    public static List<UserExercise> mapToUserExercises(List<Exercise> exercises, User user) {
-        return exercises.stream()
-                        .map(exercise -> new UserExercise(user, exercise))
-                        .toList();
-    }
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "exerciseName", source = "exercise.name")
+    UserExerciseResponse toResponse(UserExercise userExercise);
 
-    public static UserExerciseResponse mapToResponse(UserExercise userExercise) {
-        return new UserExerciseResponse(userExercise.getId(), userExercise.getExercise().getName());
-    }
+    List<UserExerciseResponse> toResponseList(List<UserExercise> userExercises);
 
-    public static List<String> mapToExerciseNames(List<UserExercise> userExercises) {
-        return userExercises.stream()
-                            .map(userExercise -> userExercise.getExercise().getName())
-                            .toList();
+    List<String> toExerciseNames(List<UserExercise> userExercises);
+
+    default String toExerciseName(UserExercise userExercise) {
+        return userExercise.getExercise().getName();
     }
 }

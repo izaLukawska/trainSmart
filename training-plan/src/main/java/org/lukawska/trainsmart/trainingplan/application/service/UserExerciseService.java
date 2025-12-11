@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper.mapToExerciseNames;
-import static org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper.mapToUserExercises;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,6 +36,8 @@ public class UserExerciseService {
 
     private final ExerciseService exerciseService;
 
+    private final UserExerciseMapper userExerciseMapper;
+
     @Transactional
     public List<String> syncUserExercise(@NotNull Long userId) {
         User user = userService.getUserById(userId);
@@ -49,12 +48,12 @@ public class UserExerciseService {
             return List.of();
         }
 
-        List<UserExercise> newUserExercises = mapToUserExercises(exercises, user);
+        List<UserExercise> newUserExercises = initializeUserExercises(exercises, user);
         log.info("Saving {} new exercises for user {}", newUserExercises.size(), userId);
 
         try {
             List<UserExercise> savedUserExercises = userExerciseRepository.saveAll(newUserExercises);
-            return mapToExerciseNames(savedUserExercises);
+            return userExerciseMapper.toExerciseNames(savedUserExercises);
         } catch (DataIntegrityViolationException e) {
             throw new UserExerciseAlreadyExistsException(userId);
         }
@@ -73,9 +72,7 @@ public class UserExerciseService {
     }
 
     public List<UserExerciseResponse> getUserExercisesResponse(@NotNull Long userId, Boolean enabled) {
-        return getUserExercises(userId, enabled).stream()
-                                                .map(UserExerciseMapper::mapToResponse)
-                                                .toList();
+        return userExerciseMapper.toResponseList(getUserExercises(userId, enabled));
     }
 
     public List<UserExercise> getUserExercises(@NotNull Long userId, Boolean enabled) {
@@ -95,6 +92,12 @@ public class UserExerciseService {
 
     public List<String> getAllExerciseNames(@NotNull Long userId) {
         return userExerciseRepository.findAllExerciseNamesByUserId(userId);
+    }
+
+    private List<UserExercise> initializeUserExercises(List<Exercise> exercises, User user) {
+        return exercises.stream()
+                        .map(exercise -> new UserExercise(user, exercise))
+                        .toList();
     }
 
     private Instant getLastUserExerciseUpdate(List<UserExercise> userExercises) {

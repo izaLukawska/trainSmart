@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.application.preparation.processors;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EnableExerciseProcessor {
 
     private final HealthSurveyService healthSurveyService;
@@ -27,8 +29,8 @@ public class EnableExerciseProcessor {
     private final EnableExerciseStrategyResolver strategyResolver;
 
     public Map<MuscleGroup, List<UserExercise>> enableUserExercises(Long userId, Optional<Instant> lastPlanCreateDate) {
+        log.debug("Resolving the exercises status.");
         List<String> newExerciseNames = userExerciseService.syncUserExercise(userId);
-
         HealthSurvey healthSurvey = healthSurveyService.getExistingHealthSurvey(userId);
         Set<String> injuries = healthSurvey.getInjuries();
         Instant updatedAt = healthSurvey.getInjuriesUpdatedAt();
@@ -36,7 +38,10 @@ public class EnableExerciseProcessor {
         EnableExerciseStrategyContext context = buildContext(lastPlanCreateDate, newExerciseNames, injuries, updatedAt);
 
         strategyResolver.chooseStrategy(context)
-                        .ifPresent(strategy -> strategy.updateStatus(userId, injuries, newExerciseNames));
+                        .ifPresentOrElse(strategy -> {
+                            log.debug("Applying strategy: {}", strategy.getClass().getSimpleName());
+                            strategy.updateStatus(userId, injuries, newExerciseNames);
+                        }, () -> log.debug("Skipping strategy (no strategy match found)"));
 
         return userExerciseService.getEnabledUserExercisesByMuscleGroup(userId);
     }

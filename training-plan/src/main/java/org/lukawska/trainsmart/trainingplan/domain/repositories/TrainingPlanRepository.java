@@ -12,7 +12,9 @@ import java.util.Optional;
 @Repository
 public interface TrainingPlanRepository extends JpaRepository<TrainingPlan, Long> {
 
-    @Query("SELECT t.createdAt FROM TrainingPlan t WHERE t.user.id = :userId ORDER BY t.createdAt DESC")
-    Optional<Instant> findFirstCreatedAtByUserId(@Param("userId") Long userId);
+    @Query("SELECT MAX(tp.createdAt) FROM TrainingPlan tp WHERE tp.user.id = :userId")
+    Optional<Instant> findMaxCreatedAtByUserId(@Param("userId") Long userId);
+
+    ;
 
 }

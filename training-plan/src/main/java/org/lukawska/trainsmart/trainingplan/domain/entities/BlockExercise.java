@@ -35,18 +35,14 @@ public class BlockExercise {
     @Setter
     private Double loadPercent;
 
-    @Setter
-    private Double load;
-
     @Builder
-    public BlockExercise(TrainingBlock trainingBlock, UserExercise userExercise, int sets, int reps,
-                         IntensityLevel intensity, Double loadPercent, Double load) {
+    private BlockExercise(TrainingBlock trainingBlock, UserExercise userExercise, int sets, int reps,
+                          IntensityLevel intensity, Double loadPercent) {
         this.trainingBlock = trainingBlock;
         this.userExercise = userExercise;
         this.sets = sets;
         this.reps = reps;
         this.intensity = intensity;
         this.loadPercent = loadPercent;
-        this.load = load;
     }
 }

@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.openai.infra.adapter;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +19,7 @@ public class OpenAiAdapter implements ChatClientPort<ChatRolesRequest, String> {
     private final ChatClient chatClient;
 
     @Override
-    public String sendPrompt(@Valid ChatRolesRequest request) {
+    public String sendPrompt(ChatRolesRequest request) {
         ChatClient.ChatClientRequestSpec prompt = chatClient.prompt();
 
         if (StringUtils.isNotBlank(request.systemPrompt())) {
