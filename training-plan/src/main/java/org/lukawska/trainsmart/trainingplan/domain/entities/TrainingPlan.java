@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SoftDelete;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Table(name = "training_plan")
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @SoftDelete
 public class TrainingPlan extends BaseEntity {

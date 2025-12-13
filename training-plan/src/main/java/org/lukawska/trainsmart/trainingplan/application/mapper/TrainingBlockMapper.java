@@ -5,7 +5,7 @@ import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingBlock;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {BlockExerciseMapper.class})
+@Mapper(uses = {BlockExerciseMapper.class})
 public interface TrainingBlockMapper {
 
     @Mapping(target = "blockId", source = "id")

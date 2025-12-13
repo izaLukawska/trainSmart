@@ -5,7 +5,7 @@ import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = TrainingWeekMapper.class)
+@Mapper(uses = TrainingWeekMapper.class)
 public interface TrainingPlanMapper {
 
     @Mapping(target = "planId", source = "id")

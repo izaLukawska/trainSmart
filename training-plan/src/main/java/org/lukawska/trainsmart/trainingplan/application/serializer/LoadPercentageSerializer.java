@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class PercentSerializer extends StdSerializer<Double> {
+public class LoadPercentageSerializer extends StdSerializer<Double> {
 
-    protected PercentSerializer() {
+    protected LoadPercentageSerializer() {
         super(Double.class);
     }
 
@@ -24,6 +24,7 @@ public class PercentSerializer extends StdSerializer<Double> {
         BigDecimal percentValue = BigDecimal.valueOf(value)
                                             .multiply(BigDecimal.valueOf(100))
                                             .setScale(0, RoundingMode.HALF_UP);
+
         jsonGenerator.writeString(percentValue.toPlainString() + "%");
     }
 }

@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.presentation;
+package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseResponse;

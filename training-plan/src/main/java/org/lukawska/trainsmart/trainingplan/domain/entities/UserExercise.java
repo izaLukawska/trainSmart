@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
@@ -11,7 +12,7 @@ import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
 import java.time.Instant;
 
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_exercise", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "exercise_id"}))
 @Getter
 public class UserExercise extends BaseEntity {

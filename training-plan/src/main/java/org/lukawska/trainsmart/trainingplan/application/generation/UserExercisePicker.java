@@ -10,28 +10,30 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @UtilityClass
-public class UserExercisePicker {
+class UserExercisePicker {
 
-    public static UserExercise pickExercise(List<UserExercise> exercises, Set<UserExercise> usedExercises) {
-        List<UserExercise> notUsedExercises = exercises.stream()
-                                                       .filter(userExercise -> !usedExercises.contains(userExercise))
-                                                       .toList();
-        if (notUsedExercises.isEmpty()) {
+    static UserExercise pickExercise(List<UserExercise> exercises, Set<UserExercise> usedExercises) {
+        List<UserExercise> notUsedInPlanExercises = exercises.stream()
+                                                             .filter(userExercise -> !usedExercises.contains(
+                                                                     userExercise))
+                                                             .toList();
+        if (notUsedInPlanExercises.isEmpty()) {
             log.debug("All exercises performed at least once in this plan. Choosing random exercise.");
             return getRandomUserExercise(exercises);
         }
 
-        return notUsedExercises.stream()
-                               .filter(userExercise -> userExercise.getLastUsedAt() == null)
-                               .findAny()
-                               .map(userExercise -> {
-                                   log.debug("Picked never performed exercise: {}", userExercise.getId());
-                                   return userExercise;
-                               })
-                               .orElseGet(() -> {
-                                   log.debug("All exercises used at least once. Picking exercise not used in plan");
-                                   return getRandomUserExercise(notUsedExercises);
-                               });
+        return notUsedInPlanExercises.stream()
+                                     .filter(userExercise -> userExercise.getLastUsedAt() == null)
+                                     .findAny()
+                                     .map(userExercise -> {
+                                         log.debug("Picked never performed exercise: {}", userExercise.getId());
+                                         return userExercise;
+                                     })
+                                     .orElseGet(() -> {
+                                         log.debug(
+                                                 "All exercises used at least once. Picking exercise not used in plan");
+                                         return getRandomUserExercise(notUsedInPlanExercises);
+                                     });
     }
 
     private UserExercise getRandomUserExercise(List<UserExercise> userExercises) {

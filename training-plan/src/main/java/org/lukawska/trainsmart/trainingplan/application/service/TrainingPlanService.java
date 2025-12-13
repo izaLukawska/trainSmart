@@ -16,6 +16,7 @@ import org.lukawska.trainsmart.trainingplan.application.preparation.dto.Training
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -37,7 +38,7 @@ public class TrainingPlanService {
 
     private final TrainingPlanDataResolver trainingPlanDataResolver;
 
-    private final TrainingPlanMapper trainingPlanMapper;
+    private final TrainingPlanMapper trainingPlanMapper = Mappers.getMapper(TrainingPlanMapper.class);
 
     @Transactional
     public TrainingPlanResponse createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanRequest request) {

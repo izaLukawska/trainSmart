@@ -14,6 +14,7 @@ import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseAl
 import org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.UserExerciseRepository;
+import org.mapstruct.factory.Mappers;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,7 @@ public class UserExerciseService {
 
     private final ExerciseService exerciseService;
 
-    private final UserExerciseMapper userExerciseMapper;
+    private final UserExerciseMapper userExerciseMapper = Mappers.getMapper(UserExerciseMapper.class);
 
     @Transactional
     public List<String> syncUserExercise(@NotNull Long userId) {
@@ -53,7 +54,9 @@ public class UserExerciseService {
 
         try {
             List<UserExercise> savedUserExercises = userExerciseRepository.saveAll(newUserExercises);
-            return userExerciseMapper.toExerciseNames(savedUserExercises);
+            return savedUserExercises.stream()
+                                     .map(userExercise -> userExercise.getExercise().getName()).
+                                     toList();
         } catch (DataIntegrityViolationException e) {
             throw new UserExerciseAlreadyExistsException(userId);
         }
@@ -71,7 +74,7 @@ public class UserExerciseService {
         }
     }
 
-    public List<UserExerciseResponse> getUserExercisesResponse(@NotNull Long userId, Boolean enabled) {
+    public List<UserExerciseResponse> getUserExercisesResponse(Long userId, Boolean enabled) {
         return userExerciseMapper.toResponseList(getUserExercises(userId, enabled));
     }
 

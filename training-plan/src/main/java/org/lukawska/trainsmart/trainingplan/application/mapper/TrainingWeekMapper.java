@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = TrainingBlockMapper.class)
+@Mapper(uses = TrainingBlockMapper.class)
 public interface TrainingWeekMapper {
 
     @Mapping(target = "weekId", source = "id")
@@ -16,4 +16,5 @@ public interface TrainingWeekMapper {
     TrainingWeekResponse toResponse(TrainingWeek entity);
 
     List<TrainingWeekResponse> toDtoList(List<TrainingWeek> trainingWeeks);
+
 }

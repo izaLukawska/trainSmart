@@ -1,15 +1,12 @@
 package org.lukawska.trainsmart.trainingplan.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
 
 @Table(name = "block_exercise")
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class BlockExercise {
 

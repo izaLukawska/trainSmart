@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Table(name = "training_week")
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class TrainingWeek {
 

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.domain.entities.*;
-import org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
@@ -18,20 +17,16 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.lukawska.trainsmart.trainingplan.application.generation.UserExercisePicker.pickExercise;
+import static org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator.calculateLoadPercent;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TrainingPlanGenerator {
 
-    private final BlockExerciseLoadCalculator loadCalculator;
-
     public TrainingPlan generateTrainingPlan(TrainingPlanGenerationData generationData) {
-        TrainingPlan trainingPlan = new TrainingPlan(generationData.user(), generationData.trainingType(),
-                                                     generationData.planDuration(),
-                                                     generationData.preferredDays().size());
+        TrainingPlan trainingPlan = mapToTrainingPlan(generationData);
         TrainingType trainingType = generationData.trainingType();
-
         int weekCount = generationData.planDuration().getWeeksCount();
         int daysPerWeek = generationData.preferredDays().size();
 
@@ -93,7 +88,7 @@ public class TrainingPlanGenerator {
                                                    .sets(sets)
                                                    .build();
 
-        Double load = userExercise.isBarbellExercise() ? loadCalculator.calculateLoadPercent(blockExercise) : null;
+        Double load = userExercise.isBarbellExercise() ? calculateLoadPercent(blockExercise) : null;
         blockExercise.setLoadPercent(load);
 
         log.debug("Generated exercise block with reps: {}, sets: {}, intensity: {}, load: {}",
@@ -108,5 +103,9 @@ public class TrainingPlanGenerator {
 
     private int getExerciseSets(TrainingType trainingType) {
         return ThreadLocalRandom.current().nextInt(trainingType.getMinSets(), trainingType.getMaxSets() + 1);
+    }
+
+    private TrainingPlan mapToTrainingPlan(TrainingPlanGenerationData data) {
+        return new TrainingPlan(data.user(), data.trainingType(), data.planDuration(), data.preferredDays().size());
     }
 }

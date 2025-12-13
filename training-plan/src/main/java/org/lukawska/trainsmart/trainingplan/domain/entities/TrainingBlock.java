@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.domain.entities;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Table(name = "training_block")
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class TrainingBlock {
 

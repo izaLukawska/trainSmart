@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface UserExerciseMapper {
 
     @Mapping(target = "id", source = "id")
@@ -16,9 +16,4 @@ public interface UserExerciseMapper {
 
     List<UserExerciseResponse> toResponseList(List<UserExercise> userExercises);
 
-    List<String> toExerciseNames(List<UserExercise> userExercises);
-
-    default String toExerciseName(UserExercise userExercise) {
-        return userExercise.getExercise().getName();
-    }
 }

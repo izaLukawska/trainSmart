@@ -25,12 +25,11 @@
         <module>app</module>
         <module>mailing</module>
         <module>openai</module>
-        <module>integration-tests</module>
         <module>exercise-catalog</module>
         <module>shared-persistence</module>
         <module>training-plan</module>
         <module>health-survey</module>
-        <module>shared-persistence</module>
+        <module>integration-tests</module>
     </modules>
     <scm>
         <connection/>
