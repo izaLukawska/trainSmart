@@ -8,6 +8,7 @@ import org.lukawska.trainsmart.sharedpersistence.application.service.UserService
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
@@ -16,6 +17,8 @@ import org.lukawska.trainsmart.trainingplan.application.preparation.dto.Training
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +44,7 @@ public class TrainingPlanService {
 
     @Transactional
     public TrainingPlanResponse createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanDto request) {
+        log.info("Creating plan for user: {}", userId);
         User existingUser = userService.getUserById(userId);
         TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
                 existingUser, request, getLastPlanCreationDate(userId));
@@ -52,18 +56,22 @@ public class TrainingPlanService {
     }
 
     @Transactional
-    public void deleteTrainingPlan(Long planId) {
-        log.info("Deleting plan: {}", planId);
-        trainingPlanRepository.deleteById(planId);
+    public void deleteTrainingPlanByIdAndUserId(Long planId, Long userId) {
+        log.info("Deleting plan: {} for user: {}", planId, userId);
+        trainingPlanRepository.deleteByIdAndUserId(planId, userId);
     }
 
-    public TrainingPlanResponse getTrainingPlanResponseByPlanId(Long planId) {
-        return trainingPlanMapper.toResponse(getTrainingPlanPlanId(planId));
+    public Slice<TrainingPlanSummaryResponse> getAllPlanSummariesForUser(Long userId, Pageable pageable) {
+        return trainingPlanRepository.findAllByUserId(userId, pageable);
     }
 
-    public TrainingPlan getTrainingPlanPlanId(Long planId) {
-        log.info("Fetching plan: {}", planId);
-        return trainingPlanRepository.findById(planId).orElseThrow(
+    public TrainingPlanResponse getTrainingPlanResponseByIdAndUserId(Long planId, Long userId) {
+        return trainingPlanMapper.toResponse(getTrainingPlanByIdAndUserId(planId, userId));
+    }
+
+    public TrainingPlan getTrainingPlanByIdAndUserId(Long planId, Long userId) {
+        log.info("Fetching plan: {} for user: {}", planId, userId);
+        return trainingPlanRepository.findByIdAndUserId(planId, userId).orElseThrow(
                 () -> new TrainingPlanException(ExceptionType.TRAINING_PLAN_NOT_FOUND));
     }
 

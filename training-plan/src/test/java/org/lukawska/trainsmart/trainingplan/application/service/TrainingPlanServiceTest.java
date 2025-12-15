@@ -74,26 +74,28 @@ class TrainingPlanServiceTest {
     void shouldDeleteTrainingPlan() {
         // given
         final Long planId = 42L;
+        final Long userId = 2L;
 
         // when
-        trainingPlanService.deleteTrainingPlan(planId);
+        trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, userId);
 
         // then
-        verify(trainingPlanRepository).deleteById(planId);
+        verify(trainingPlanRepository).deleteByIdAndUserId(planId, userId);
     }
 
     @Test
     void shouldGetTrainingPlanResponseByPlanId() {
         // given
         final Long planId = 7L;
+        final Long userId = 2L;
         final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
         final TrainingPlanResponse expectedResult = trainingPlanResponse(planId, trainingPlan);
 
-        when(trainingPlanRepository.findById(planId)).thenReturn(Optional.of(trainingPlan));
+        when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.of(trainingPlan));
         when(trainingPlanMapper.toResponse(trainingPlan)).thenReturn(expectedResult);
 
         // when
-        TrainingPlanResponse actualResult = trainingPlanService.getTrainingPlanResponseByPlanId(planId);
+        TrainingPlanResponse actualResult = trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId);
 
         // then
         assertThat(actualResult.planDuration()).isEqualTo(expectedResult.planDuration());
@@ -105,10 +107,11 @@ class TrainingPlanServiceTest {
     void shouldThrowWhenPlanNotFound() {
         // given
         final Long planId = 99L;
-        when(trainingPlanRepository.findById(planId)).thenReturn(Optional.empty());
+        final Long userId = 2L;
+        when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.empty());
 
         // when / then
-        assertThatThrownBy(() -> trainingPlanService.getTrainingPlanPlanId(planId))
+        assertThatThrownBy(() -> trainingPlanService.getTrainingPlanByIdAndUserId(planId, userId))
                 .isInstanceOf(TrainingPlanException.class)
                 .hasMessage(ExceptionType.TRAINING_PLAN_NOT_FOUND.getMessage());
     }
