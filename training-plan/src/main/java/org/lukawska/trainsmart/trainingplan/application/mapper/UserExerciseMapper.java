@@ -1,19 +1,21 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
+import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.UserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper
-public interface UserExerciseMapper {
+@UtilityClass
+public class UserExerciseMapper {
 
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "exerciseName", source = "exercise.name")
-    UserExerciseResponse toResponse(UserExercise userExercise);
+    public static UserExerciseResponse mapToResponse(UserExercise userExercise) {
+        return new UserExerciseResponse(userExercise.getId(), userExercise.getExercise().getName());
+    }
 
-    List<UserExerciseResponse> toResponseList(List<UserExercise> userExercises);
-
+    public static List<UserExerciseResponse> mapToResponseList(List<UserExercise> userExerciseList) {
+        return userExerciseList.stream()
+                               .map(UserExerciseMapper::mapToResponse)
+                               .toList();
+    }
 }

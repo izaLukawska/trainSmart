@@ -11,10 +11,8 @@ import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.UserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseAlreadyExistsException;
-import org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.UserExerciseRepository;
-import org.mapstruct.factory.Mappers;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +22,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.lukawska.trainsmart.trainingplan.application.mapper.UserExerciseMapper.mapToResponseList;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +36,6 @@ public class UserExerciseService {
     private final UserService userService;
 
     private final ExerciseService exerciseService;
-
-    private final UserExerciseMapper userExerciseMapper = Mappers.getMapper(UserExerciseMapper.class);
 
     @Transactional
     public List<String> syncUserExercise(@NotNull Long userId) {
@@ -55,8 +53,8 @@ public class UserExerciseService {
         try {
             List<UserExercise> savedUserExercises = userExerciseRepository.saveAll(newUserExercises);
             return savedUserExercises.stream()
-                                     .map(userExercise -> userExercise.getExercise().getName()).
-                                     toList();
+                                     .map(userExercise -> userExercise.getExercise().getName())
+                                     .toList();
         } catch (DataIntegrityViolationException e) {
             throw new UserExerciseAlreadyExistsException(userId);
         }
@@ -75,7 +73,7 @@ public class UserExerciseService {
     }
 
     public List<UserExerciseResponse> getUserExercisesResponse(Long userId, Boolean enabled) {
-        return userExerciseMapper.toResponseList(getUserExercises(userId, enabled));
+        return mapToResponseList(getUserExercises(userId, enabled));
     }
 
     public List<UserExercise> getUserExercises(@NotNull Long userId, Boolean enabled) {
@@ -84,13 +82,13 @@ public class UserExerciseService {
     }
 
     public Map<MuscleGroup, List<UserExercise>> getEnabledUserExercisesByMuscleGroup(@NotNull Long userId) {
-        Map<MuscleGroup, List<UserExercise>> exercisesByMuscleGroup =
+        Map<MuscleGroup, List<UserExercise>> groups =
                 getUserExercises(userId, true).stream()
                                               .collect(Collectors.groupingBy(
                                                       userExercise -> userExercise.getExercise().getMuscleGroup()));
 
-        log.info("Found exercises for: {} muscle groups for user with ID: {}", exercisesByMuscleGroup.size(), userId);
-        return exercisesByMuscleGroup;
+        log.info("Found exercises for: {} muscle groups for user with ID: {}", groups.size(), userId);
+        return groups;
     }
 
     public List<String> getAllExerciseNames(@NotNull Long userId) {

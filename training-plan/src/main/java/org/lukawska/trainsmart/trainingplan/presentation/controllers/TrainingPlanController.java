@@ -1,7 +1,9 @@
 package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
@@ -32,7 +34,9 @@ public class TrainingPlanController {
 
     @GetMapping("/all")
     public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansByUserId(
-            @PathVariable @Positive Long userId, @RequestBody(required = false) TrainingPlanFilterRequest request) {
-        return trainingPlanService.getAllTrainingPlansSummaryByUserId(userId, request);
+            @PathVariable @Positive Long userId,
+            @Valid @ModelAttribute PagingRequest pagingRequest,
+            @Valid @ModelAttribute TrainingPlanFilterRequest filterRequest) {
+        return trainingPlanService.getAllTrainingPlansSummaryByUserId(userId, pagingRequest, filterRequest);
     }
 }

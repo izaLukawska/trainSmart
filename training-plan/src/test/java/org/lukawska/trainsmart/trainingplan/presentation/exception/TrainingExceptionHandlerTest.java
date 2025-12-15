@@ -43,7 +43,7 @@ class TrainingExceptionHandlerTest {
         final TrainingPlanException exception = new TrainingPlanException(ExceptionType.TRAINING_PLAN_NOT_FOUND);
 
         //when
-        ProblemDetail result = exceptionHandler.handleMailingException(exception);
+        ProblemDetail result = exceptionHandler.handleTrainingPlanException(exception);
 
         //then
         ProblemDetailAssert.then(result)
@@ -58,7 +58,7 @@ class TrainingExceptionHandlerTest {
         final UserExerciseAlreadyExistsException exception = new UserExerciseAlreadyExistsException(1L);
 
         //when
-        ProblemDetail result = exceptionHandler.handleMailingException(exception);
+        ProblemDetail result = exceptionHandler.handleUserExerciseException(exception);
 
         //then
         ProblemDetailAssert.then(result)

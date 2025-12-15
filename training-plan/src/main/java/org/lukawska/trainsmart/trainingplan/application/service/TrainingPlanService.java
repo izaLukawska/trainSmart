@@ -7,28 +7,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
+import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
-import org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
-import org.springframework.data.domain.PageRequest;
+import org.lukawska.trainsmart.trainingplan.domain.specification.TrainingPlanSpecifications;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
+
+import static org.lukawska.trainsmart.trainingplan.application.mapper.training.PageableMapper.mapToPageable;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingPlanMapper.mapToTrainingPlanResponse;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingPlanMapper.mapToTrainingPlanSummarySlice;
 
 @Service
 @RequiredArgsConstructor
@@ -44,8 +47,6 @@ public class TrainingPlanService {
 
     private final TrainingPlanDataResolver trainingPlanDataResolver;
 
-    private final TrainingPlanMapper trainingPlanMapper;
-
     @Transactional
     public TrainingPlanResponse createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanDto request) {
         log.info("Creating plan for user: {}", userId);
@@ -56,7 +57,7 @@ public class TrainingPlanService {
         TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(generationData);
         trainingPlanRepository.save(generatedPlan);
 
-        return trainingPlanMapper.toResponse(generatedPlan);
+        return mapToTrainingPlanResponse(generatedPlan);
     }
 
     @Transactional
@@ -66,28 +67,26 @@ public class TrainingPlanService {
     }
 
     public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansSummaryByUserId(Long userId,
-                                                                                 TrainingPlanFilterRequest request) {
-        Pageable pageable = request == null ? PageRequest.of(0, 5) :
-                PageRequest.of(request.pageNumber(), request.pageSize(), Sort.by(request.sort()));
+                                                                                 PagingRequest pagingRequest,
+                                                                                 TrainingPlanFilterRequest filterRequest) {
+        Specification<TrainingPlan> specification =
+                Specification.allOf(TrainingPlanSpecifications.byUserId(userId))
+                             .and(TrainingPlanSpecifications.trainingTypeEquals(filterRequest.trainingType()))
+                             .and(TrainingPlanSpecifications.planDurationEquals(filterRequest.planDuration()));
 
-        return trainingPlanRepository.findAllByUserId(userId, pageable);
+        Pageable pageable = mapToPageable(pagingRequest);
+
+        return mapToTrainingPlanSummarySlice(trainingPlanRepository.findAll(specification, pageable));
     }
 
     public TrainingPlanResponse getTrainingPlanResponseByIdAndUserId(Long planId, Long userId) {
-        return trainingPlanMapper.toResponse(getTrainingPlanByIdAndUserId(planId, userId));
+        return mapToTrainingPlanResponse(getTrainingPlanByIdAndUserId(planId, userId));
     }
 
     public TrainingPlan getTrainingPlanByIdAndUserId(Long planId, Long userId) {
         log.info("Fetching plan: {} for user: {}", planId, userId);
         return trainingPlanRepository.findByIdAndUserId(planId, userId).orElseThrow(
                 () -> new TrainingPlanException(ExceptionType.TRAINING_PLAN_NOT_FOUND));
-    }
-
-    private Pageable buildPageRequest(TrainingPlanFilterRequest request) {
-        List<String> sortBy = List.of("createdAt, trainingType");
-        Sort.by(Sort.Direction.ASC, String.join(",", sortBy));
-
-        return null;
     }
 
     private Optional<Instant> getLastPlanCreationDate(Long userId) {

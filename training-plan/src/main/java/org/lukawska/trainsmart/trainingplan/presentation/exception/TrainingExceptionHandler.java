@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class TrainingExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TrainingPlanException.class)
-    public ProblemDetail handleMailingException(TrainingPlanException ex) {
+    public ProblemDetail handleTrainingPlanException(TrainingPlanException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getExceptionType().getHttpStatus(),
                                                                        ex.getMessage());
         problemDetail.setTitle("Training plan exception");
@@ -30,7 +30,7 @@ public class TrainingExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserExerciseAlreadyExistsException.class)
-    public ProblemDetail handleMailingException(UserExerciseAlreadyExistsException ex) {
+    public ProblemDetail handleUserExerciseException(UserExerciseAlreadyExistsException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         problemDetail.setTitle("UserExercise exception");
 

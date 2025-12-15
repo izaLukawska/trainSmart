@@ -1,18 +1,13 @@
 package org.lukawska.trainsmart.trainingplan.application.dto.request;
 
-public record TrainingPlanFilterRequest(Integer pageNumber,
-                                        Integer pageSize,
-                                        String sort) {
+import jakarta.validation.constraints.Positive;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
+import org.springframework.data.domain.Sort;
 
-    public Integer pageNumber() {
-        return pageNumber != null ? pageNumber : 0;
-    }
-
-    public Integer pageSize() {
-        return pageSize != null ? pageSize : 10;
-    }
-
-    public String sort() {
-        return sort != null ? sort : "id";
-    }
-}
+public record TrainingPlanFilterRequest(@Positive Integer pageNumber,
+                                        @Positive Integer pageSize,
+                                        String sortBy,
+                                        Sort.Direction sortDirection,
+                                        TrainingType trainingType,
+                                        PlanDuration planDuration) {}

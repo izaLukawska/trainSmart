@@ -9,7 +9,6 @@ import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPla
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
-import org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
@@ -22,7 +21,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.trainingplan.testutil.TrainingPlanTestData.*;
+import static org.lukawska.trainsmart.trainingplan.testutil.TrainingPlanTestData.trainingPlan;
+import static org.lukawska.trainsmart.trainingplan.testutil.TrainingPlanTestData.trainingPlanRequest;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,9 +40,6 @@ class TrainingPlanServiceTest {
     @Mock
     private TrainingPlanDataResolver trainingPlanDataResolver;
 
-    @Mock
-    private TrainingPlanMapper trainingPlanMapper;
-
     @InjectMocks
     private TrainingPlanService trainingPlanService;
 
@@ -54,20 +51,18 @@ class TrainingPlanServiceTest {
         final TrainingPlanDto request = trainingPlanRequest();
         final TrainingPlan generatedPlan = trainingPlan(user);
         final TrainingPlanGenerationData generationData = mock(TrainingPlanGenerationData.class);
-        final TrainingPlanResponse expectedResult = trainingPlanResponse(1L, generatedPlan);
 
         when(userService.getUserById(userId)).thenReturn(user);
         when(trainingPlanDataResolver.getResolvedData(user, request, Optional.empty())).thenReturn(generationData);
         when(trainingPlanGenerator.generateTrainingPlan(generationData)).thenReturn(generatedPlan);
-        when(trainingPlanMapper.toResponse(generatedPlan)).thenReturn(expectedResult);
 
         //when
         TrainingPlanResponse actualResult = trainingPlanService.createTrainingPlan(userId, request);
 
         //then
-        assertThat(actualResult.planDuration()).isEqualTo(expectedResult.planDuration());
-        assertThat(actualResult.trainingType()).isEqualTo(expectedResult.trainingType());
-        assertThat(actualResult.weeks().size()).isEqualTo(expectedResult.weeks().size());
+        assertThat(actualResult.planDuration()).isEqualTo(generatedPlan.getPlanDuration());
+        assertThat(actualResult.trainingType()).isEqualTo(generatedPlan.getTrainingType());
+        assertThat(actualResult.weeks().size()).isEqualTo(generatedPlan.getWeeks().size());
     }
 
     @Test
@@ -89,18 +84,16 @@ class TrainingPlanServiceTest {
         final Long planId = 7L;
         final Long userId = 2L;
         final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
-        final TrainingPlanResponse expectedResult = trainingPlanResponse(planId, trainingPlan);
 
         when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.of(trainingPlan));
-        when(trainingPlanMapper.toResponse(trainingPlan)).thenReturn(expectedResult);
 
         // when
         TrainingPlanResponse actualResult = trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId);
 
         // then
-        assertThat(actualResult.planDuration()).isEqualTo(expectedResult.planDuration());
-        assertThat(actualResult.trainingType()).isEqualTo(expectedResult.trainingType());
-        assertThat(actualResult.weeks().size()).isEqualTo(expectedResult.weeks().size());
+        assertThat(actualResult.planDuration()).isEqualTo(trainingPlan.getPlanDuration());
+        assertThat(actualResult.trainingType()).isEqualTo(trainingPlan.getTrainingType());
+        assertThat(actualResult.weeks().size()).isEqualTo(trainingPlan.getWeeks().size());
     }
 
     @Test
