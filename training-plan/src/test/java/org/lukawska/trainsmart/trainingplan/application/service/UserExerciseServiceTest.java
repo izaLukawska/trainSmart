@@ -9,7 +9,7 @@ import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.UserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseAlreadyExistsException;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.UserExerciseRepository;

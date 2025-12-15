@@ -1,6 +1,6 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
-import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.UserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

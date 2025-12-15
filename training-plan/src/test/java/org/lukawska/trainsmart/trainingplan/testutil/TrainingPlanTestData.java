@@ -3,7 +3,9 @@ package org.lukawska.trainsmart.trainingplan.testutil;
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingWeekResponse;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
@@ -30,11 +32,16 @@ public class TrainingPlanTestData {
                                               PlanDuration.FOUR_WEEKS, List.of(WeekDay.MONDAY));
     }
 
-    public static TrainingPlanRequest trainingPlanRequest() {
-        return new TrainingPlanRequest(TrainingType.STRENGTH, PlanDuration.FOUR_WEEKS, 3, List.of());
+    public static TrainingPlanDto trainingPlanRequest() {
+        return new TrainingPlanDto(TrainingType.STRENGTH, PlanDuration.FOUR_WEEKS, 3, List.of());
     }
 
     public static TrainingPlan trainingPlan(User user) {
         return new TrainingPlan(user, TrainingType.STRENGTH, PlanDuration.FOUR_WEEKS, 1);
+    }
+
+    public static TrainingPlanResponse trainingPlanResponse(Long planId, TrainingPlan trainingPlan) {
+        return new TrainingPlanResponse(planId, trainingPlan.getTrainingType(), trainingPlan.getPlanDuration(),
+                                        List.of(mock(TrainingWeekResponse.class)));
     }
 }

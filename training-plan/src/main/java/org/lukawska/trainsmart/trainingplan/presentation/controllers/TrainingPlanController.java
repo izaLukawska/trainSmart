@@ -2,12 +2,10 @@ package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,5 +17,11 @@ public class TrainingPlanController {
     @GetMapping("/{planId}")
     public TrainingPlanResponse getTrainingPlanById(@PathVariable @Positive Long planId) {
         return planService.getTrainingPlanResponseByPlanId(planId);
+    }
+
+    @DeleteMapping("/{planId}")
+    public ResponseEntity<Void> deleteTrainingPlanById(@PathVariable @Positive Long planId) {
+        planService.deleteTrainingPlan(planId);
+        return ResponseEntity.noContent().build();
     }
 }

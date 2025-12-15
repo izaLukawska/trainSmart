@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.dto;
+package org.lukawska.trainsmart.trainingplan.application.dto.response;
 
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
 

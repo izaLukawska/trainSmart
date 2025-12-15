@@ -11,7 +11,7 @@ import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
 import java.util.List;
 
 @ConsistentPlanRequest
-public record TrainingPlanRequest(@NotNull TrainingType trainingType,
-                                  @NotNull PlanDuration planDuration,
-                                  @Min(1) @Max(7) int daysPerWeek,
-                                  @NotNull List<@NotNull WeekDay> preferredDays) {}
+public record TrainingPlanDto(@NotNull TrainingType trainingType,
+                              @NotNull PlanDuration planDuration,
+                              @Min(1) @Max(7) int daysPerWeek,
+                              @NotNull List<@NotNull WeekDay> preferredDays) {}

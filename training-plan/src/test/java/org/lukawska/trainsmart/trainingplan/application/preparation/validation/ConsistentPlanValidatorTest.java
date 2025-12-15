@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
@@ -35,7 +35,7 @@ class ConsistentPlanValidatorTest {
 
     @ParameterizedTest
     @NullSource
-    void shouldReturnTrueWhenRequestIsNull(TrainingPlanRequest request) {
+    void shouldReturnTrueWhenRequestIsNull(TrainingPlanDto request) {
         // when
         boolean result = validator.isValid(request, context);
 
@@ -48,7 +48,7 @@ class ConsistentPlanValidatorTest {
     @EmptySource
     void shouldReturnTrueWhenPreferredDaysIsNullOrEmpty(List<WeekDay> preferredDays) {
         // given
-        final TrainingPlanRequest request = new TrainingPlanRequest(
+        final TrainingPlanDto request = new TrainingPlanDto(
                 TrainingType.STRENGTH, PlanDuration.FOUR_WEEKS, 2, preferredDays);
 
         // when
@@ -61,7 +61,7 @@ class ConsistentPlanValidatorTest {
     @Test
     void shouldReturnTrueWhenCountsMatch() {
         //given
-        final TrainingPlanRequest request = trainingPlanRequest();
+        final TrainingPlanDto request = trainingPlanRequest();
         //when
         boolean result = validator.isValid(request, context);
 
@@ -72,7 +72,7 @@ class ConsistentPlanValidatorTest {
     @Test
     void shouldReturnFalseAndAddViolationWhenCountsMismatch() {
         //given
-        final TrainingPlanRequest request = new TrainingPlanRequest(
+        final TrainingPlanDto request = new TrainingPlanDto(
                 TrainingType.STRENGTH, PlanDuration.FOUR_WEEKS, 2, List.of(WeekDay.MONDAY));
 
         when(context.buildConstraintViolationWithTemplate(anyString())).thenReturn(violationBuilder);

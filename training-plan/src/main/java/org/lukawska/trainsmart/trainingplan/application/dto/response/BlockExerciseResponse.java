@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.dto;
+package org.lukawska.trainsmart.trainingplan.application.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.lukawska.trainsmart.trainingplan.application.serializer.LoadPercentageSerializer;

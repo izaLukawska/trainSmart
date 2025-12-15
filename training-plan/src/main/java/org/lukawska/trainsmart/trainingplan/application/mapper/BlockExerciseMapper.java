@@ -1,11 +1,11 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
-import org.lukawska.trainsmart.trainingplan.application.dto.BlockExerciseResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.BlockExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.domain.entities.BlockExercise;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface BlockExerciseMapper {
 
     @Mapping(target = "exerciseName", source = "userExercise.exercise.name")

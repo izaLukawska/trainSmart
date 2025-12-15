@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.UserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.application.service.UserExerciseService;
 import org.springframework.web.bind.annotation.*;
 

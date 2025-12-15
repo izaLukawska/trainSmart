@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.application.preparation.processors.EnableExerciseProcessor;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
@@ -23,7 +23,7 @@ public class TrainingPlanDataResolver {
 
     private final EnableExerciseProcessor enableExerciseProcessor;
 
-    public TrainingPlanGenerationData getResolvedData(User user, TrainingPlanRequest request,
+    public TrainingPlanGenerationData getResolvedData(User user, TrainingPlanDto request,
                                                       Optional<Instant> lastPlanCreatedAt) {
         log.debug("Preparing data for training plan generation");
         List<WeekDay> sortedDays = resolvePreferredDays(request.preferredDays(), request.daysPerWeek());

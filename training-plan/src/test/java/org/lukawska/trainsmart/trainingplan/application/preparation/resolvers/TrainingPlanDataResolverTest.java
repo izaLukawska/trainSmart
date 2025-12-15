@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
@@ -67,7 +67,7 @@ class TrainingPlanDataResolverTest {
     void shouldReturnSortedDaysWhenPreferredDaysNotEmpty2() {
         //given
         final User user = mock(User.class);
-        final TrainingPlanRequest request = trainingPlanRequest();
+        final TrainingPlanDto request = trainingPlanRequest();
         final Map<MuscleGroup, List<UserExercise>> groups = validMuscleGroups();
 
         when(enableExerciseProcessor.enableUserExercises(user.getId(), Optional.empty())).thenReturn(groups);
@@ -98,7 +98,7 @@ class TrainingPlanDataResolverTest {
     void shouldThrowNotEnoughMuscleGroupsWhenGetResolvedData() {
         //given
         final User user = mock(User.class);
-        final TrainingPlanRequest request = trainingPlanRequest();
+        final TrainingPlanDto request = trainingPlanRequest();
         final Map<MuscleGroup, List<UserExercise>> groups = Map.of(MuscleGroup.ABS, List.of(mock(UserExercise.class)));
 
         when(enableExerciseProcessor.enableUserExercises(user.getId(), Optional.empty())).thenReturn(groups);
@@ -113,7 +113,7 @@ class TrainingPlanDataResolverTest {
     void shouldThrowNotEnoughUserExercisesWhenGetResolvedData() {
         //given
         final User user = mock(User.class);
-        final TrainingPlanRequest request = trainingPlanRequest();
+        final TrainingPlanDto request = trainingPlanRequest();
         final Map<MuscleGroup, List<UserExercise>> groups = Map.of(
                 MuscleGroup.ABS, List.of(mock(UserExercise.class)),
                 MuscleGroup.QUADS, List.of(mock(UserExercise.class)),

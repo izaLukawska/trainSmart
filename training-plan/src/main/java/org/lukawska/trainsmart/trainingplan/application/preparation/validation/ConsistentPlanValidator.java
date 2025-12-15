@@ -2,16 +2,16 @@ package org.lukawska.trainsmart.trainingplan.application.preparation.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanRequest;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.WeekDay;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
-public class ConsistentPlanValidator implements ConstraintValidator<ConsistentPlanRequest, TrainingPlanRequest> {
+public class ConsistentPlanValidator implements ConstraintValidator<ConsistentPlanRequest, TrainingPlanDto> {
 
     @Override
-    public boolean isValid(TrainingPlanRequest request, ConstraintValidatorContext context) {
+    public boolean isValid(TrainingPlanDto request, ConstraintValidatorContext context) {
         if (request == null) {
             return true;
         }

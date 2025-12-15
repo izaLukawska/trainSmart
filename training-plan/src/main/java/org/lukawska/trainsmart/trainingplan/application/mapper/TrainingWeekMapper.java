@@ -1,13 +1,13 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
-import org.lukawska.trainsmart.trainingplan.application.dto.TrainingWeekResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingWeekResponse;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingWeek;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(uses = TrainingBlockMapper.class)
+@Mapper(componentModel = "spring", uses = TrainingBlockMapper.class)
 public interface TrainingWeekMapper {
 
     @Mapping(target = "weekId", source = "id")

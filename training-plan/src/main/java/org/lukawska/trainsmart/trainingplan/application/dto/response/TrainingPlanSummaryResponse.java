@@ -1,0 +1,9 @@
+package org.lukawska.trainsmart.trainingplan.application.dto.response;
+
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
+
+public record TrainingPlanSummaryResponse(Long planId,
+                                          TrainingType trainingType,
+                                          PlanDuration planDuration,
+                                          int daysPerWeek) {}
