@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
@@ -35,8 +34,8 @@ public class TrainingPlanController {
     @GetMapping("/all")
     public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansByUserId(
             @PathVariable @Positive Long userId,
-            @Valid @ModelAttribute PagingRequest pagingRequest,
-            @Valid @ModelAttribute TrainingPlanFilterRequest filterRequest) {
+            @ModelAttribute PagingRequest pagingRequest,
+            @ModelAttribute TrainingPlanFilterRequest filterRequest) {
         return trainingPlanService.getAllTrainingPlansSummaryByUserId(userId, pagingRequest, filterRequest);
     }
 }

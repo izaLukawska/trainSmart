@@ -24,7 +24,7 @@ public class TrainingPlanMapper {
                                                trainingPlan.getCreatedAt());
     }
 
-    public static Slice<TrainingPlanSummaryResponse> mapToTrainingPlanSummarySlice(Slice<TrainingPlan> trainingPlans) {
+    public static Slice<TrainingPlanSummaryResponse> mapToTrainingPlanSummary(Slice<TrainingPlan> trainingPlans) {
         return trainingPlans.map(TrainingPlanMapper::mapToTrainingPlanSummary);
     }
 }

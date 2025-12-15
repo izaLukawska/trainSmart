@@ -107,8 +107,12 @@ class UserExerciseServiceTest {
     void shouldReturnUserExerciseResponseDependingOnEnabledFlag(boolean enabled) {
         //given
         final Long userId = 2L;
-        final List<UserExercise> expectedResult = List.of(mock(UserExercise.class), mock(UserExercise.class));
+        final UserExercise userExercise1 = mock(UserExercise.class);
+        final UserExercise userExercise2 = mock(UserExercise.class);
+        final List<UserExercise> expectedResult = List.of(userExercise1, userExercise2);
 
+        when(userExercise1.getExercise()).thenReturn(mock(Exercise.class));
+        when(userExercise2.getExercise()).thenReturn(mock(Exercise.class));
         when(userExerciseRepository.findAllByUserIdAndEnabled(userId, enabled)).thenReturn(expectedResult);
 
         //when
@@ -116,6 +120,8 @@ class UserExerciseServiceTest {
 
         //then
         assertThat(result.size()).isEqualTo(2);
+        assertThat(result.getFirst().exerciseName()).isEqualTo(userExercise1.getExercise().getName());
+        assertThat(result.getLast().exerciseName()).isEqualTo(userExercise1.getExercise().getName());
     }
 
     @ParameterizedTest

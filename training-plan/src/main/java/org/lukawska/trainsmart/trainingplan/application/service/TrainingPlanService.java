@@ -19,6 +19,7 @@ import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.Tr
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
 import org.lukawska.trainsmart.trainingplan.domain.specification.TrainingPlanSpecifications;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,9 +30,8 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.lukawska.trainsmart.trainingplan.application.mapper.training.PageableMapper.mapToPageable;
 import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingPlanMapper.mapToTrainingPlanResponse;
-import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingPlanMapper.mapToTrainingPlanSummarySlice;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingPlanMapper.mapToTrainingPlanSummary;
 
 @Service
 @RequiredArgsConstructor
@@ -66,17 +66,19 @@ public class TrainingPlanService {
         trainingPlanRepository.deleteByIdAndUserId(planId, userId);
     }
 
-    public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansSummaryByUserId(Long userId,
-                                                                                 PagingRequest pagingRequest,
-                                                                                 TrainingPlanFilterRequest filterRequest) {
+    public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansSummaryByUserId(
+            Long userId, PagingRequest pagingRequest, TrainingPlanFilterRequest filterRequest) {
+        log.info("Fetching all training plans for type: {} and duration: {} for user {}",
+                 filterRequest.trainingType(), filterRequest.planDuration(), userId);
+
+        Pageable pageable = PageRequest.of(pagingRequest.getPageNumber(), pagingRequest.getPageSize(),
+                                           pagingRequest.getDirection(), pagingRequest.getSortBy());
         Specification<TrainingPlan> specification =
                 Specification.allOf(TrainingPlanSpecifications.byUserId(userId))
                              .and(TrainingPlanSpecifications.trainingTypeEquals(filterRequest.trainingType()))
                              .and(TrainingPlanSpecifications.planDurationEquals(filterRequest.planDuration()));
 
-        Pageable pageable = mapToPageable(pagingRequest);
-
-        return mapToTrainingPlanSummarySlice(trainingPlanRepository.findAll(specification, pageable));
+        return mapToTrainingPlanSummary(trainingPlanRepository.findAll(specification, pageable));
     }
 
     public TrainingPlanResponse getTrainingPlanResponseByIdAndUserId(Long planId, Long userId) {
