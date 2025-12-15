@@ -2,12 +2,11 @@ package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
 import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanService;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +31,8 @@ public class TrainingPlanController {
     }
 
     @GetMapping("/all")
-    public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansByUserId(@PathVariable @Positive Long userId,
-                                                                          @PageableDefault(
-                                                                                  sort = "id") Pageable pageable) {
-        return trainingPlanService.getAllPlanSummariesForUser(userId, pageable);
+    public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansByUserId(
+            @PathVariable @Positive Long userId, @RequestBody(required = false) TrainingPlanFilterRequest request) {
+        return trainingPlanService.getAllTrainingPlansSummaryByUserId(userId, request);
     }
 }

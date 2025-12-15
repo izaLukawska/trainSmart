@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
+import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
@@ -17,13 +18,16 @@ import org.lukawska.trainsmart.trainingplan.application.preparation.dto.Training
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -61,7 +65,11 @@ public class TrainingPlanService {
         trainingPlanRepository.deleteByIdAndUserId(planId, userId);
     }
 
-    public Slice<TrainingPlanSummaryResponse> getAllPlanSummariesForUser(Long userId, Pageable pageable) {
+    public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansSummaryByUserId(Long userId,
+                                                                                 TrainingPlanFilterRequest request) {
+        Pageable pageable = request == null ? PageRequest.of(0, 5) :
+                PageRequest.of(request.pageNumber(), request.pageSize(), Sort.by(request.sort()));
+
         return trainingPlanRepository.findAllByUserId(userId, pageable);
     }
 
@@ -73,6 +81,13 @@ public class TrainingPlanService {
         log.info("Fetching plan: {} for user: {}", planId, userId);
         return trainingPlanRepository.findByIdAndUserId(planId, userId).orElseThrow(
                 () -> new TrainingPlanException(ExceptionType.TRAINING_PLAN_NOT_FOUND));
+    }
+
+    private Pageable buildPageRequest(TrainingPlanFilterRequest request) {
+        List<String> sortBy = List.of("createdAt, trainingType");
+        Sort.by(Sort.Direction.ASC, String.join(",", sortBy));
+
+        return null;
     }
 
     private Optional<Instant> getLastPlanCreationDate(Long userId) {
