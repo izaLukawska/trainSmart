@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/mail")
+@RequestMapping("/mail")
 @Slf4j
 @Validated
 public class MailController {

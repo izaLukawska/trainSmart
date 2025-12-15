@@ -41,6 +41,7 @@ class MailControllerIT {
     private JwtService jwtService;
 
     @Test
+    @WithMockUser(roles = "USER")
     void shouldCreateMailAndReturn201() throws Exception {
         // given
         final MailRequest mailRequest = mailRequestWithAttachments();
@@ -48,9 +49,9 @@ class MailControllerIT {
         when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
 
         // when && then
-        RequestBuilder request = post("/api/mail/send").with(csrf())
-                                                       .contentType(MediaType.APPLICATION_JSON)
-                                                       .content(objectMapper.writeValueAsString(mailRequest));
+        RequestBuilder request = post("/mail/send").with(csrf())
+                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                   .content(objectMapper.writeValueAsString(mailRequest));
 
         mockMvc.perform(request)
                .andExpect(status().isCreated());
@@ -63,7 +64,7 @@ class MailControllerIT {
         when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
 
         // when && then
-        mockMvc.perform(get("/api/mail/1").with(csrf()))
+        mockMvc.perform(get("/mail/1").with(csrf()))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id").value(mailResponse.id()))
                .andExpect(jsonPath("$.subject").value(mailResponse.subject()))
@@ -78,7 +79,7 @@ class MailControllerIT {
                 .thenReturn(List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
 
         // when && then
-        mockMvc.perform(get("/api/mail/recipient").with(csrf()).param("recipient", recipient))
+        mockMvc.perform(get("/mail/recipient").with(csrf()).param("recipient", recipient))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].recipients", everyItem(hasItem(recipient))));
@@ -93,7 +94,7 @@ class MailControllerIT {
                 .thenReturn(List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
 
         // when && then
-        mockMvc.perform(get("/api/mail/subject").with(csrf()).param("keyword", keyword))
+        mockMvc.perform(get("/mail/subject").with(csrf()).param("keyword", keyword))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].subject", everyItem(containsString(keyword))));
@@ -102,13 +103,13 @@ class MailControllerIT {
     @Test
     void shouldReturnBadRequestWhenInvalidPathVariable() throws Exception {
         //when && then
-        mockMvc.perform(get("/api/mail/-1").with(csrf())).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/mail/-1").with(csrf())).andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
-        mockMvc.perform(post("/api/mail/send").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/mail/send").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
                .andExpect(status().isBadRequest());
     }
 }
