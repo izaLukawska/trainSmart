@@ -62,7 +62,7 @@ public class TrainingPlanService {
             return mapToTrainingPlanResponse(generatedPlan);
 
         } catch (DataIntegrityViolationException e) {
-            throw new TrainingPlanException(ExceptionType.TRAINING_PLAN_GENERATION_ERROR);
+            throw new TrainingPlanException(ExceptionType.INVALID_TRAINING_PLAN_DATA);
         }
     }
 

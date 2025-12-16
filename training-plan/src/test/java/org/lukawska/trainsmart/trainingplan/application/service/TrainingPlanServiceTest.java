@@ -5,7 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
+import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
+import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
@@ -16,7 +19,14 @@ import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepo
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,6 +89,30 @@ class TrainingPlanServiceTest {
     }
 
     @Test
+    void shouldGetAllTrainingPlansSummaryByUserId() {
+        //given
+        final Long userId = 43L;
+        final PagingRequest pagingRequest = PagingRequest.builder().build();
+        final TrainingPlanFilterRequest filterRequest = new TrainingPlanFilterRequest();
+        final TrainingPlan trainingPlan1 = trainingPlan(mock(User.class));
+        final TrainingPlan trainingPlan2 = trainingPlan(mock(User.class));
+        final List<TrainingPlan> trainingPlans = List.of(trainingPlan1, trainingPlan2);
+        final Page<TrainingPlan> mockedPage = new PageImpl<>(trainingPlans);
+
+        when(trainingPlanRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(mockedPage);
+
+        //when
+        Slice<TrainingPlanSummaryResponse> result = trainingPlanService.getAllTrainingPlansSummaryByUserId(
+                userId, pagingRequest, filterRequest);
+
+        //then
+        List<TrainingPlanSummaryResponse> content = result.getContent();
+        assertThat(content.getFirst().id()).isEqualTo(trainingPlan1.getId());
+        assertThat(content.getLast().id()).isEqualTo(trainingPlan2.getId());
+    }
+
+    @Test
     void shouldGetTrainingPlanResponseByPlanId() {
         // given
         final Long planId = 7L;
@@ -97,7 +131,20 @@ class TrainingPlanServiceTest {
     }
 
     @Test
-    void shouldThrowWhenPlanNotFound() {
+    void shouldThrowTrainingPlanGenerationErrorWhenCreateTraining() {
+        // given
+        final Long userId = 99L;
+        final TrainingPlanDto request = trainingPlanRequest();
+        when(trainingPlanRepository.save(any())).thenThrow(new DataIntegrityViolationException("Exception"));
+
+        //when && then
+        assertThatThrownBy(() -> trainingPlanService.createTrainingPlan(userId, request))
+                .isInstanceOf(TrainingPlanException.class)
+                .hasMessage(ExceptionType.INVALID_TRAINING_PLAN_DATA.getMessage());
+    }
+
+    @Test
+    void shouldThrowTrainingPlanNotFoundWhenGetTrainingPlanByIdAndUserId() {
         // given
         final Long planId = 99L;
         final Long userId = 2L;

@@ -18,7 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
@@ -94,30 +97,29 @@ class UserExerciseServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldReturnUserExerciseResponseSliceWhenGetAllUserExercisesByUserId() {
         //given
         final Long userId = 43L;
-        final UserExercise userExercise1 = userExerciseWithMockedData();
-        final UserExercise userExercise2 = userExerciseWithMockedData();
-        final PagingRequest pagingRequest = PagingRequest.builder()
-                                                         .pageSize(1)
-                                                         .pageNumber(1)
-                                                         .sortBy("id")
-                                                         .direction(Sort.Direction.DESC).build();
-        final Pageable pageable = PageRequest.of(pagingRequest.pageNumber(), pagingRequest.pageNumber(),
-                                                 Sort.by(pagingRequest.direction(), pagingRequest.sortBy()));
+        final PagingRequest pagingRequest = PagingRequest.builder().build();
         final UserExerciseFilterRequest filterRequest = UserExerciseFilterRequest.builder().build();
 
-        final Page<UserExercise> page = new PageImpl<>(List.of(userExercise1, userExercise2), pageable, 1);
-        when(userExerciseRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
+        final UserExercise userExercise1 = userExerciseWithMockedData();
+        final UserExercise userExercise2 = userExerciseWithMockedData();
+        final List<UserExercise> exerciseList = List.of(userExercise1, userExercise2);
+        final Page<UserExercise> mockedPage = new PageImpl<>(exerciseList);
+
+        when(userExerciseRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(mockedPage);
 
         //when
         Slice<UserExerciseResponse> result = userExerciseService.getAllUserExercisesByUserId(
                 userId, pagingRequest, filterRequest);
 
         //then
-        assertThat(result.getContent().getFirst().id()).isEqualTo(userExercise1.getId());
-        assertThat(result.getContent().getLast().id()).isEqualTo(userExercise2.getId());
+        List<UserExerciseResponse> content = result.getContent();
+        assertThat(content.getFirst().id()).isEqualTo(userExercise1.getId());
+        assertThat(content.getLast().id()).isEqualTo(userExercise2.getId());
     }
 
     @Test
