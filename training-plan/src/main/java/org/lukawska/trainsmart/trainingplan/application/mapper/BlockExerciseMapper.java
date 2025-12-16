@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.mapper.training;
+package org.lukawska.trainsmart.trainingplan.application.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.BlockExerciseResponse;

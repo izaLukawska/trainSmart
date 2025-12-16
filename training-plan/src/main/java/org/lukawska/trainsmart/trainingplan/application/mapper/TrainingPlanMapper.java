@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.mapper.training;
+package org.lukawska.trainsmart.trainingplan.application.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
@@ -6,7 +6,7 @@ import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPla
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.springframework.data.domain.Slice;
 
-import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingWeekMapper.mapToTrainingWeekResponseList;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingWeekMapper.mapToTrainingWeekResponseList;
 
 @UtilityClass
 public class TrainingPlanMapper {
@@ -24,7 +24,7 @@ public class TrainingPlanMapper {
                                                trainingPlan.getCreatedAt());
     }
 
-    public static Slice<TrainingPlanSummaryResponse> mapToTrainingPlanSummary(Slice<TrainingPlan> trainingPlans) {
+    public static Slice<TrainingPlanSummaryResponse> mapToTrainingPlanSummarySlice(Slice<TrainingPlan> trainingPlans) {
         return trainingPlans.map(TrainingPlanMapper::mapToTrainingPlanSummary);
     }
 }

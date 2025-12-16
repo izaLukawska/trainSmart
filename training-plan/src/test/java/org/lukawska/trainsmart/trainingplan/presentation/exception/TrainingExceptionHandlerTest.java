@@ -6,7 +6,7 @@ import jakarta.validation.Path;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
-import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseAlreadyExistsException;
+import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -55,7 +55,7 @@ class TrainingExceptionHandlerTest {
     @Test
     void shouldReturn404WithProblemDetailWhenHandleUserExerciseException() {
         //given
-        final UserExerciseAlreadyExistsException exception = new UserExerciseAlreadyExistsException(1L);
+        final UserExerciseException exception = new UserExerciseException(ExceptionType.USER_EXERCISE_ALREADY_EXISTS);
 
         //when
         ProblemDetail result = exceptionHandler.handleUserExerciseException(exception);

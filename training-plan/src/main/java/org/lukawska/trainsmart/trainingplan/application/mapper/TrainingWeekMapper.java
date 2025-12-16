@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.mapper.training;
+package org.lukawska.trainsmart.trainingplan.application.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingWeekResponse;
@@ -6,7 +6,7 @@ import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingWeek;
 
 import java.util.List;
 
-import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingBlockMapper.mapToTrainingBlockResponseList;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingBlockMapper.mapToTrainingBlockResponseList;
 
 @UtilityClass
 class TrainingWeekMapper {

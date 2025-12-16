@@ -11,14 +11,17 @@ import org.springframework.data.jpa.domain.Specification;
 public final class TrainingPlanSpecifications {
 
     public static Specification<TrainingPlan> byUserId(Long userId) {
-        return (root, query, cb) -> userId == null ? null : cb.equal(root.get("user").get("id"), userId);
+        return (root, query, criteriaBuilder) -> userId == null ?
+                criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("user").get("id"), userId);
     }
 
     public static Specification<TrainingPlan> trainingTypeEquals(TrainingType trainingType) {
-        return (root, query, cb) -> trainingType == null ? null : cb.equal(root.get("trainingType"), trainingType);
+        return (root, query, criteriaBuilder) -> trainingType == null ?
+                criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("trainingType"), trainingType);
     }
 
     public static Specification<TrainingPlan> planDurationEquals(PlanDuration planDuration) {
-        return (root, query, cb) -> planDuration == null ? null : cb.equal(root.get("planDuration"), planDuration);
+        return (root, query, criteriaBuilder) -> planDuration == null ?
+                criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("planDuration"), planDuration);
     }
 }

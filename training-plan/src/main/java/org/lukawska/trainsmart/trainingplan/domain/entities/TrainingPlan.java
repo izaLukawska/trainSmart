@@ -25,13 +25,15 @@ public class TrainingPlan extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TrainingType trainingType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PlanDuration planDuration;
 
     private int daysPerWeek;

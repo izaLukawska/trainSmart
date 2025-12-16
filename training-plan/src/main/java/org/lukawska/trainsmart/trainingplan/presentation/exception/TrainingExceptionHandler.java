@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
-import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseAlreadyExistsException;
+import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseException;
 import org.springframework.http.*;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.FieldError;
@@ -29,8 +29,8 @@ public class TrainingExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(UserExerciseAlreadyExistsException.class)
-    public ProblemDetail handleUserExerciseException(UserExerciseAlreadyExistsException ex) {
+    @ExceptionHandler(UserExerciseException.class)
+    public ProblemDetail handleUserExerciseException(UserExerciseException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         problemDetail.setTitle("UserExercise exception");
 

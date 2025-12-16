@@ -16,10 +16,10 @@ import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanEx
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
+import org.lukawska.trainsmart.trainingplan.application.specification.TrainingPlanSpecificationBuilder;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
-import org.lukawska.trainsmart.trainingplan.domain.specification.TrainingPlanSpecifications;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,8 +30,9 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Instant;
 import java.util.Optional;
 
-import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingPlanMapper.mapToTrainingPlanResponse;
-import static org.lukawska.trainsmart.trainingplan.application.mapper.training.TrainingPlanMapper.mapToTrainingPlanSummary;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.PageableMapper.mapToPageable;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.mapToTrainingPlanResponse;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.mapToTrainingPlanSummarySlice;
 
 @Service
 @RequiredArgsConstructor
@@ -53,11 +54,16 @@ public class TrainingPlanService {
         User existingUser = userService.getUserById(userId);
         TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
                 existingUser, request, getLastPlanCreationDate(userId));
-
         TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(generationData);
-        trainingPlanRepository.save(generatedPlan);
 
-        return mapToTrainingPlanResponse(generatedPlan);
+        try {
+            trainingPlanRepository.save(generatedPlan);
+            log.info("Successfully generated plan with ID {}", generatedPlan.getId());
+            return mapToTrainingPlanResponse(generatedPlan);
+
+        } catch (DataIntegrityViolationException e) {
+            throw new TrainingPlanException(ExceptionType.TRAINING_PLAN_GENERATION_ERROR);
+        }
     }
 
     @Transactional
@@ -68,17 +74,12 @@ public class TrainingPlanService {
 
     public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansSummaryByUserId(
             Long userId, PagingRequest pagingRequest, TrainingPlanFilterRequest filterRequest) {
-        log.info("Fetching all training plans for type: {} and duration: {} for user {}",
-                 filterRequest.trainingType(), filterRequest.planDuration(), userId);
+        Pageable pageable = mapToPageable(pagingRequest);
+        Specification<TrainingPlan> specification = TrainingPlanSpecificationBuilder.build(userId, filterRequest);
+        Slice<TrainingPlan> foundTrainingPlans = trainingPlanRepository.findAll(specification, pageable);
 
-        Pageable pageable = PageRequest.of(pagingRequest.getPageNumber(), pagingRequest.getPageSize(),
-                                           pagingRequest.getDirection(), pagingRequest.getSortBy());
-        Specification<TrainingPlan> specification =
-                Specification.allOf(TrainingPlanSpecifications.byUserId(userId))
-                             .and(TrainingPlanSpecifications.trainingTypeEquals(filterRequest.trainingType()))
-                             .and(TrainingPlanSpecifications.planDurationEquals(filterRequest.planDuration()));
-
-        return mapToTrainingPlanSummary(trainingPlanRepository.findAll(specification, pageable));
+        log.info("Found {} training plans", foundTrainingPlans.getSize());
+        return mapToTrainingPlanSummarySlice(foundTrainingPlans);
     }
 
     public TrainingPlanResponse getTrainingPlanResponseByIdAndUserId(Long planId, Long userId) {
@@ -86,9 +87,11 @@ public class TrainingPlanService {
     }
 
     public TrainingPlan getTrainingPlanByIdAndUserId(Long planId, Long userId) {
-        log.info("Fetching plan: {} for user: {}", planId, userId);
-        return trainingPlanRepository.findByIdAndUserId(planId, userId).orElseThrow(
+        TrainingPlan trainingPlan = trainingPlanRepository.findByIdAndUserId(planId, userId).orElseThrow(
                 () -> new TrainingPlanException(ExceptionType.TRAINING_PLAN_NOT_FOUND));
+        log.info("Found training plan {}", planId);
+
+        return trainingPlan;
     }
 
     private Optional<Instant> getLastPlanCreationDate(Long userId) {

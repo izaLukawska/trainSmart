@@ -2,6 +2,7 @@ package org.lukawska.trainsmart.trainingplan.domain.repositories;
 
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,13 +10,17 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface UserExerciseRepository extends JpaRepository<UserExercise, Long> {
+public interface UserExerciseRepository extends JpaRepository<UserExercise, Long>,
+                                                JpaSpecificationExecutor<UserExercise> {
+
+    Optional<UserExercise> findByUserIdAndExerciseName(Long userId, String name);
 
     List<UserExercise> findAllByUserId(Long userId);
 
-    List<UserExercise> findAllByUserIdAndEnabled(Long userId, boolean enabled);
+    List<UserExercise> findAllByUserIdAndEnabledIsTrue(Long userId);
 
     @Query("SELECT ue.exercise.name FROM UserExercise ue WHERE ue.user.id = :userId")
     List<String> findAllExerciseNamesByUserId(@Param("userId") Long userId);
