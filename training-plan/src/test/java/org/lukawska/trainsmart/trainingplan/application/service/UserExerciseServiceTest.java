@@ -31,7 +31,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.trainingplan.testutil.UserExerciseTestData.userExerciseWithMockedData;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -218,5 +217,9 @@ class UserExerciseServiceTest {
         assertThatThrownBy(() -> userExerciseService.syncUserExercise(userId))
                 .isInstanceOf(UserExerciseException.class)
                 .hasMessage(ExceptionType.USER_EXERCISE_ALREADY_EXISTS.getMessage());
+    }
+
+    private static UserExercise userExerciseWithMockedData() {
+        return new UserExercise(mock(User.class), mock(Exercise.class));
     }
 }

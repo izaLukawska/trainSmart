@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.trainingplan.application.mapper;
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
+import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.springframework.data.domain.Slice;
 
@@ -26,5 +27,9 @@ public class TrainingPlanMapper {
 
     public static Slice<TrainingPlanSummaryResponse> mapToTrainingPlanSummarySlice(Slice<TrainingPlan> trainingPlans) {
         return trainingPlans.map(TrainingPlanMapper::mapToTrainingPlanSummary);
+    }
+
+    public static TrainingPlan mapToTrainingPlan(TrainingPlanGenerationData data) {
+        return new TrainingPlan(data.user(), data.trainingType(), data.planDuration(), data.preferredDays().size());
     }
 }

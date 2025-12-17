@@ -8,4 +8,4 @@ import java.util.List;
 public record TrainingPlanResponse(Long planId,
                                    TrainingType trainingType,
                                    PlanDuration planDuration,
-                                   List<TrainingWeekResponse> weeks) {}
+                                   List<TrainingWeekResponse> trainingWeeks) {}

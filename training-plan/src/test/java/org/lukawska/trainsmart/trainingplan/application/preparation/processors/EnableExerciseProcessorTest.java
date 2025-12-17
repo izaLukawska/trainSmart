@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,15 +59,18 @@ class EnableExerciseProcessorTest {
     void shouldReturnUserExercisesByMuscleGroupWhenStrategyPresent() {
         //given
         final Long userId = 1L;
+        final Optional<Instant> lastUpdateDate = Optional.of(Instant.now());
         final Map<MuscleGroup, List<UserExercise>> expectedResult = validMuscleGroups();
+        HealthSurvey healthSurvey = mock(HealthSurvey.class);
 
-        when(healthSurveyService.getExistingHealthSurvey(userId)).thenReturn(mock(HealthSurvey.class));
+        when(healthSurveyService.getExistingHealthSurvey(userId)).thenReturn(healthSurvey);
+        when(healthSurvey.getInjuriesUpdatedAt()).thenReturn(lastUpdateDate.get());
         when(userExerciseService.getEnabledUserExercisesByMuscleGroup(userId)).thenReturn(expectedResult);
         when(strategyResolver.chooseStrategy(any())).thenReturn(Optional.of(mock(EnableExerciseStrategy.class)));
 
         //when
         Map<MuscleGroup, List<UserExercise>> actualResult = enableExerciseProcessor.enableUserExercises(
-                userId, Optional.empty());
+                userId, lastUpdateDate);
 
         //then
         assertThat(actualResult).isEqualTo(expectedResult);

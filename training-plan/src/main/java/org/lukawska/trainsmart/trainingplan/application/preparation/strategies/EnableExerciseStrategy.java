@@ -10,4 +10,5 @@ public interface EnableExerciseStrategy {
     boolean matches(EnableExerciseStrategyContext context);
 
     void updateStatus(Long userId, Set<String> injuries, List<String> newExerciseNames);
+
 }

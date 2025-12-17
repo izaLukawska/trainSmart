@@ -47,16 +47,12 @@ public class EnableExerciseProcessor {
     }
 
     private EnableExerciseStrategyContext buildContext(Optional<Instant> lastCreateDate, List<String> newExerciseNames,
-                                                       Set<String> injuries, Instant updatedAt) {
+                                                       Set<String> injuries, Instant injuriesUpdatedAt) {
         boolean injuriesEmpty = injuries.isEmpty();
         boolean hasNewExercises = !newExerciseNames.isEmpty();
-        boolean injuriesUpdated = injuriesUpdatedAfterDate(updatedAt, lastCreateDate);
+        boolean injuriesUpdated = lastCreateDate.isPresent() && injuriesUpdatedAt.isAfter(lastCreateDate.get());
 
         return new EnableExerciseStrategyContext(injuriesEmpty, injuriesUpdated, hasNewExercises);
 
-    }
-
-    private boolean injuriesUpdatedAfterDate(Instant injuriesUpdate, Optional<Instant> date) {
-        return date.isPresent() && injuriesUpdate.isAfter(date.get());
     }
 }

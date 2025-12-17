@@ -37,6 +37,8 @@ public class UserExerciseFilter {
         log.info("Updating user exercise enabled status for user: {}", userId);
 
         ChatRolesRequest request = prepareRequest(injuries, exerciseNames);
+
+        log.debug("Sending request to Open AI.");
         String openAiResponse = openAiAdapter.sendPrompt(request);
         List<String> disabledExercises = getDisabledExerciseList(openAiResponse);
 

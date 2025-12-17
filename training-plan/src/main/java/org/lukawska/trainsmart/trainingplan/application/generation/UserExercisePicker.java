@@ -26,12 +26,11 @@ class UserExercisePicker {
                                      .filter(userExercise -> userExercise.getLastUsedAt() == null)
                                      .findAny()
                                      .map(userExercise -> {
-                                         log.debug("Picked never performed exercise: {}", userExercise.getId());
+                                         log.debug("Choosing never performed exercise: {}", userExercise.getId());
                                          return userExercise;
                                      })
                                      .orElseGet(() -> {
-                                         log.debug(
-                                                 "All exercises used at least once. Picking exercise not used in plan");
+                                         log.debug("Choosing exercise not used in plan.");
                                          return getRandomUserExercise(notUsedInPlanExercises);
                                      });
     }

@@ -23,18 +23,19 @@ public class TrainingPlanController {
     @GetMapping("/{planId}")
     public TrainingPlanResponse getTrainingPlanByIdAndUserId(@PathVariable @Positive Long planId,
                                                              @PathVariable @Positive Long userId) {
-        log.debug("Getting training plan for user {} and plan {}", userId, planId);
+        log.info("Getting training plan for user {} and plan {}", userId, planId);
         return trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId);
     }
 
     @DeleteMapping("/{planId}")
     public ResponseEntity<Void> deleteTrainingPlanByIdAndUserId(@PathVariable @Positive Long planId,
                                                                 @PathVariable @Positive Long userId) {
+        log.info("Deleting training plan {} for user {}", planId, userId);
         trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, userId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansByUserId(
             @PathVariable @Positive Long userId,
             @ModelAttribute PagingRequest pagingRequest,

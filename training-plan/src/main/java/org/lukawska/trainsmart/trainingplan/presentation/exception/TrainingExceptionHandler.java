@@ -31,7 +31,8 @@ public class TrainingExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserExerciseException.class)
     public ProblemDetail handleUserExerciseException(UserExerciseException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getExceptionType().getHttpStatus(),
+                                                                       ex.getMessage());
         problemDetail.setTitle("UserExercise exception");
 
         return problemDetail;

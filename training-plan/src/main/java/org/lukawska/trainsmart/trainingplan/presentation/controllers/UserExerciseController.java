@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,7 @@ public class UserExerciseController {
 
     private final UserExerciseService userExerciseService;
 
-    @GetMapping("/all")
+    @GetMapping
     public Slice<UserExerciseResponse> getAllUserExercisesByUserId(
             @PathVariable @Positive Long userId,
             @ModelAttribute PagingRequest pagingRequest,
@@ -30,10 +29,10 @@ public class UserExerciseController {
         return userExerciseService.getAllUserExercisesByUserId(userId, pagingRequest, filterRequest);
     }
 
-    @GetMapping("/exercise")
+    @GetMapping("/{exerciseName}")
     public UserExerciseResponse getUserExerciseByUserIdAndExerciseName(@PathVariable @Positive Long userId,
-                                                                       @RequestParam @NotBlank String name) {
-        log.info("Getting user exercise with name {} for user {}", name, userId);
-        return userExerciseService.getUserExerciseByUserIdAndExerciseName(userId, name);
+                                                                       @PathVariable String exerciseName) {
+        log.info("Getting user exercise with name {} for user {}", exerciseName, userId);
+        return userExerciseService.getUserExerciseByUserIdAndExerciseName(userId, exerciseName);
     }
 }

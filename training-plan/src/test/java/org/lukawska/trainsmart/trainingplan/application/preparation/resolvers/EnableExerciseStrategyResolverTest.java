@@ -52,6 +52,7 @@ class EnableExerciseStrategyResolverTest {
 
         // then
         assertThat(result.isPresent()).isTrue();
-        assertThat(result.get()).isSameAs(matchingStrategy);
+        assertThat(result.get()).isEqualTo(matchingStrategy);
+        assertThat(result.get()).isNotEqualTo(notMatchingStrategy);
     }
 }

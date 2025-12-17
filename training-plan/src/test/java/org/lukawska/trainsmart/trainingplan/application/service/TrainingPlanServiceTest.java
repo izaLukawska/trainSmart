@@ -2,6 +2,8 @@ package org.lukawska.trainsmart.trainingplan.application.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
@@ -16,6 +18,8 @@ import org.lukawska.trainsmart.trainingplan.application.preparation.dto.Training
 import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.TrainingPlanDataResolver;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,6 +32,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,6 +58,26 @@ class TrainingPlanServiceTest {
     @InjectMocks
     private TrainingPlanService trainingPlanService;
 
+    private static Stream<TrainingPlanFilterRequest> provideFilterRequests() {
+        return Stream.of(new TrainingPlanFilterRequest(TrainingType.STRENGTH, PlanDuration.EIGHT_WEEKS),
+                         new TrainingPlanFilterRequest(TrainingType.STRENGTH),
+                         new TrainingPlanFilterRequest(PlanDuration.EIGHT_WEEKS),
+                         new TrainingPlanFilterRequest());
+    }
+
+    @Test
+    void shouldDeleteTrainingPlan() {
+        // given
+        final Long planId = 42L;
+        final Long userId = 2L;
+
+        // when
+        trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, userId);
+
+        // then
+        verify(trainingPlanRepository).deleteByIdAndUserId(planId, userId);
+    }
+
     @Test
     void shouldCreateTrainingPlanSuccessfully() {
         //given
@@ -72,28 +97,16 @@ class TrainingPlanServiceTest {
         //then
         assertThat(actualResult.planDuration()).isEqualTo(generatedPlan.getPlanDuration());
         assertThat(actualResult.trainingType()).isEqualTo(generatedPlan.getTrainingType());
-        assertThat(actualResult.weeks().size()).isEqualTo(generatedPlan.getWeeks().size());
+        assertThat(actualResult.trainingWeeks().size()).isEqualTo(generatedPlan.getWeeks().size());
     }
 
-    @Test
-    void shouldDeleteTrainingPlan() {
-        // given
-        final Long planId = 42L;
-        final Long userId = 2L;
-
-        // when
-        trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, userId);
-
-        // then
-        verify(trainingPlanRepository).deleteByIdAndUserId(planId, userId);
-    }
-
-    @Test
-    void shouldGetAllTrainingPlansSummaryByUserId() {
+    @ParameterizedTest
+    @MethodSource("provideFilterRequests")
+    @SuppressWarnings("unchecked")
+    void shouldGetAllTrainingPlansSummaryByUserIdBasedOnFilter(TrainingPlanFilterRequest filterRequest) {
         //given
         final Long userId = 43L;
         final PagingRequest pagingRequest = PagingRequest.builder().build();
-        final TrainingPlanFilterRequest filterRequest = new TrainingPlanFilterRequest();
         final TrainingPlan trainingPlan1 = trainingPlan(mock(User.class));
         final TrainingPlan trainingPlan2 = trainingPlan(mock(User.class));
         final List<TrainingPlan> trainingPlans = List.of(trainingPlan1, trainingPlan2);
@@ -110,24 +123,6 @@ class TrainingPlanServiceTest {
         List<TrainingPlanSummaryResponse> content = result.getContent();
         assertThat(content.getFirst().id()).isEqualTo(trainingPlan1.getId());
         assertThat(content.getLast().id()).isEqualTo(trainingPlan2.getId());
-    }
-
-    @Test
-    void shouldGetTrainingPlanResponseByPlanId() {
-        // given
-        final Long planId = 7L;
-        final Long userId = 2L;
-        final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
-
-        when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.of(trainingPlan));
-
-        // when
-        TrainingPlanResponse actualResult = trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId);
-
-        // then
-        assertThat(actualResult.planDuration()).isEqualTo(trainingPlan.getPlanDuration());
-        assertThat(actualResult.trainingType()).isEqualTo(trainingPlan.getTrainingType());
-        assertThat(actualResult.weeks().size()).isEqualTo(trainingPlan.getWeeks().size());
     }
 
     @Test
@@ -154,5 +149,23 @@ class TrainingPlanServiceTest {
         assertThatThrownBy(() -> trainingPlanService.getTrainingPlanByIdAndUserId(planId, userId))
                 .isInstanceOf(TrainingPlanException.class)
                 .hasMessage(ExceptionType.TRAINING_PLAN_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    void shouldGetTrainingPlanResponseByPlanId() {
+        // given
+        final Long planId = 7L;
+        final Long userId = 2L;
+        final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
+
+        when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.of(trainingPlan));
+
+        // when
+        TrainingPlanResponse actualResult = trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId);
+
+        // then
+        assertThat(actualResult.planDuration()).isEqualTo(trainingPlan.getPlanDuration());
+        assertThat(actualResult.trainingType()).isEqualTo(trainingPlan.getTrainingType());
+        assertThat(actualResult.trainingWeeks().size()).isEqualTo(trainingPlan.getWeeks().size());
     }
 }

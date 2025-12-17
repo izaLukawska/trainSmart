@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.lukawska.trainsmart.trainingplan.application.generation.UserExercisePicker.pickExercise;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.mapToTrainingPlan;
 import static org.lukawska.trainsmart.trainingplan.domain.service.BlockExerciseLoadCalculator.calculateLoadPercent;
 
 @Service
@@ -58,13 +59,14 @@ public class TrainingPlanGenerator {
                   assignedDay.name(), trainingWeek.getWeekIndex());
 
         TrainingBlock trainingBlock = new TrainingBlock(trainingWeek, assignedDay);
-        for (MuscleGroup muscleGroup : groups.keySet()) {
-            List<UserExercise> exercises = groups.get(muscleGroup);
+        for (Map.Entry<MuscleGroup, List<UserExercise>> entry : groups.entrySet()) {
+            List<UserExercise> exercises = entry.getValue();
 
             UserExercise pickedExercise = pickExercise(exercises, usedExercises);
             pickedExercise.recordExerciseUse();
             usedExercises.add(pickedExercise);
 
+            log.debug("Creating block exercise with picked user exercise {}", pickedExercise.getId());
             BlockExercise blockExercise = generateBlockExercise(trainingBlock, pickedExercise, trainingType);
             trainingBlock.addBlockExercise(blockExercise);
         }
@@ -103,9 +105,5 @@ public class TrainingPlanGenerator {
 
     private int getExerciseSets(TrainingType trainingType) {
         return ThreadLocalRandom.current().nextInt(trainingType.getMinSets(), trainingType.getMaxSets() + 1);
-    }
-
-    private TrainingPlan mapToTrainingPlan(TrainingPlanGenerationData data) {
-        return new TrainingPlan(data.user(), data.trainingType(), data.planDuration(), data.preferredDays().size());
     }
 }

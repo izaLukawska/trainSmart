@@ -40,19 +40,6 @@ class TrainingPlanDataResolverTest {
     @InjectMocks
     private TrainingPlanDataResolver trainingPlanDataResolver;
 
-    static Stream<Arguments> provideDaysPerWeek() {
-        return Stream.of(
-                Arguments.of(1, List.of(WeekDay.MONDAY)),
-                Arguments.of(2, List.of(WeekDay.MONDAY, WeekDay.THURSDAY)),
-                Arguments.of(3, List.of(WeekDay.MONDAY, WeekDay.WEDNESDAY, WeekDay.FRIDAY)),
-                Arguments.of(4, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY)),
-                Arguments.of(5, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY,
-                                        WeekDay.THURSDAY, WeekDay.FRIDAY)),
-                Arguments.of(6, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY,
-                                        WeekDay.THURSDAY, WeekDay.FRIDAY, WeekDay.SUNDAY)),
-                Arguments.of(7, Arrays.stream(WeekDay.values()).toList()));
-    }
-
     @ParameterizedTest
     @MethodSource("provideDaysPerWeek")
     void shouldReturnCorrectDefaultDays(int daysPerWeek, List<WeekDay> expectedResult) {
@@ -125,5 +112,18 @@ class TrainingPlanDataResolverTest {
         assertThatThrownBy(() -> trainingPlanDataResolver.getResolvedData(user, request, Optional.empty()))
                 .isInstanceOf(TrainingPlanException.class)
                 .hasMessage(ExceptionType.NOT_ENOUGH_EXERCISES.getMessage());
+    }
+
+    private static Stream<Arguments> provideDaysPerWeek() {
+        return Stream.of(
+                Arguments.of(1, List.of(WeekDay.MONDAY)),
+                Arguments.of(2, List.of(WeekDay.MONDAY, WeekDay.THURSDAY)),
+                Arguments.of(3, List.of(WeekDay.MONDAY, WeekDay.WEDNESDAY, WeekDay.FRIDAY)),
+                Arguments.of(4, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY)),
+                Arguments.of(5, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY,
+                                        WeekDay.THURSDAY, WeekDay.FRIDAY)),
+                Arguments.of(6, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY,
+                                        WeekDay.THURSDAY, WeekDay.FRIDAY, WeekDay.SATURDAY)),
+                Arguments.of(7, Arrays.stream(WeekDay.values()).toList()));
     }
 }

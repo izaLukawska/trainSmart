@@ -16,4 +16,5 @@ public @interface ConsistentPlanRequest {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
 }

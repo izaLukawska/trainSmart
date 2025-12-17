@@ -54,7 +54,7 @@ public class TrainingPlanDataResolver {
             case 4 -> List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY);
             case 5 -> List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY);
             case 6 -> List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY,
-                              WeekDay.SUNDAY);
+                              WeekDay.SATURDAY);
             default -> Arrays.stream(WeekDay.values()).toList();
         };
     }
