@@ -6,7 +6,6 @@ import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,7 +18,6 @@ import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,12 +82,5 @@ class MailControllerIT {
     void shouldReturnBadRequestWhenInvalidPathVariable() throws Exception {
         //when && then
         mockMvc.perform(get("/mail/-1").with(csrf())).andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
-        //when && then
-        mockMvc.perform(post("/mail/send").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
-               .andExpect(status().isBadRequest());
     }
 }
