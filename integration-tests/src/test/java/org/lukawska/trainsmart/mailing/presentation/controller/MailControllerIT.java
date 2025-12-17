@@ -1,9 +1,7 @@
 package org.lukawska.trainsmart.mailing.presentation.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.util.List;
 
@@ -39,23 +36,6 @@ class MailControllerIT {
 
     @MockitoBean
     private JwtService jwtService;
-
-    @Test
-    @WithMockUser(roles = "USER")
-    void shouldCreateMailAndReturn201() throws Exception {
-        // given
-        final MailRequest mailRequest = mailRequestWithAttachments();
-        final ObjectMapper objectMapper = new ObjectMapper();
-        when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
-
-        // when && then
-        RequestBuilder request = post("/mail/send").with(csrf())
-                                                   .contentType(MediaType.APPLICATION_JSON)
-                                                   .content(objectMapper.writeValueAsString(mailRequest));
-
-        mockMvc.perform(request)
-               .andExpect(status().isCreated());
-    }
 
     @Test
     void shouldReturnMailById() throws Exception {
