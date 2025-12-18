@@ -11,7 +11,7 @@ import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyEx
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,7 +37,7 @@ class HealthSurveyServiceTest {
     private HealthSurveyRepository healthSurveyRepository;
 
     @Mock
-    private UserService userService;
+    private UserAccessService userService;
 
     @InjectMocks
     private HealthSurveyService healthSurveyService;

@@ -11,7 +11,7 @@ import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyEx
 import org.lukawska.trainsmart.healthsurvey.application.mapper.HealthSurveyMapper;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class HealthSurveyService {
 
     private final HealthSurveyRepository healthSurveyRepository;
 
-    private final UserService userService;
+    private final UserAccessService userService;
 
     @Transactional
     public HealthSurveyResponse submitHealthSurvey(Long userId, HealthSurveyCreateRequest surveyRequest) {

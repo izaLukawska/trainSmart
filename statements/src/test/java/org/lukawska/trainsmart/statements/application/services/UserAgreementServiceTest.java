@@ -3,7 +3,7 @@ package org.lukawska.trainsmart.statements.application.services;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
@@ -35,7 +35,7 @@ class UserAgreementServiceTest {
     private UserAgreementValidator userAgreementValidator;
 
     @Mock
-    private UserService userService;
+    private UserAccessService userService;
 
     @InjectMocks
     private UserAgreementService userAgreementService;

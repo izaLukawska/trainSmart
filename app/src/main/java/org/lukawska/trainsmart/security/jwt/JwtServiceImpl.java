@@ -25,12 +25,13 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateAccessToken(String username) {
-        return generateToken(username, jwtProperties.getAccessExpMs());
-    }
-
-    @Override
-    public String generateRefreshToken(String username) {
-        return generateToken(username, jwtProperties.getRefreshExpMs());
+        Instant currDate = Instant.now();
+        return Jwts.builder()
+                   .subject(username)
+                   .issuedAt(Date.from(currDate))
+                   .expiration(Date.from(currDate.plusMillis(jwtProperties.getAccessExpMs())))
+                   .signWith(secretKey)
+                   .compact();
     }
 
     @Override
@@ -54,16 +55,5 @@ public class JwtServiceImpl implements JwtService {
         } catch (JwtException e) {
             return false;
         }
-    }
-
-    private String generateToken(String name, long expiration) {
-        Instant currDate = Instant.now();
-
-        return Jwts.builder()
-                   .subject(name)
-                   .issuedAt(Date.from(currDate))
-                   .expiration(Date.from(currDate.plusMillis(expiration)))
-                   .signWith(secretKey)
-                   .compact();
     }
 }
