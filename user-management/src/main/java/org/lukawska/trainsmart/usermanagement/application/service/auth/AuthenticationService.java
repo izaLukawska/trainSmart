@@ -38,12 +38,13 @@ public class AuthenticationService {
 
     @Transactional
     public AuthResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
-        RefreshToken token = refreshTokenService.getValidToken(refreshTokenRequest.refreshToken());
+        RefreshToken token = refreshTokenService.validateAndGetToken(refreshTokenRequest.refreshToken());
         refreshTokenService.revokeToken(token);
 
-        RefreshToken newToken = refreshTokenService.createRefreshToken(token.getUser());
-        String accessToken = jwtService.generateAccessToken(token.getUser().getUsername());
+        User tokenOwner = token.getUser();
+        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(tokenOwner);
+        String accessToken = jwtService.generateAccessToken(tokenOwner.getUsername());
 
-        return new AuthResponse(accessToken, newToken.getToken());
+        return new AuthResponse(accessToken, newRefreshToken.getToken());
     }
 }

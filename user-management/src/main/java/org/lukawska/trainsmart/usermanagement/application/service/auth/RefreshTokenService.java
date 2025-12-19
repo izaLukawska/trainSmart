@@ -35,9 +35,33 @@ public class RefreshTokenService {
         refreshTokenRepository.save(token);
     }
 
-    public RefreshToken getValidToken(String tokenValue) {
-        return refreshTokenRepository.findByToken(tokenValue)
-                                     .filter(token -> !token.isRevoked() && token.getExpiresAt().isAfter(Instant.now()))
-                                     .orElseThrow(() -> new AuthorizationException("Invalid token"));
+    @Transactional
+    public void deleteToken(String token) {
+        refreshTokenRepository.deleteByToken(token);
+    }
+
+    @Transactional
+    public void deleteAllTokensByUser(User user) {
+        refreshTokenRepository.deleteAllByUser(user);
+    }
+
+    @Transactional
+    public RefreshToken validateAndGetToken(String tokenValue) {
+        Instant currentTime = Instant.now();
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(tokenValue)
+                                                          .orElseThrow(AuthorizationException::new);
+
+        if (refreshToken.isRevoked()) {
+            User user = refreshToken.getUser();
+            refreshTokenRepository.deleteAllByUser(user);
+            throw new AuthorizationException();
+        }
+
+        if (refreshToken.getExpiresAt().isBefore(currentTime)) {
+            refreshTokenRepository.deleteByToken(refreshToken.getToken());
+            throw new AuthorizationException();
+        }
+
+        return refreshToken;
     }
 }
