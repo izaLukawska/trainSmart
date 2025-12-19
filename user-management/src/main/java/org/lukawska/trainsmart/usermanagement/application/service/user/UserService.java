@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.usermanagement.application.service.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.sharedpersistence.domain.repositories.UserRepository;
@@ -18,6 +19,7 @@ import static org.lukawska.trainsmart.usermanagement.application.mapper.UserMapp
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -33,6 +35,8 @@ public class UserService {
         try {
             User newUser = mapToUser(registerUserRequest, passwordEncoder);
             User savedUser = userRepository.save(newUser);
+
+            log.info("Saved user with ID {}", savedUser.getId());
             activationService.sendActivationMail(savedUser);
 
             return mapToProfileResponse(savedUser);

@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.usermanagement.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 
@@ -9,6 +10,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "activation_tokens")
 @NoArgsConstructor
+@Getter
 public class ActivationToken {
 
     @Id

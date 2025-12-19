@@ -34,6 +34,7 @@ class ActivationService {
         String token = UUID.randomUUID().toString();
         ActivationToken activationToken = buildActivationToken(token, user);
         activationTokenRepository.save(activationToken);
+        log.info("Sending activation mail with activation token {}", activationToken.getId());
         MailRequest mailRequest = buildActivationMailRequest(user.getEmail(), token);
 
         try {
@@ -55,9 +56,11 @@ class ActivationService {
 
         String subject = "Account activation";
         String body = """
-                Welcome to our sports community.
+                Welcome to our sports community!
                 To activate your account, please click the link below:
                 %s
+                Best regards,
+                Trainsmart Team
                 """.formatted(activationLink);
 
         return new MailRequest(List.of(email),

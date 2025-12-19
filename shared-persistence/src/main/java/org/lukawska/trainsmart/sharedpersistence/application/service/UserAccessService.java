@@ -20,7 +20,7 @@ public class UserAccessService {
     }
 
     public User getUserByUsername(String username) {
-        log.info("Retrieving user for username {}", username);
+        log.info("Retrieving user with username {}", username);
         return userRepository.findByUsername(username)
                              .orElseThrow(() -> new UserNotFoundException(username));
     }
