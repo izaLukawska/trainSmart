@@ -29,7 +29,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.builder()
                    .subject(username)
                    .issuedAt(Date.from(currDate))
-                   .expiration(Date.from(currDate.plusMillis(jwtProperties.getAccessExpMs())))
+                   .expiration(Date.from(currDate.plusMillis(jwtProperties.getAccessExpirationMs())))
                    .signWith(secretKey)
                    .compact();
     }

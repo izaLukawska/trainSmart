@@ -1,27 +1,40 @@
 package org.lukawska.trainsmart.usermanagement.presentation.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.usermanagement.application.dto.user.request.RegisterUserRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.user.response.UserProfileResponse;
+import org.lukawska.trainsmart.usermanagement.application.dto.user.request.EmailUpdateRequest;
+import org.lukawska.trainsmart.usermanagement.application.dto.user.request.PasswordUpdateRequest;
 import org.lukawska.trainsmart.usermanagement.application.service.user.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/users/{userId}")
 @Slf4j
+@RequiredArgsConstructor
+@RestController
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<UserProfileResponse> register(@RequestBody RegisterUserRequest registerUserRequest) {
-        log.info("Registering user with username: {}", registerUserRequest.username());
-        return ResponseEntity.status(201).body(userService.register(registerUserRequest));
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@PathVariable @Positive Long userId,
+                                               @RequestBody @Valid PasswordUpdateRequest changePasswordRequest) {
+        log.info("Change password request received for user {}", userId);
+        userService.changePassword(userId, changePasswordRequest);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    @PutMapping("/change-email")
+    public ResponseEntity<Void> changeEmail(@PathVariable @Positive Long userId,
+                                            @RequestBody @Valid EmailUpdateRequest emailUpdateRequest) {
+        log.info("Change email request received for user {}", userId);
+        userService.changeEmail(userId, emailUpdateRequest);
+
+        return ResponseEntity.noContent().build();
+
     }
 }

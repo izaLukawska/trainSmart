@@ -39,17 +39,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 String username = jwtService.extractUsername(token);
 
-                if (StringUtils.isBlank(username) || !jwtService.validToken(token)) {
-                    log.warn("Invalid or expired JWT token for request: {}", request.getRequestURI());
-                    return;
+                if (StringUtils.isNotBlank(username) && jwtService.validToken(token)) {
+                    UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
-
-                UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
             } catch (JwtException | IllegalArgumentException ex) {
                 log.warn("JWT token processing failed for request {}: {}", request.getRequestURI(), ex.getMessage());

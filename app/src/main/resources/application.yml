@@ -51,12 +51,15 @@ spring:
 
 app:
   security:
-    refresh-exp-ms: 2592000000
-  jwt:
-    secret: ${JWT_SECRET}
-    access-exp-ms: 900000
+    jwt:
+      secret: ${JWT_SECRET}
+      access-expiration-ms: 900000
+    refresh-token:
+      expiration-ms: 2592000000
+    verification-token:
+      expiration-hours: 24
   mailing:
-    activation-base-url: http://localhost:8080
+    base-url: http://localhost:8080
     from: no-reply@trainsmart.com
     reply-to: support@trainsmart.com
     validMimeTypes:

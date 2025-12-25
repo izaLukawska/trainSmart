@@ -20,6 +20,7 @@ public class UserMapper {
     }
 
     public static UserProfileResponse mapToProfileResponse(User user) {
-        return new UserProfileResponse(user.getUsername(), user.getEmail(), user.getRole(), user.getBirthDate());
+        return new UserProfileResponse(
+                user.getUsername(), user.getEmail(), user.getRole(), user.getBirthDate(), user.getStatus());
     }
 }

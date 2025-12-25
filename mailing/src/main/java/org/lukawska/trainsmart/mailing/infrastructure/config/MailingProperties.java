@@ -15,7 +15,7 @@ import java.util.Map;
 @Setter
 public class MailingProperties {
 
-    private String activationBaseUrl = "http://localhost:8008";
+    private String baseUrl = "http://localhost:8008";
 
     private String from;
 

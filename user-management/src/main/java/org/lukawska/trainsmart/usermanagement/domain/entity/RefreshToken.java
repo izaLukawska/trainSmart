@@ -9,7 +9,7 @@ import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import java.time.Instant;
 
 @Entity
-@Table(name = "refresh_tokens")
+@Table(name = "refresh_tokens", uniqueConstraints = @UniqueConstraint(columnNames = {"token", "user_id"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class RefreshToken {

@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "app.jwt")
+@ConfigurationProperties(prefix = "app.security.jwt")
 @Component
 @Getter
 @Setter
@@ -19,6 +19,6 @@ public class JwtProperties {
     private String secret;
 
     @Positive
-    private long accessExpMs;
+    private long accessExpirationMs;
 
 }

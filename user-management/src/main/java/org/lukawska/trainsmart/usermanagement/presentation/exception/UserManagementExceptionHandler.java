@@ -1,9 +1,10 @@
-package org.lukawska.trainsmart.mailing.presentation.exception;
+package org.lukawska.trainsmart.usermanagement.presentation.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
-import org.lukawska.trainsmart.mailing.application.exception.MailingException;
+import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
+import org.lukawska.trainsmart.usermanagement.application.exception.AuthorizationException;
 import org.springframework.http.*;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.FieldError;
@@ -17,13 +18,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class MailingExceptionHandler extends ResponseEntityExceptionHandler {
+public class UserManagementExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(MailingException.class)
-    public ProblemDetail handleMailingException(MailingException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getExceptionType().getHttpStatus(),
-                                                                       ex.getMessage());
-        problemDetail.setTitle("Mailing exception");
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFoundException(UserNotFoundException exception) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        problemDetail.setTitle("User not found");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ProblemDetail handleUserNotFoundException(AuthorizationException exception) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+        problemDetail.setTitle("Authorization exception");
 
         return problemDetail;
     }
@@ -54,10 +62,11 @@ public class MailingExceptionHandler extends ResponseEntityExceptionHandler {
     private Map<String, Object> getConstraintViolation(ConstraintViolationException ex) {
         return ex.getConstraintViolations()
                  .stream()
-                 .collect(Collectors.toMap(
-                         constraintViolation -> constraintViolation.getPropertyPath().toString(),
-                         ConstraintViolation::getMessage,
-                         (oldMessage, newMessage) -> String.format("%s, %s", oldMessage, newMessage)));
+                 .collect(Collectors.toMap(constraintViolation -> constraintViolation.getPropertyPath().toString(),
+                                           ConstraintViolation::getMessage,
+                                           (oldMessage, newMessage) -> String.format("%s, %s",
+                                                                                     oldMessage,
+                                                                                     newMessage)));
     }
 
     private Map<String, Object> getFieldErrors(MethodArgumentNotValidException ex) {

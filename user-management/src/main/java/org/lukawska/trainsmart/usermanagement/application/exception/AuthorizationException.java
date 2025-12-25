@@ -1,16 +1,14 @@
 package org.lukawska.trainsmart.usermanagement.application.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
 @Getter
 public class AuthorizationException extends RuntimeException {
 
-    private static final String BASE_MESSAGE = "INVALID TOKEN";
+    private final ExceptionType exceptionType;
 
-    public AuthorizationException() {
-        super(BASE_MESSAGE);
+    public AuthorizationException(ExceptionType exceptionType) {
+        super(exceptionType.getMessage());
+        this.exceptionType = exceptionType;
     }
 }

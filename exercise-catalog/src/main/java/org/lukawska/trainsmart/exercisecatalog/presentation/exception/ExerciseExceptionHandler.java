@@ -2,7 +2,6 @@ package org.lukawska.trainsmart.exercisecatalog.presentation.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
 import org.springframework.http.*;
@@ -18,7 +17,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-@Slf4j
 public class ExerciseExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ExerciseException.class)

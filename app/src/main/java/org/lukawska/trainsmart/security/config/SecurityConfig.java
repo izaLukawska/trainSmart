@@ -26,10 +26,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
                            .requestMatchers("/actuator/**").permitAll()
-                           .requestMatchers("/mail/**").hasAnyRole("ADMIN")
                            .requestMatchers("/users/**").permitAll()
                            .requestMatchers("/auth/**").permitAll()
-                           .requestMatchers("/exercises/**").hasRole("ADMIN")
+                           .requestMatchers("/register/**").permitAll()
                            .anyRequest().authenticated())
                    .csrf(AbstractHttpConfigurer::disable)
                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -4,17 +4,18 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "activation_tokens")
+@Table(name = "verification_tokens")
 @NoArgsConstructor
 @Getter
-public class ActivationToken {
+public class VerificationToken {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -25,16 +26,20 @@ public class ActivationToken {
     private User user;
 
     @Column(nullable = false)
-    private Instant createdAt;
-
-    @Column(nullable = false)
     private Instant expiresAt;
 
-    public ActivationToken(String token, User user, Instant createdAt, Instant expiresAt) {
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType;
+
+    public VerificationToken(String token, User user, Instant expiresAt, TokenType tokenType) {
         this.token = token;
         this.user = user;
-        this.createdAt = createdAt;
         this.expiresAt = expiresAt;
+        this.tokenType = tokenType;
+    }
+
+    public boolean isExpired() {
+        return this.expiresAt.isBefore(Instant.now());
     }
 }
 
