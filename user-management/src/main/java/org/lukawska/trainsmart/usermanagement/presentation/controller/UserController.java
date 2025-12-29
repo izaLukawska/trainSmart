@@ -39,6 +39,15 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/me/delete")
+    public ResponseEntity<Void> deleteAccount(Authentication auth) {
+        String username = auth.getName();
+        log.info("Delete account request received for user {}", username);
+        userService.deleteAccount(username);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/register")
     public ResponseEntity<UserProfileResponse> register(@RequestBody @Valid RegisterUserRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(request));

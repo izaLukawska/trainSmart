@@ -2,7 +2,11 @@ package org.lukawska.trainsmart.sharedpersistence.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SoftDelete;
 import org.lukawska.trainsmart.sharedpersistence.domain.valueObjects.Role;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,7 +17,7 @@ import java.time.LocalDate;
 @Table(name = "users")
 @Entity
 @Getter
-@ToString(exclude = {"password"})
+@SoftDelete
 public class User extends AuditableEntity {
 
     @Id

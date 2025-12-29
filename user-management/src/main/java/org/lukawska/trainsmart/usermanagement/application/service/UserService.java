@@ -36,7 +36,8 @@ public class UserService {
     public UserProfileResponse registerUser(RegisterUserRequest registerUserRequest) {
         log.info("Registering user with username: {}", registerUserRequest.username());
         try {
-            User newUser = mapToUser(registerUserRequest, passwordEncoder);
+            String encodedPassword = passwordEncoder.encode(registerUserRequest.password());
+            User newUser = mapToUser(registerUserRequest, encodedPassword);
             User savedUser = userRepository.save(newUser);
             log.info("Saved user with ID {}", savedUser.getId());
             return mapToProfileResponse(savedUser);
@@ -103,6 +104,12 @@ public class UserService {
         User user = verificationToken.getUser();
         log.info("Resetting password for user {}", user);
         updatePassword(user, resetPasswordRequest.newPassword());
+    }
+
+    @Transactional
+    public void deleteAccount(String username) {
+        userRepository.deleteByUsername(username);
+        log.info("Account deleted for user: {}", username);
     }
 
     private void updatePassword(User user, String newPassword) {

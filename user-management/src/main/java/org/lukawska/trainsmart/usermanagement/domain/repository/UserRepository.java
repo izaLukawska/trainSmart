@@ -11,6 +11,6 @@ public interface UserRepository extends UserAccessRepository {
 
     Optional<User> findByUsername(String username);
 
-    Optional<User> findByEmail(String email);
+    void deleteByUsername(String username);
 
 }
