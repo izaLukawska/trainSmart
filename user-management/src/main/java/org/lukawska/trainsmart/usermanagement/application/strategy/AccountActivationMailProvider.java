@@ -7,11 +7,6 @@ import org.springframework.stereotype.Component;
 public class AccountActivationMailProvider implements MailContentProvider {
 
     @Override
-    public String getPath() {
-        return "/auth/activate";
-    }
-
-    @Override
     public String getSubject() {
         return "Account activation";
     }

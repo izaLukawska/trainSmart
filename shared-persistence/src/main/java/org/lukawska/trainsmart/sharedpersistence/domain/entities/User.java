@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.lukawska.trainsmart.sharedpersistence.domain.valueObjects.Role;
-import org.lukawska.trainsmart.sharedpersistence.domain.valueObjects.Status;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -34,9 +33,7 @@ public class User extends AuditableEntity {
     @Column(nullable = false)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status = Status.INACTIVE;
+    private boolean disabled = true;
 
     private LocalDate birthDate;
 
@@ -58,10 +55,6 @@ public class User extends AuditableEntity {
     }
 
     public void activate() {
-        this.status = Status.ACTIVE;
-    }
-
-    public void deactivate() {
-        this.status = Status.INACTIVE;
+        this.disabled = false;
     }
 }

@@ -4,12 +4,10 @@ import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.convert.DurationUnit;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 @Component
 @Getter
@@ -19,7 +17,9 @@ import java.time.temporal.ChronoUnit;
 public class VerificationTokenProperties {
 
     @Positive
-    @DurationUnit(ChronoUnit.HOURS)
-    private Duration expirationHours;
+    private long expirationHours;
 
+    public Duration getDurationHours() {
+        return Duration.ofHours(expirationHours);
+    }
 }

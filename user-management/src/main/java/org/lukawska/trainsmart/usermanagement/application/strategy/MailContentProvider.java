@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface MailContentProvider {
 
-    String getPath();
-
     String getSubject();
 
     String getBody(String link);
@@ -19,7 +17,6 @@ public interface MailContentProvider {
 
     default String generateLink(String baseUrl, String token) {
         return UriComponentsBuilder.fromUriString(baseUrl)
-                                   .path(getPath())
                                    .queryParam("token", token)
                                    .toUriString();
     }

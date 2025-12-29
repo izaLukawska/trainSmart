@@ -1,20 +1,20 @@
-package org.lukawska.trainsmart.usermanagement.application.service.auth;
+package org.lukawska.trainsmart.usermanagement.application.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.auth.request.LoginRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.auth.request.LogoutRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.auth.request.RefreshTokenRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.auth.response.AuthResponse;
+import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.LoginRequest;
+import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.LogoutRequest;
+import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
+import org.lukawska.trainsmart.usermanagement.application.dto.response.AuthResponse;
 import org.lukawska.trainsmart.usermanagement.application.exception.AuthorizationException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +29,13 @@ public class AuthenticationService {
 
     private final RefreshTokenService refreshTokenService;
 
-    private final UserAccessService userAccessService;
+    private final UserService userService;
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
         String username = request.username();
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, request.password()));
-        User user = userAccessService.getUserByUsername(username);
+        User user = userService.getUserByUsername(username);
 
         log.info("Generating access token and refresh token for user {}", user.getId());
         String accessToken = jwtService.generateAccessToken(user.getUsername());
@@ -59,9 +59,11 @@ public class AuthenticationService {
         refreshToken.markAsRevoked();
         log.info("Revoked refreshToken {}", refreshToken.getId());
 
+        SecurityContextHolder.clearContext();
+
         Cookie cookie = buildClearCookie(refreshToken.getToken());
         response.addCookie(cookie);
-        log.info("Cleared refresh refreshToken cookie for logout");
+        log.info("Cleared refresh refreshToken cookie and security context for logout");
     }
 
     private Cookie buildClearCookie(String name) {

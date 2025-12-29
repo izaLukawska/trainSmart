@@ -1,9 +1,9 @@
-package org.lukawska.trainsmart.usermanagement.application.service.auth;
+package org.lukawska.trainsmart.usermanagement.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.auth.request.RefreshTokenRequest;
+import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
 import org.lukawska.trainsmart.usermanagement.application.exception.AuthorizationException;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
@@ -52,7 +52,7 @@ class RefreshTokenService {
 
         if (isInvalid(refreshToken)) {
             log.info("Refresh token {} is invalid.", refreshToken.getId());
-            deleteInvalidToken(refreshToken);
+            deleteInvalidRefreshToken(refreshToken);
             throw new AuthorizationException(ExceptionType.INVALID_TOKEN);
         }
 
@@ -63,14 +63,20 @@ class RefreshTokenService {
     }
 
     @Transactional
-    void deleteInvalidToken(RefreshToken token) {
+    void deleteInvalidRefreshToken(RefreshToken token) {
         if (token.isRevoked()) {
-            refreshTokenRepository.deleteAllByUserId(token.getUser().getId());
-            log.warn("Security Alert! (revoked token use) Deleted all tokens for user: {}", token.getUser().getId());
+            log.warn("Security Alert! Revoked token use!");
+            String username = token.getUser().getUsername();
+            deleteRefreshTokenForUser(username);
         } else {
             refreshTokenRepository.delete(token);
             log.info("Deleted expired token: {}", token.getToken());
         }
+    }
+
+    void deleteRefreshTokenForUser(String username) {
+        refreshTokenRepository.deleteAllByUsername(username);
+        log.info("Deleted all refresh tokens for user {}", username);
     }
 
     private boolean isInvalid(RefreshToken token) {

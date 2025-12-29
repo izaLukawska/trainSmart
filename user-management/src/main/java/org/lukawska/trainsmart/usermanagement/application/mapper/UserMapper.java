@@ -2,8 +2,8 @@ package org.lukawska.trainsmart.usermanagement.application.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.user.request.RegisterUserRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.user.response.UserProfileResponse;
+import org.lukawska.trainsmart.usermanagement.application.dto.request.user.RegisterUserRequest;
+import org.lukawska.trainsmart.usermanagement.application.dto.response.UserProfileResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @UtilityClass

@@ -2,8 +2,7 @@ package org.lukawska.trainsmart.security.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.sharedpersistence.domain.repositories.UserRepository;
-import org.lukawska.trainsmart.sharedpersistence.domain.valueObjects.Status;
+import org.lukawska.trainsmart.usermanagement.domain.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,7 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .withUsername(foundUser.getUsername())
                 .password(foundUser.getPassword())
                 .authorities(List.of(foundUser.getRole()))
-                .disabled(foundUser.getStatus() == Status.INACTIVE)
+                .disabled(foundUser.isDisabled())
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)

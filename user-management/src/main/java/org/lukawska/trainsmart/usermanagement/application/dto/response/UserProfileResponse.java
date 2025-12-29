@@ -1,7 +1,6 @@
-package org.lukawska.trainsmart.usermanagement.application.dto.user.response;
+package org.lukawska.trainsmart.usermanagement.application.dto.response;
 
 import org.lukawska.trainsmart.sharedpersistence.domain.valueObjects.Role;
-import org.lukawska.trainsmart.sharedpersistence.domain.valueObjects.Status;
 
 import java.time.LocalDate;
 

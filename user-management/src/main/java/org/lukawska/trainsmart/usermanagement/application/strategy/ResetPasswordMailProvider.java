@@ -7,11 +7,6 @@ import org.springframework.stereotype.Component;
 public class ResetPasswordMailProvider implements MailContentProvider {
 
     @Override
-    public String getPath() {
-        return "/auth/reset-password";
-    }
-
-    @Override
     public String getSubject() {
         return "Password reset";
     }

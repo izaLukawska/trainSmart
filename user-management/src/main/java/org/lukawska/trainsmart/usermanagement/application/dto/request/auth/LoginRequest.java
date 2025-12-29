@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.usermanagement.application.dto.auth.request;
+package org.lukawska.trainsmart.usermanagement.application.dto.request.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

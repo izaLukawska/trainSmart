@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.usermanagement.application.service.registration;
+package org.lukawska.trainsmart.usermanagement.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class VerificationTokenService {
+class VerificationTokenService {
 
     private final MailContentProviderResolver mailContentProviderResolver;
 
@@ -36,13 +36,14 @@ public class VerificationTokenService {
     private final VerificationTokenProperties verificationTokenProperties;
 
     @Transactional
-    public void sendVerificationMail(User user, TokenType tokenType) {
+    void sendVerificationMail(User user, TokenType tokenType) {
+        verificationTokenRepository.deleteByUserAndTokenType(user, tokenType);
+
         log.info("Sending {} mail for user {}", tokenType.name(), user.getId());
 
-        verificationTokenRepository.deleteByUserAndTokenType(user, tokenType);
         String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken(
-                token, user, Instant.now().plus(verificationTokenProperties.getExpirationHours()), tokenType);
+        Instant expirationDate = Instant.now().plus(verificationTokenProperties.getDurationHours());
+        VerificationToken verificationToken = new VerificationToken(token, user, expirationDate, tokenType);
         verificationTokenRepository.save(verificationToken);
 
         log.info("Created verification token {}", verificationToken.getId());
@@ -54,7 +55,7 @@ public class VerificationTokenService {
     }
 
     @Transactional
-    public VerificationToken consumeActiveVerificationToken(String token) {
+    VerificationToken consumeActiveVerificationToken(String token) {
         log.debug("Retrieving valid verification token {}", token);
         VerificationToken verificationToken = getValidActivationToken(token);
 
@@ -65,12 +66,9 @@ public class VerificationTokenService {
     }
 
     private VerificationToken getValidActivationToken(String token) {
-        VerificationToken verificationToken = verificationTokenRepository
-                .findByToken(token)
-                .filter(vt -> !vt.isExpired())
-                .orElseThrow(() -> new UserException(ExceptionType.VERIFICATION_TOKEN_INVALID));
-
-        log.info("Found verification token {}", verificationToken.getId());
-        return verificationToken;
+        return verificationTokenRepository.findByToken(token)
+                                          .filter(vt -> !vt.isExpired())
+                                          .orElseThrow(
+                                                  () -> new UserException(ExceptionType.VERIFICATION_TOKEN_INVALID));
     }
 }
