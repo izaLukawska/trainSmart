@@ -37,8 +37,8 @@ public class SecurityConfig {
 
     private static final String[] AUTHENTICATED_ONLY = {
             "/auth/logout",
-            "/users/**/agreements",
-            "/users/**/health-survey"
+            "/users/{userId}/agreements",
+            "/users/{userId}/health-survey"
     };
 
     @Bean
