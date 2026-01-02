@@ -9,6 +9,14 @@ spring:
     protocol: smtp
 
 app:
+  security:
+    jwt:
+      secret: 4b617369614c756b6177736b61547261696e536d61727450726f6a656b7432303235
+      access-expiration-ms: 900000
+    refresh-token:
+      expiration-ms: 2592000000
+    verification-token:
+      expiration-hours: 24
   mailing:
     from: test-from@example.com
     reply-to: test-replyto@example.com
@@ -16,7 +24,3 @@ app:
       pdf:
         - application/pdf
     maxSizeBytes: 10485760
-  jwt:
-    secret: q0xF9qB7oQ8g2QxVrnhnL5Nvz2FqC6nZb9T+8q0yJCs=
-    accessExpMs: 3600000
-    refreshExpMs: 86400000

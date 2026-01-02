@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.exercisecatalog.application.service;
 
 import org.junit.jupiter.api.Test;
-import org.lukawska.trainsmart.config.PostgresTestBase;
+import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
@@ -12,6 +12,8 @@ import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,7 +24,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
-class ExerciseServiceIT extends PostgresTestBase {
+@ActiveProfiles("test")
+@Import(PostgresTestConfig.class)
+class ExerciseServiceIT {
 
     @Autowired
     private ExerciseRepository exerciseRepository;

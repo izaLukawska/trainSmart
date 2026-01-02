@@ -2,9 +2,8 @@ package org.lukawska.trainsmart.mailing.application.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.lukawska.trainsmart.config.PostgresTestBase;
+import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
 import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
@@ -16,6 +15,8 @@ import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
@@ -27,7 +28,9 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Transactional
-class MailServiceIT extends PostgresTestBase {
+@ActiveProfiles("test")
+@Import(PostgresTestConfig.class)
+class MailServiceIT {
 
     @MockitoBean
     private MailSender mailSender;
@@ -40,11 +43,6 @@ class MailServiceIT extends PostgresTestBase {
 
     @Autowired
     private MailService mailService;
-
-    @AfterEach
-    void cleanUp() {
-        mailRepository.deleteAll();
-    }
 
     @Test
     void shouldSendAndSaveMailSuccess() throws MessagingException {

@@ -3,14 +3,16 @@ package org.lukawska.trainsmart.mailing.infra.external;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.lukawska.trainsmart.config.PostgresTestBase;
+import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.MailSenderAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mail.MailException;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
@@ -28,7 +30,9 @@ import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailReque
 
 @Testcontainers
 @SpringBootTest
-class MailSenderAdapterIT extends PostgresTestBase {
+@ActiveProfiles("test")
+@Import(PostgresTestConfig.class)
+class MailSenderAdapterIT {
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
