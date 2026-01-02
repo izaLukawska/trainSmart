@@ -8,15 +8,16 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Repository
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Long> {
 
-    Optional<VerificationToken> findByToken(String token);
+    Optional<VerificationToken> findByTokenAndExpiresAtAfter(String token, Instant expiresAtAfter);
 
     @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM VerificationToken v WHERE v.user = :user AND v.tokenType = :type")
+    @Query("DELETE FROM VerificationToken vt  WHERE vt.user = :user AND vt.tokenType = :type")
     void deleteByUserAndTokenType(User user, TokenType type);
 
 }

@@ -24,12 +24,30 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
+    private static final String[] WHITELIST = {
+            "/users/register",
+            "/users/activate",
+            "/users/password-reset",
+            "/users/send-verification-link",
+            "/auth/**",
+            "/actuator/**"
+    };
+
+    private static final String[] ADMIN_ONLY = {"/exercises", "/mail/**"};
+
+    private static final String[] AUTHENTICATED_ONLY = {
+            "/auth/logout",
+            "/users/**/agreements",
+            "/users/**/health-survey"
+    };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
-                           .requestMatchers("/users/**").permitAll()
-                           .requestMatchers("/auth/**").permitAll()
-                           .requestMatchers("/actuator/**").permitAll()
+                           .requestMatchers(WHITELIST).permitAll()
+                           .requestMatchers(AUTHENTICATED_ONLY).authenticated()
+                           .requestMatchers(ADMIN_ONLY).hasRole("ADMIN")
+                           .requestMatchers("/users/**").hasRole("USER")
                            .anyRequest().authenticated())
                    .csrf(AbstractHttpConfigurer::disable)
                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

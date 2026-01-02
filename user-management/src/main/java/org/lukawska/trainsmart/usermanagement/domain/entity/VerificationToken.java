@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.usermanagement.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
@@ -10,7 +11,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "verification_tokens")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class VerificationToken {
 
@@ -36,10 +37,6 @@ public class VerificationToken {
         this.user = user;
         this.expiresAt = expiresAt;
         this.tokenType = tokenType;
-    }
-
-    public boolean isExpired() {
-        return this.expiresAt.isBefore(Instant.now());
     }
 }
 

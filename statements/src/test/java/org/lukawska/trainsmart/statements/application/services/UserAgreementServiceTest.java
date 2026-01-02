@@ -104,23 +104,23 @@ class UserAgreementServiceTest {
     void shouldThrowUserNotFoundExceptionWhenSignAgreement() {
         //given
         final UserAgreementRequest request = acceptedUserAgreementRequest();
-        when(userService.getUserById(1L)).thenThrow(new UserNotFoundException(1L));
+        when(userService.getUserById(1L)).thenThrow(new UserNotFoundException());
 
         //when && then
         assertThatThrownBy(() -> userAgreementService.signAgreement(1L, request))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found for ID: %d", 1);
+                .hasMessage("User not found");
         verify(userAgreementRepository, never()).save(any());
     }
 
     @Test
     void shouldThrowUserNotFoundExceptionWhenGetRequiredStatementsToSign() {
         //given
-        when(userService.getUserById(1L)).thenThrow(new UserNotFoundException(1L));
+        when(userService.getUserById(1L)).thenThrow(new UserNotFoundException());
 
         //when && then
         assertThatThrownBy(() -> userAgreementService.getRequiredStatementsToSign(1L))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found for ID: %d", 1L);
+                .hasMessage("User not found");
     }
 }

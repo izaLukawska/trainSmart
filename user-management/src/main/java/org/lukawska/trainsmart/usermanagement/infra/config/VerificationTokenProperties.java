@@ -7,8 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.Duration;
-
 @Component
 @Getter
 @Setter
@@ -19,7 +17,4 @@ public class VerificationTokenProperties {
     @Positive
     private long expirationHours;
 
-    public Duration getDurationHours() {
-        return Duration.ofHours(expirationHours);
-    }
 }

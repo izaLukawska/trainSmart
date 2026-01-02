@@ -3,7 +3,7 @@ package org.lukawska.trainsmart.usermanagement.application.resolvers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
-import org.lukawska.trainsmart.usermanagement.application.exception.UserException;
+import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.application.strategy.MailContentProvider;
 import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
 import org.springframework.stereotype.Component;
@@ -26,6 +26,6 @@ public class MailContentProviderResolver {
                                             provider.getClass().getSimpleName(), tokenType);
                                    return provider;
                                })
-                               .orElseThrow(() -> new UserException(ExceptionType.MAIL_PROVIDER_NOT_FOUND));
+                               .orElseThrow(() -> new UserManagementException(ExceptionType.MAIL_PROVIDER_NOT_FOUND));
     }
 }

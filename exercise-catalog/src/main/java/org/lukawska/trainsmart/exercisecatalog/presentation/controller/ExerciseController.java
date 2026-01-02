@@ -11,6 +11,7 @@ import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseServi
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 @Slf4j
+@PreAuthorize("hasRole('ADMIN')")
 public class ExerciseController {
 
     private final ExerciseService exerciseService;

@@ -176,12 +176,12 @@ class HealthSurveyServiceTest {
     @Test
     void shouldThrowUserNotFoundExceptionWhenSubmitHealthSurvey() {
         //given
-        when(userService.getUserById(any())).thenThrow(new UserNotFoundException(2L));
+        when(userService.getUserById(any())).thenThrow(new UserNotFoundException());
 
         //when && then
         assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(2L, healthSurveyRequest()))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found for ID: %d", 2L);
+                .hasMessage("User not found");
     }
 
     @Test

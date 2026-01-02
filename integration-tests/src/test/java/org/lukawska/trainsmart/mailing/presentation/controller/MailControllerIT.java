@@ -4,8 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
+import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
+import org.lukawska.trainsmart.security.config.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,7 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MailController.class)
 @ActiveProfiles("test")
-@WithMockUser
+@WithMockUser(roles = "ADMIN")
+@Import({SecurityConfig.class})
 class MailControllerIT {
 
     @Autowired
@@ -34,6 +38,9 @@ class MailControllerIT {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;
 
     @Test
     void shouldReturnMailById() throws Exception {
@@ -82,5 +89,16 @@ class MailControllerIT {
     void shouldReturnBadRequestWhenInvalidPathVariable() throws Exception {
         //when && then
         mockMvc.perform(get("/mail/-1").with(csrf())).andExpect(status().isBadRequest());
+    }
+
+    @WithMockUser(roles = "USER")
+    @Test
+    void shouldReturnForbidden() throws Exception {
+        // given
+        final MailResponse mailResponse = mailResponseWithId(1L);
+        when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
+
+        // when && then
+        mockMvc.perform(get("/mail/1").with(csrf())).andExpect(status().isForbidden());
     }
 }

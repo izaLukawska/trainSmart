@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
-import org.lukawska.trainsmart.usermanagement.application.exception.AuthorizationException;
+import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.springframework.http.*;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.FieldError;
@@ -28,10 +28,11 @@ public class UserManagementExceptionHandler extends ResponseEntityExceptionHandl
         return problemDetail;
     }
 
-    @ExceptionHandler(AuthorizationException.class)
-    public ProblemDetail handleUserNotFoundException(AuthorizationException exception) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
-        problemDetail.setTitle("Authorization exception");
+    @ExceptionHandler(UserManagementException.class)
+    public ProblemDetail handleUserManagementException(UserManagementException exception) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(exception.getExceptionType().getHttpStatus(),
+                                                                       exception.getMessage());
+        problemDetail.setTitle("User management exception");
 
         return problemDetail;
     }

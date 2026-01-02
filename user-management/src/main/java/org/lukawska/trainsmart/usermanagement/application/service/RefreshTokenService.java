@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
-import org.lukawska.trainsmart.usermanagement.application.exception.AuthorizationException;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
+import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
 import org.lukawska.trainsmart.usermanagement.domain.repository.RefreshTokenRepository;
 import org.lukawska.trainsmart.usermanagement.infra.config.RefreshTokenProperties;
@@ -26,7 +26,7 @@ class RefreshTokenService {
 
     RefreshToken getRefreshToken(String refreshToken) {
         RefreshToken foundRefreshToken = refreshTokenRepository.findByToken(refreshToken).orElseThrow(
-                () -> new AuthorizationException(ExceptionType.INVALID_TOKEN));
+                () -> new UserManagementException(ExceptionType.INVALID_TOKEN));
         log.debug("Found refresh token {} for user {}", foundRefreshToken.getId(), foundRefreshToken.getUser().getId());
 
         return foundRefreshToken;
@@ -39,13 +39,13 @@ class RefreshTokenService {
         String token = UUID.randomUUID().toString();
 
         RefreshToken refreshToken = new RefreshToken(token, user, expiresAt, false);
-        RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
-        log.info("Created and saved new refresh token: {}", savedRefreshToken.getId());
+        refreshTokenRepository.save(refreshToken);
+        log.info("Created and saved new refresh token: {}", refreshToken.getId());
 
-        return savedRefreshToken;
+        return refreshToken;
     }
 
-    @Transactional(noRollbackFor = AuthorizationException.class)
+    @Transactional(noRollbackFor = UserManagementException.class)
     RefreshToken rotateRefreshToken(RefreshTokenRequest refreshTokenRequest) {
         RefreshToken refreshToken = getRefreshToken(refreshTokenRequest.refreshToken());
         log.info("Rotating refresh token: {}", refreshToken.getId());
@@ -53,7 +53,7 @@ class RefreshTokenService {
         if (isInvalid(refreshToken)) {
             log.info("Refresh token {} is invalid.", refreshToken.getId());
             deleteInvalidRefreshToken(refreshToken);
-            throw new AuthorizationException(ExceptionType.INVALID_TOKEN);
+            throw new UserManagementException(ExceptionType.INVALID_TOKEN);
         }
 
         refreshToken.markAsRevoked();

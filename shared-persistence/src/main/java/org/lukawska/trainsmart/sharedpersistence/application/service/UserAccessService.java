@@ -16,6 +16,6 @@ public class UserAccessService {
 
     public User getUserById(Long userId) {
         log.info("Retrieving user for ID: {}", userId);
-        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 }

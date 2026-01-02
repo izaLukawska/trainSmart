@@ -7,7 +7,7 @@ import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.usermanagement.application.dto.request.user.*;
 import org.lukawska.trainsmart.usermanagement.application.dto.response.UserProfileResponse;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
-import org.lukawska.trainsmart.usermanagement.application.exception.UserException;
+import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.VerificationToken;
 import org.lukawska.trainsmart.usermanagement.domain.repository.UserRepository;
 import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
@@ -38,11 +38,11 @@ public class UserService {
         try {
             String encodedPassword = passwordEncoder.encode(registerUserRequest.password());
             User newUser = mapToUser(registerUserRequest, encodedPassword);
-            User savedUser = userRepository.save(newUser);
-            log.info("Saved user with ID {}", savedUser.getId());
-            return mapToProfileResponse(savedUser);
+            userRepository.save(newUser);
+            log.info("Saved user with ID {}", newUser.getId());
+            return mapToProfileResponse(newUser);
         } catch (DataIntegrityViolationException e) {
-            throw new UserException(ExceptionType.USER_ALREADY_EXISTS);
+            throw new UserManagementException(ExceptionType.USER_ALREADY_EXISTS);
         }
     }
 
@@ -64,7 +64,7 @@ public class UserService {
         log.info("Changing mail for user {}", username);
         User user = getUserByUsername(username);
         if (!user.getEmail().equals(emailUpdateRequest.oldEmail())) {
-            throw new UserException(ExceptionType.INVALID_EMAIL);
+            throw new UserManagementException(ExceptionType.INVALID_EMAIL);
         }
 
         try {
@@ -72,7 +72,7 @@ public class UserService {
             userRepository.save(user);
             log.info("Mail updated");
         } catch (DataIntegrityViolationException e) {
-            throw new UserException(ExceptionType.EMAIL_TAKEN);
+            throw new UserManagementException(ExceptionType.EMAIL_TAKEN);
         }
     }
 
@@ -82,7 +82,7 @@ public class UserService {
         User user = getUserByUsername(username);
 
         if (!passwordEncoder.matches(changePasswordRequest.oldPassword(), user.getPassword())) {
-            throw new UserException(ExceptionType.INVALID_PASSWORD);
+            throw new UserManagementException(ExceptionType.INVALID_PASSWORD);
         }
 
         updatePassword(user, changePasswordRequest.newPassword());
@@ -102,7 +102,7 @@ public class UserService {
                 resetPasswordRequest.token());
 
         User user = verificationToken.getUser();
-        log.info("Resetting password for user {}", user);
+        log.info("Resetting password for user {}", user.getId());
         updatePassword(user, resetPasswordRequest.newPassword());
     }
 
@@ -112,15 +112,15 @@ public class UserService {
         log.info("Account deleted for user: {}", username);
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
     private void updatePassword(User user, String newPassword) {
         log.info("Updating password for user {}", user.getId());
         user.changePassword(newPassword, passwordEncoder);
         refreshTokenService.deleteRefreshTokenForUser(user.getUsername());
         userRepository.save(user);
         log.info("Password updated");
-    }
-
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 }

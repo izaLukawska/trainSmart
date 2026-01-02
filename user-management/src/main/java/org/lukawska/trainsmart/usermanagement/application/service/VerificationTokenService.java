@@ -7,7 +7,7 @@ import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
-import org.lukawska.trainsmart.usermanagement.application.exception.UserException;
+import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.application.resolvers.MailContentProviderResolver;
 import org.lukawska.trainsmart.usermanagement.application.strategy.MailContentProvider;
 import org.lukawska.trainsmart.usermanagement.domain.entity.VerificationToken;
@@ -17,6 +17,7 @@ import org.lukawska.trainsmart.usermanagement.infra.config.VerificationTokenProp
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ class VerificationTokenService {
         log.info("Sending {} mail for user {}", tokenType.name(), user.getId());
 
         String token = UUID.randomUUID().toString();
-        Instant expirationDate = Instant.now().plus(verificationTokenProperties.getDurationHours());
+        Instant expirationDate = Instant.now().plus(Duration.ofHours(verificationTokenProperties.getExpirationHours()));
         VerificationToken verificationToken = new VerificationToken(token, user, expirationDate, tokenType);
         verificationTokenRepository.save(verificationToken);
 
@@ -66,9 +67,7 @@ class VerificationTokenService {
     }
 
     private VerificationToken getValidActivationToken(String token) {
-        return verificationTokenRepository.findByToken(token)
-                                          .filter(vt -> !vt.isExpired())
-                                          .orElseThrow(
-                                                  () -> new UserException(ExceptionType.VERIFICATION_TOKEN_INVALID));
+        return verificationTokenRepository.findByTokenAndExpiresAtAfter(token, Instant.now()).orElseThrow(
+                () -> new UserManagementException(ExceptionType.VERIFICATION_TOKEN_NOT_FOUND));
     }
 }

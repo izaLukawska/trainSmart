@@ -10,8 +10,11 @@ import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseExc
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
+import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
+import org.lukawska.trainsmart.security.config.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,7 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ExerciseController.class)
 @ActiveProfiles("test")
-@WithMockUser
+@Import({SecurityConfig.class})
+@WithMockUser(roles = "ADMIN")
 class ExerciseControllerIT {
 
     @MockitoBean
@@ -38,6 +42,9 @@ class ExerciseControllerIT {
 
     @MockitoBean
     private ExerciseService exerciseService;
+
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -113,5 +120,21 @@ class ExerciseControllerIT {
                                                        .param("name", name);
         mockMvc.perform(request)
                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(roles = "USER")
+    @Test
+    void shouldReturnForbiddenWhenGetExerciseByName() throws Exception {
+        //given
+        final String name = "crunches";
+        final ExerciseResponse exerciseResponse = new ExerciseResponse(1L, name);
+        when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
+
+        //when && then
+        RequestBuilder request = get("/exercises/name").with(csrf())
+                                                       .param("name", name)
+                                                       .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 }

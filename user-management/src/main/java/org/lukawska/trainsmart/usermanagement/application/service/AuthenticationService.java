@@ -10,7 +10,7 @@ import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.Login
 import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.LogoutRequest;
 import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
 import org.lukawska.trainsmart.usermanagement.application.dto.response.AuthResponse;
-import org.lukawska.trainsmart.usermanagement.application.exception.AuthorizationException;
+import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,7 +45,7 @@ public class AuthenticationService {
         return new AuthResponse(accessToken, refreshToken.getToken());
     }
 
-    @Transactional(noRollbackFor = AuthorizationException.class)
+    @Transactional(noRollbackFor = UserManagementException.class)
     public AuthResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
         RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequest);
         String accessToken = jwtService.generateAccessToken(newRefreshToken.getUser().getUsername());
