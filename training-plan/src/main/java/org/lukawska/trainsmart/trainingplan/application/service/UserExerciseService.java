@@ -123,11 +123,11 @@ public class UserExerciseService {
         if (userExercises.isEmpty()) {
             log.debug("Fetching all exercises (user has no exercises)");
             return exerciseService.getAllExercises();
-        } else {
-            Instant lastUpdate = getLastUserExerciseUpdate(userExercises);
-            log.debug("Fetching exercises created after: {}", lastUpdate);
-            return exerciseService.getExercisesFrom(lastUpdate);
         }
+
+        Instant lastUpdate = getLastUserExerciseUpdate(userExercises);
+        log.debug("Fetching exercises created after: {}", lastUpdate);
+        return exerciseService.getExercisesFrom(lastUpdate);
     }
 
     private Instant getLastUserExerciseUpdate(List<UserExercise> userExercises) {

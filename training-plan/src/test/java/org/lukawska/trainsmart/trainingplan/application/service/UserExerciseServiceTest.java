@@ -48,10 +48,11 @@ class UserExerciseServiceTest {
     @InjectMocks
     private UserExerciseService userExerciseService;
 
+    private static final Long userId = 1L;
+
     @Test
     void shouldReturnNewUserExercisesNamesWhenSyncUserExercise() {
         // given
-        final Long userId = 2L;
         final List<UserExercise> savedExercises = List.of(userExerciseWithMockedData());
 
         when(userService.getUserById(userId)).thenReturn(mock(User.class));
@@ -69,7 +70,6 @@ class UserExerciseServiceTest {
     @Test
     void shouldReturnEmptyListWhenSyncUserExerciseAndExerciseListEmpty() {
         //given
-        final Long userId = 2L;
         when(userExerciseRepository.findAllByUserId(userId)).thenReturn(List.of());
         when(exerciseService.getAllExercises()).thenReturn(List.of());
 
@@ -99,7 +99,6 @@ class UserExerciseServiceTest {
     @SuppressWarnings("unchecked")
     void shouldReturnUserExerciseResponseSliceWhenGetAllUserExercisesByUserId() {
         //given
-        final Long userId = 43L;
         final PagingRequest pagingRequest = PagingRequest.builder().build();
         final UserExerciseFilterRequest filterRequest = UserExerciseFilterRequest.builder().build();
 
@@ -124,7 +123,6 @@ class UserExerciseServiceTest {
     @Test
     void shouldReturnUserExerciseResponseWhenGetUserExerciseByUserIdAndExerciseName() {
         //given
-        final Long userId = 43L;
         final String exerciseName = "back squat";
         final UserExercise userExercise = userExerciseWithMockedData();
 
@@ -142,7 +140,6 @@ class UserExerciseServiceTest {
     @Test
     void shouldEnableAllExercisesWhenUpdateUserExerciseEnabledStatusAndDisabledExercisesEmpty() {
         //given
-        final Long userId = 2L;
         final List<String> disabledNames = List.of();
 
         //when
@@ -155,7 +152,6 @@ class UserExerciseServiceTest {
     @Test
     void shouldReturnEnabledUserExercisesByMuscleGroupByUserId() {
         //given
-        final Long userId = 2L;
         final UserExercise userExercise1 = mock(UserExercise.class);
         final UserExercise userExercise2 = mock(UserExercise.class);
 
@@ -178,7 +174,6 @@ class UserExerciseServiceTest {
     @Test
     void shouldReturnAllExerciseNamesByUserId() {
         //given
-        final Long userId = 2L;
         when(userExerciseRepository.findAllExerciseNamesByUserId(userId)).thenReturn(List.of("pull up", "push up"));
 
         //when
@@ -191,7 +186,6 @@ class UserExerciseServiceTest {
     @Test
     void shouldThrowUserExerciseNotFoundExceptionWhenGetUserExerciseByUserIdAndExerciseName() {
         //given
-        final Long userId = 43L;
         final String exerciseName = "back squat";
         when(userExerciseRepository.findByUserIdAndExerciseName(userId, exerciseName)).thenReturn(Optional.empty());
 
@@ -204,7 +198,6 @@ class UserExerciseServiceTest {
     @Test
     void shouldThrowUserExerciseAlreadyExistsExceptionWhenSyncUserExercise() {
         //given
-        final Long userId = 2L;
         final UserExercise userExercise = mock(UserExercise.class);
         final Instant lastModifiedDate = Instant.now();
         final List<UserExercise> userExercises = List.of(userExercise);

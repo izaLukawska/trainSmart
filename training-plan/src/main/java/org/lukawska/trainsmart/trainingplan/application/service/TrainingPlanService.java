@@ -68,8 +68,8 @@ public class TrainingPlanService {
 
     @Transactional
     public void deleteTrainingPlanByIdAndUserId(Long planId, Long userId) {
-        log.info("Deleting plan: {} for user: {}", planId, userId);
         trainingPlanRepository.deleteByIdAndUserId(planId, userId);
+        log.info("Deleted plan: {} for user: {}", planId, userId);
     }
 
     public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansSummaryByUserId(

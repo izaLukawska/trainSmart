@@ -72,7 +72,8 @@ class MailControllerIT {
                 .thenReturn(List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
 
         // when && then
-        mockMvc.perform(get("/api/mail/recipient").param("recipient", recipient))
+        mockMvc.perform(get("/api/mail/recipient")
+                                .param("recipient", recipient))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].recipients", everyItem(hasItem(recipient))));
@@ -87,7 +88,8 @@ class MailControllerIT {
                 .thenReturn(List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
 
         // when && then
-        mockMvc.perform(get("/api/mail/subject").param("keyword", keyword))
+        mockMvc.perform(get("/api/mail/subject")
+                                .param("keyword", keyword))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].subject", everyItem(containsString(keyword))));
@@ -102,7 +104,9 @@ class MailControllerIT {
     @Test
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
-        mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/api/mail/send")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}"))
                .andExpect(status().isBadRequest());
     }
 }

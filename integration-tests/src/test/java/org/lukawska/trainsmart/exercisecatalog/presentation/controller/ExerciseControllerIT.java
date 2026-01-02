@@ -58,7 +58,9 @@ class ExerciseControllerIT {
         when(exerciseService.getExercise(name)).thenReturn(exerciseResponse);
 
         //when && then
-        mockMvc.perform(get("/exercises/name").param("name", name).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/exercises/name")
+                                .param("name", name)
+                                .contentType(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.name").value(name));
     }
@@ -85,7 +87,9 @@ class ExerciseControllerIT {
     @Test
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
-        mockMvc.perform(post("/exercises").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/exercises")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}"))
                .andExpect(status().isBadRequest());
     }
 
@@ -96,7 +100,9 @@ class ExerciseControllerIT {
         when(exerciseService.getExercise(name)).thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
         //when && then
-        mockMvc.perform(get("/exercises/name").contentType(MediaType.APPLICATION_JSON).param("name", name))
+        mockMvc.perform(get("/exercises/name")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("name", name))
                .andExpect(status().isNotFound());
     }
 }

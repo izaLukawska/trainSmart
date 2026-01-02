@@ -62,8 +62,8 @@ class ExerciseServiceTest {
     void shouldReturnExercisesByMuscleGroup() {
         //given
         final MuscleGroup muscleGroup = MuscleGroup.BACK;
-        final Exercise exercise1 = new Exercise("pull up", MuscleGroup.BACK, ExerciseType.BODYWEIGHT);
-        final Exercise exercise2 = new Exercise("chin up", MuscleGroup.BACK, ExerciseType.BODYWEIGHT);
+        final Exercise exercise1 = new Exercise("pull up", muscleGroup, ExerciseType.BODYWEIGHT);
+        final Exercise exercise2 = new Exercise("chin up", muscleGroup, ExerciseType.BODYWEIGHT);
         when(exerciseRepository.findAllByMuscleGroup(muscleGroup)).thenReturn(List.of(exercise1, exercise2));
 
         //when
@@ -83,14 +83,12 @@ class ExerciseServiceTest {
         when(exerciseRepository.findAll()).thenReturn(List.of(exercise1, exercise2));
 
         //when
-
         List<Exercise> result = exerciseService.getAllExercises();
 
         //then
         assertThat(result).hasSize(2);
         assertThat(result).extracting(Exercise::getName)
                           .containsExactlyInAnyOrder(exercise1.getName(), exercise2.getName());
-
     }
 
     @Test
@@ -114,8 +112,8 @@ class ExerciseServiceTest {
     void shouldReturnExercisesByExerciseType() {
         //given
         final ExerciseType exerciseType = ExerciseType.BODYWEIGHT;
-        final Exercise exercise1 = new Exercise("air squat", MuscleGroup.QUADS, ExerciseType.BODYWEIGHT);
-        final Exercise exercise2 = new Exercise("chin up", MuscleGroup.BACK, ExerciseType.BODYWEIGHT);
+        final Exercise exercise1 = new Exercise("air squat", MuscleGroup.QUADS, exerciseType);
+        final Exercise exercise2 = new Exercise("chin up", MuscleGroup.BACK, exerciseType);
         when(exerciseRepository.findAllByExerciseType(exerciseType)).thenReturn(List.of(exercise1, exercise2));
 
         //when

@@ -65,11 +65,12 @@ class TrainingPlanServiceTest {
                          new TrainingPlanFilterRequest());
     }
 
+    private static final Long userId = 2L;
+
     @Test
     void shouldDeleteTrainingPlan() {
         // given
         final Long planId = 42L;
-        final Long userId = 2L;
 
         // when
         trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, userId);
@@ -81,7 +82,6 @@ class TrainingPlanServiceTest {
     @Test
     void shouldCreateTrainingPlanSuccessfully() {
         //given
-        final Long userId = 1L;
         final User user = mock(User.class);
         final TrainingPlanDto request = trainingPlanRequest();
         final TrainingPlan generatedPlan = trainingPlan(user);
@@ -105,7 +105,6 @@ class TrainingPlanServiceTest {
     @SuppressWarnings("unchecked")
     void shouldGetAllTrainingPlansSummaryByUserIdBasedOnFilter(TrainingPlanFilterRequest filterRequest) {
         //given
-        final Long userId = 43L;
         final PagingRequest pagingRequest = PagingRequest.builder().build();
         final TrainingPlan trainingPlan1 = trainingPlan(mock(User.class));
         final TrainingPlan trainingPlan2 = trainingPlan(mock(User.class));
@@ -128,7 +127,6 @@ class TrainingPlanServiceTest {
     @Test
     void shouldThrowTrainingPlanGenerationErrorWhenCreateTraining() {
         // given
-        final Long userId = 99L;
         final TrainingPlanDto request = trainingPlanRequest();
         when(trainingPlanRepository.save(any())).thenThrow(new DataIntegrityViolationException("Exception"));
 
@@ -142,7 +140,6 @@ class TrainingPlanServiceTest {
     void shouldThrowTrainingPlanNotFoundWhenGetTrainingPlanByIdAndUserId() {
         // given
         final Long planId = 99L;
-        final Long userId = 2L;
         when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.empty());
 
         // when / then
@@ -155,7 +152,6 @@ class TrainingPlanServiceTest {
     void shouldGetTrainingPlanResponseByPlanId() {
         // given
         final Long planId = 7L;
-        final Long userId = 2L;
         final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
 
         when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.of(trainingPlan));

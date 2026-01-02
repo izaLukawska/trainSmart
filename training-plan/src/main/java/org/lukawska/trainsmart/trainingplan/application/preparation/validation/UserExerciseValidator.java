@@ -12,13 +12,15 @@ import java.util.Map;
 @UtilityClass
 public class UserExerciseValidator {
 
+    private static final Integer MIN_EXERCISE_GROUPS = 3;
+
     public static void validateUserExercises(Map<MuscleGroup, List<UserExercise>> userExercisesMuscleGroups) {
         validateMuscleGroupSize(userExercisesMuscleGroups);
         validateUserExerciseSize(userExercisesMuscleGroups);
     }
 
     private void validateMuscleGroupSize(Map<MuscleGroup, List<UserExercise>> userExercisesMuscleGroups) {
-        if (userExercisesMuscleGroups.size() < 3) {
+        if (userExercisesMuscleGroups.size() < MIN_EXERCISE_GROUPS) {
             throw new TrainingPlanException(ExceptionType.NOT_ENOUGH_MUSCLE_GROUPS);
         }
     }

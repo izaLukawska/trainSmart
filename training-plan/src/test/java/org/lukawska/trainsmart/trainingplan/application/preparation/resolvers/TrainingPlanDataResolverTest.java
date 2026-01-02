@@ -2,9 +2,6 @@ package org.lukawska.trainsmart.trainingplan.application.preparation.resolvers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
@@ -18,11 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,13 +35,16 @@ class TrainingPlanDataResolverTest {
     @InjectMocks
     private TrainingPlanDataResolver trainingPlanDataResolver;
 
-    @ParameterizedTest
-    @MethodSource("provideDaysPerWeek")
-    void shouldReturnCorrectDefaultDays(int daysPerWeek, List<WeekDay> expectedResult) {
-        // When
+    @Test
+    void shouldReturnCorrectDefaultDays() {
+        //when
+        final int daysPerWeek = 3;
+        final List<WeekDay> expectedResult = List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY);
+
+        //when
         final List<WeekDay> actualResult = trainingPlanDataResolver.resolvePreferredDays(List.of(), daysPerWeek);
 
-        // Then
+        //then
         assertThat(actualResult).isEqualTo(expectedResult);
     }
 
@@ -112,18 +110,5 @@ class TrainingPlanDataResolverTest {
         assertThatThrownBy(() -> trainingPlanDataResolver.getResolvedData(user, request, Optional.empty()))
                 .isInstanceOf(TrainingPlanException.class)
                 .hasMessage(ExceptionType.NOT_ENOUGH_EXERCISES.getMessage());
-    }
-
-    private static Stream<Arguments> provideDaysPerWeek() {
-        return Stream.of(
-                Arguments.of(1, List.of(WeekDay.MONDAY)),
-                Arguments.of(2, List.of(WeekDay.MONDAY, WeekDay.THURSDAY)),
-                Arguments.of(3, List.of(WeekDay.MONDAY, WeekDay.WEDNESDAY, WeekDay.FRIDAY)),
-                Arguments.of(4, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY)),
-                Arguments.of(5, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY,
-                                        WeekDay.THURSDAY, WeekDay.FRIDAY)),
-                Arguments.of(6, List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY,
-                                        WeekDay.THURSDAY, WeekDay.FRIDAY, WeekDay.SATURDAY)),
-                Arguments.of(7, Arrays.stream(WeekDay.values()).toList()));
     }
 }

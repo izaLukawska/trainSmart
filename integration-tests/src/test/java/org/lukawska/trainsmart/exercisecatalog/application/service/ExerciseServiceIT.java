@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,6 +31,10 @@ class ExerciseServiceIT extends PostgresTestBase {
     @Autowired
     private ExerciseService exerciseService;
 
+    static Exercise dumbbellShoulderExercise() {
+        return new Exercise(UUID.randomUUID().toString(), MuscleGroup.SHOULDERS, ExerciseType.DUMBBELL);
+    }
+
     @Test
     void shouldCreateExerciseSuccess() {
         //given
@@ -40,8 +45,8 @@ class ExerciseServiceIT extends PostgresTestBase {
 
         //then
         Optional<Exercise> savedExercise = exerciseRepository.findById(result.id());
-        assertThat(savedExercise).isPresent();
         Exercise exercise = savedExercise.get();
+        assertThat(savedExercise).isPresent();
         assertThat(exercise.getName()).isEqualTo(result.name());
         assertThat(exercise.getExerciseType()).isEqualTo(request.exerciseType());
         assertThat(exercise.getMuscleGroup()).isEqualTo(request.muscleGroup());
@@ -52,7 +57,7 @@ class ExerciseServiceIT extends PostgresTestBase {
     @Test
     void shouldReturnExerciseByName() {
         //given
-        final Exercise exercise = new Exercise("walking lunges", MuscleGroup.QUADS, ExerciseType.DUMBBELL);
+        final Exercise exercise = dumbbellShoulderExercise();
         exerciseRepository.save(exercise);
 
         //when
@@ -66,10 +71,10 @@ class ExerciseServiceIT extends PostgresTestBase {
     @Test
     void shouldReturnExercisesByMuscleGroup() {
         //given
-        final MuscleGroup muscleGroup = MuscleGroup.QUADS;
-        final Exercise exercise1 = new Exercise("walking lunges", muscleGroup, ExerciseType.DUMBBELL);
-        final Exercise exercise2 = new Exercise("lunges", muscleGroup, ExerciseType.DUMBBELL);
-        final Exercise exercise3 = new Exercise("DB strict press", MuscleGroup.ABS, ExerciseType.DUMBBELL);
+        final Exercise exercise1 = new Exercise(UUID.randomUUID().toString(), MuscleGroup.CHEST, ExerciseType.OTHER);
+        final Exercise exercise2 = dumbbellShoulderExercise();
+        final Exercise exercise3 = dumbbellShoulderExercise();
+        final MuscleGroup muscleGroup = exercise2.getMuscleGroup();
         exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
@@ -78,16 +83,16 @@ class ExerciseServiceIT extends PostgresTestBase {
         //then
         assertThat(result).hasSize(2);
         assertThat(result).extracting(ExerciseResponse::name)
-                          .containsExactlyInAnyOrder(exercise2.getName(), exercise1.getName())
-                          .doesNotContain(exercise3.getName());
+                          .containsExactlyInAnyOrder(exercise2.getName(), exercise3.getName())
+                          .doesNotContain(exercise1.getName());
     }
 
     @Test
     void shouldReturnAllExercises() {
         //given
         final Exercise exercise1 = new Exercise("walking lunges", MuscleGroup.QUADS, ExerciseType.DUMBBELL);
-        final Exercise exercise2 = new Exercise("pull up", MuscleGroup.BACK, ExerciseType.BODYWEIGHT);
-        final Exercise exercise3 = new Exercise("strict press", MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final Exercise exercise2 = dumbbellShoulderExercise();
+        final Exercise exercise3 = dumbbellShoulderExercise();
         exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
@@ -101,10 +106,10 @@ class ExerciseServiceIT extends PostgresTestBase {
     @Test
     void shouldReturnExercisesByType() {
         //given
-        final ExerciseType exerciseType = ExerciseType.DUMBBELL;
-        final Exercise exercise1 = new Exercise("walking lunges", MuscleGroup.QUADS, exerciseType);
-        final Exercise exercise2 = new Exercise("lateral raises", MuscleGroup.SHOULDERS, exerciseType);
-        final Exercise exercise3 = new Exercise("strict press", MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final Exercise exercise1 = new Exercise("walking lunges", MuscleGroup.QUADS, ExerciseType.BARBELL);
+        final Exercise exercise2 = dumbbellShoulderExercise();
+        final Exercise exercise3 = dumbbellShoulderExercise();
+        final ExerciseType exerciseType = exercise2.getExerciseType();
         exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
@@ -112,19 +117,18 @@ class ExerciseServiceIT extends PostgresTestBase {
 
         //then
         assertThat(result).hasSize(2);
-        assertThat(result).containsExactlyInAnyOrder(exercise1, exercise2);
-        assertThat(result).doesNotContain(exercise3);
+        assertThat(result).doesNotContain(exercise1);
+        assertThat(result).containsExactlyInAnyOrder(exercise2, exercise3);
     }
 
     @Test
-    void shouldReturnExercisesCreatedAtGreaterOrEqual() throws InterruptedException {
+    void shouldReturnExercisesCreatedAtGreaterOrEqual() {
         //given
         final Exercise exercise1 = new Exercise("walking lunges", MuscleGroup.QUADS, ExerciseType.DUMBBELL);
-        final Exercise exercise2 = new Exercise("lateral raises", MuscleGroup.SHOULDERS, ExerciseType.DUMBBELL);
-        final Exercise exercise3 = new Exercise("strict press", MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final Exercise exercise2 = dumbbellShoulderExercise();
+        final Exercise exercise3 = dumbbellShoulderExercise();
 
         exerciseRepository.save(exercise1);
-        Thread.sleep(5000);
         exerciseRepository.saveAll(List.of(exercise2, exercise3));
 
         //when

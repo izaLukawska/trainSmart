@@ -37,10 +37,11 @@ class EnableExerciseProcessorTest {
     @InjectMocks
     private EnableExerciseProcessor enableExerciseProcessor;
 
+    private static final Long userId = 1L;
+
     @Test
     void shouldReturnUserExercisesByMuscleGroupWhenStrategyNotPresent() {
         //given
-        final Long userId = 1L;
         final Map<MuscleGroup, List<UserExercise>> expectedResult = validMuscleGroups();
 
         when(healthSurveyService.getExistingHealthSurvey(userId)).thenReturn(mock(HealthSurvey.class));
@@ -58,7 +59,6 @@ class EnableExerciseProcessorTest {
     @Test
     void shouldReturnUserExercisesByMuscleGroupWhenStrategyPresent() {
         //given
-        final Long userId = 1L;
         final Optional<Instant> lastUpdateDate = Optional.of(Instant.now());
         final Map<MuscleGroup, List<UserExercise>> expectedResult = validMuscleGroups();
         HealthSurvey healthSurvey = mock(HealthSurvey.class);

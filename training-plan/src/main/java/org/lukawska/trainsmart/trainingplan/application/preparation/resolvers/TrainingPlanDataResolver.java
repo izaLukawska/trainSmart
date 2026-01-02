@@ -38,24 +38,16 @@ public class TrainingPlanDataResolver {
         if (weekDays.isEmpty()) {
             log.debug("No preferred days specified. Choosing default training days schedule");
             return getDefaultDays(daysPerWeek);
-        } else {
-            log.debug("Preferred workout days found.");
-            return weekDays.stream()
-                           .sorted(Comparator.comparing(Enum::ordinal))
-                           .toList();
         }
+
+        return weekDays.stream()
+                       .sorted(Comparator.comparing(Enum::ordinal))
+                       .toList();
     }
 
     private List<WeekDay> getDefaultDays(int daysPerWeek) {
-        return switch (daysPerWeek) {
-            case 1 -> List.of(WeekDay.MONDAY);
-            case 2 -> List.of(WeekDay.MONDAY, WeekDay.THURSDAY);
-            case 3 -> List.of(WeekDay.MONDAY, WeekDay.WEDNESDAY, WeekDay.FRIDAY);
-            case 4 -> List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY);
-            case 5 -> List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY);
-            case 6 -> List.of(WeekDay.MONDAY, WeekDay.TUESDAY, WeekDay.WEDNESDAY, WeekDay.THURSDAY, WeekDay.FRIDAY,
-                              WeekDay.SATURDAY);
-            default -> Arrays.stream(WeekDay.values()).toList();
-        };
+        return Arrays.stream(WeekDay.values())
+                     .limit(daysPerWeek)
+                     .toList();
     }
 }

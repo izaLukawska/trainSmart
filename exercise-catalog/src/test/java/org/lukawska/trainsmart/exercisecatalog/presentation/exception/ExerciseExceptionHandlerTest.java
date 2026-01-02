@@ -26,16 +26,6 @@ class ExerciseExceptionHandlerTest {
 
     private final ExerciseExceptionHandler exceptionHandler = new ExerciseExceptionHandler();
 
-    private static ConstraintViolation<?> mockViolation(String message) {
-        Path path = mock(Path.class);
-        doReturn(UUID.randomUUID().toString()).when(path).toString();
-        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
-        when(violation.getPropertyPath()).thenReturn(path);
-        when(violation.getMessage()).thenReturn(message);
-
-        return violation;
-    }
-
     @Test
     void shouldHandleExerciseExceptionWhenExerciseNotFound() {
         //given
@@ -97,5 +87,15 @@ class ExerciseExceptionHandlerTest {
                            .hasTitle("Validation failure")
                            .hasFieldErrorProperty(fieldError1)
                            .hasFieldErrorProperty(fieldError2);
+    }
+
+    private static ConstraintViolation<?> mockViolation(String message) {
+        Path path = mock(Path.class);
+        doReturn(UUID.randomUUID().toString()).when(path).toString();
+        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+        when(violation.getPropertyPath()).thenReturn(path);
+        when(violation.getMessage()).thenReturn(message);
+
+        return violation;
     }
 }

@@ -7,6 +7,7 @@ import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
@@ -28,6 +29,10 @@ public class HealthSurveyTestData {
     }
 
     public Set<String> defaultInjuries() {
-        return Set.of("sprained ankle", "wrist pain", "dislocated arm");
+        return Set.of(randomString(), randomString(), randomString());
+    }
+
+    private String randomString() {
+        return UUID.randomUUID().toString();
     }
 }

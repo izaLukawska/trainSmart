@@ -108,7 +108,7 @@ public class HealthSurveyService {
     }
 
     private void updateWeight(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {
-        Optional.ofNullable(updateRequest.getWeight())
+        Optional.ofNullable(updateRequest.weight())
                 .ifPresentOrElse(newWeight -> {
                     healthSurvey.updateWeight(newWeight);
                     log.info("Updated weight: {} for health survey: {}", newWeight, healthSurvey.getId());
@@ -116,7 +116,7 @@ public class HealthSurveyService {
     }
 
     private void updateInjuries(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {
-        Optional.ofNullable(updateRequest.getInjuries())
+        Optional.ofNullable(updateRequest.injuries())
                 .ifPresentOrElse(newInjuries -> {
                     healthSurvey.updateInjuries(newInjuries);
                     log.info("Updated {} injuries for health survey {}", newInjuries.size(), healthSurvey.getId());
