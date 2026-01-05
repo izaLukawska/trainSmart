@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
+import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 
 import java.time.Instant;
 
@@ -15,7 +15,7 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_exercise", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "exercise_id"}))
 @Getter
-public class UserExercise extends BaseEntity {
+public class UserExercise extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

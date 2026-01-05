@@ -203,7 +203,7 @@ class UserExerciseServiceTest {
         final List<UserExercise> userExercises = List.of(userExercise);
         when(userExercise.getModifiedAt()).thenReturn(lastModifiedDate);
         when(userExerciseRepository.findAllByUserId(userId)).thenReturn(userExercises);
-        when(exerciseService.getExercisesFrom(lastModifiedDate)).thenReturn(List.of(mock(Exercise.class)));
+        when(exerciseService.getExercisesByCreatedAtSince(lastModifiedDate)).thenReturn(List.of(mock(Exercise.class)));
         when(userExerciseRepository.saveAll(anyList())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then

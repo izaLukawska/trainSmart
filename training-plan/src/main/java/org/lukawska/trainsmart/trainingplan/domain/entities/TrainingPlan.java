@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SoftDelete;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
+import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @SoftDelete
-public class TrainingPlan extends BaseEntity {
+public class TrainingPlan extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

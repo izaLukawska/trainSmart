@@ -8,7 +8,7 @@ import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.sharedpersistence.infrastructure.base.BaseEntity;
+import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.request.UserExerciseFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.UserExerciseResponse;
@@ -127,12 +127,12 @@ public class UserExerciseService {
 
         Instant lastUpdate = getLastUserExerciseUpdate(userExercises);
         log.debug("Fetching exercises created after: {}", lastUpdate);
-        return exerciseService.getExercisesFrom(lastUpdate);
+        return exerciseService.getExercisesByCreatedAtSince(lastUpdate);
     }
 
     private Instant getLastUserExerciseUpdate(List<UserExercise> userExercises) {
         return userExercises.stream()
-                            .map(BaseEntity::getModifiedAt)
+                            .map(AuditableEntity::getModifiedAt)
                             .max(Instant::compareTo)
                             .orElse(Instant.MIN);
     }
