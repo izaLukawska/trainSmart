@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.usermanagement.presentation.controller;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +35,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody @Valid LogoutRequest logoutRequest, HttpServletResponse response) {
+    public ResponseEntity<Void> logout(@RequestBody @Valid LogoutRequest logoutRequest) {
         log.debug("Received logout request");
-        authenticationService.logout(logoutRequest, response);
+        authenticationService.logout(logoutRequest);
         return ResponseEntity.noContent().build();
     }
 }

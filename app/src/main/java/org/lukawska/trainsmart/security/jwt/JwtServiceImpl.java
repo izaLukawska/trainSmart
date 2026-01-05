@@ -25,11 +25,11 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateAccessToken(String username) {
-        Instant currDate = Instant.now();
+        Instant currentDate = Instant.now();
         return Jwts.builder()
                    .subject(username)
-                   .issuedAt(Date.from(currDate))
-                   .expiration(Date.from(currDate.plusMillis(jwtProperties.getAccessExpirationMs())))
+                   .issuedAt(Date.from(currentDate))
+                   .expiration(Date.from(currentDate.plusMillis(jwtProperties.getAccessExpirationMs())))
                    .signWith(secretKey)
                    .compact();
     }

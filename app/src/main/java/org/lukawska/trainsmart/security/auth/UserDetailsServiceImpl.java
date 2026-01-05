@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static org.springframework.security.core.userdetails.User.withUsername;
+
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -21,8 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User foundUser = userRepository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException("Username not found: " + username));
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(foundUser.getUsername())
+        return withUsername(foundUser.getUsername())
                 .password(foundUser.getPassword())
                 .authorities(List.of(foundUser.getRole()))
                 .disabled(foundUser.isDisabled())

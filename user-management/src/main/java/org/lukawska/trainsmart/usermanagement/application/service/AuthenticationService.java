@@ -1,7 +1,5 @@
 package org.lukawska.trainsmart.usermanagement.application.service;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
@@ -54,24 +52,10 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public void logout(LogoutRequest logoutRequest, HttpServletResponse response) {
+    public void logout(LogoutRequest logoutRequest) {
         RefreshToken refreshToken = refreshTokenService.getRefreshToken(logoutRequest.refreshToken());
         refreshToken.markAsRevoked();
         log.info("Revoked refreshToken {}", refreshToken.getId());
-
         SecurityContextHolder.clearContext();
-
-        Cookie cookie = buildClearCookie(refreshToken.getToken());
-        response.addCookie(cookie);
-        log.info("Cleared refresh refreshToken cookie and security context for logout");
-    }
-
-    private Cookie buildClearCookie(String name) {
-        Cookie cookie = new Cookie(name, null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        return cookie;
     }
 }

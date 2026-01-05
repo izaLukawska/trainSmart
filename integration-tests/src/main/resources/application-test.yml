@@ -9,6 +9,8 @@ spring:
     protocol: smtp
 
 app:
+  postgres:
+    image: postgres:18-alpine
   security:
     jwt:
       secret: 4b617369614c756b6177736b61547261696e536d61727450726f6a656b7432303235

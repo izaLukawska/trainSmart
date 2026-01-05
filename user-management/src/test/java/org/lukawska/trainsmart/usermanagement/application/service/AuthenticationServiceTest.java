@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.usermanagement.application.service;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
@@ -65,7 +64,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void refreshToken() {
+    void shouldReturnRefreshedToken() {
         //given
         final User user = user();
         final RefreshToken refreshToken = userRefreshToken(user);
@@ -88,11 +87,10 @@ class AuthenticationServiceTest {
         //given
         final RefreshToken refreshToken = userRefreshToken(mock(User.class));
         final LogoutRequest logoutRequest = new LogoutRequest(refreshToken.getToken());
-        final HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
         when(refreshTokenService.getRefreshToken(refreshToken.getToken())).thenReturn(refreshToken);
 
         //when
-        authenticationService.logout(logoutRequest, httpServletResponse);
+        authenticationService.logout(logoutRequest);
 
         //then
         assertThat(refreshToken.isRevoked()).isTrue();
