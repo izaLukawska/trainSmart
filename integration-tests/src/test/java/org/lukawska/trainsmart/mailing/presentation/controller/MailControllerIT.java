@@ -30,9 +30,6 @@ class MailControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockitoBean
     private MailService mailService;
 
@@ -40,6 +37,7 @@ class MailControllerIT {
     void shouldCreateMailAndReturn201() throws Exception {
         // given
         final MailRequest mailRequest = mailRequestWithAttachments();
+        final ObjectMapper objectMapper = new ObjectMapper();
         when(mailService.sendMail(mailRequest)).thenReturn(mailResponseWithId(1L));
 
         // when && then

@@ -165,7 +165,6 @@ class HealthSurveyServiceTest {
     @Test
     void shouldDeleteHealthSurveyByUserIdSuccess() {
         //give
-        final Long userId = 1L;
         final HealthSurvey healthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(healthSurvey));
 

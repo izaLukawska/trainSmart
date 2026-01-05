@@ -61,19 +61,20 @@ public class HealthSurveyService {
         return mapToHealthSurveyResponse(healthSurvey);
     }
 
+    @Transactional
+    public void deleteHealthSurveyByUserId(Long userId) {
+        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
+                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
+        log.info("Deleting health survey {}", healthSurvey.getId());
+
+        healthSurveyRepository.delete(healthSurvey);
+    }
+
     public HealthSurveyResponse getHealthSurveyByUserIdResponse(Long userId) {
         HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
         log.info("Found health survey: {}", healthSurvey.getId());
 
         return mapToHealthSurveyResponse(healthSurvey);
-    }
-
-    public HealthSurvey getExistingHealthSurvey(Long userId) {
-        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
-                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-        log.info("Found health survey: {}.", healthSurvey.getId());
-
-        return healthSurvey;
     }
 
     public Set<String> getAllInjuriesByUserId(Long userId) {
@@ -82,15 +83,6 @@ public class HealthSurveyService {
         log.info("Found {} injuries.", injuries.size());
 
         return injuries;
-    }
-
-    @Transactional
-    public void deleteHealthSurveyByUserId(Long userId) {
-        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
-                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
-        log.info("Deleting health survey {}", healthSurvey.getId());
-
-        healthSurveyRepository.delete(healthSurvey);
     }
 
     public List<WeightHistoryResponse> getWeightHistoryByUserId(Long userId) {
@@ -105,6 +97,14 @@ public class HealthSurveyService {
         log.debug("Found {} weight update records.", weightHistory.size());
 
         return weightHistory;
+    }
+
+    public HealthSurvey getExistingHealthSurvey(Long userId) {
+        HealthSurvey healthSurvey = healthSurveyRepository.findByUserId(userId).orElseThrow(
+                () -> new HealthSurveyException(ExceptionType.HEALTH_SURVEY_NOT_FOUND));
+        log.info("Found health survey: {}.", healthSurvey.getId());
+
+        return healthSurvey;
     }
 
     private void updateWeight(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {

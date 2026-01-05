@@ -12,16 +12,16 @@
     <artifactId>integration-tests</artifactId>
 
     <properties>
-        <app.version>0.0.1-SNAPSHOT</app.version>
         <testcontainers.version>1.21.3</testcontainers.version>
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
+        <commons-compress.version>1.28.0</commons-compress.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
             <artifactId>app</artifactId>
-            <version>${app.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -36,6 +36,13 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons-compress.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

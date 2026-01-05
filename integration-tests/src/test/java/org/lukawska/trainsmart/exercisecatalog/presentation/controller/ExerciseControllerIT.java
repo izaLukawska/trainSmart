@@ -35,13 +35,11 @@ class ExerciseControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Test
     void shouldCreateExercise() throws Exception {
         //given
         final ExerciseRequest exerciseRequest = new ExerciseRequest("pull up", MuscleGroup.BACK, ExerciseType.OTHER);
+        final ObjectMapper objectMapper = new ObjectMapper();
 
         //when && then
         RequestBuilder request = post("/exercises").contentType(MediaType.APPLICATION_JSON)
@@ -55,7 +53,7 @@ class ExerciseControllerIT {
         //given
         final String name = "crunches";
         final ExerciseResponse exerciseResponse = new ExerciseResponse(1L, name);
-        when(exerciseService.getExercise(name)).thenReturn(exerciseResponse);
+        when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
 
         //when && then
         mockMvc.perform(get("/exercises/name")
@@ -97,7 +95,8 @@ class ExerciseControllerIT {
     void shouldReturnBadRequestWhenNotFound() throws Exception {
         //given
         final String name = "invalid";
-        when(exerciseService.getExercise(name)).thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
+        when(exerciseService.getExerciseByName(name))
+                .thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
         //when && then
         mockMvc.perform(get("/exercises/name")

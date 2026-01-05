@@ -2,6 +2,7 @@ package org.lukawska.trainsmart.healthsurvey.presentation.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
@@ -19,9 +20,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.lukawska.trainsmart.healthsurvey.testutil.ExceptionTestData.mockViolation;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class HealthSurveyExceptionHandlerTest {
 
@@ -90,5 +89,15 @@ class HealthSurveyExceptionHandlerTest {
                            .hasTitle("Validation failure")
                            .hasFieldErrorProperty(fieldError1)
                            .hasFieldErrorProperty(fieldError2);
+    }
+
+    private static ConstraintViolation<?> mockViolation(String message) {
+        Path path = mock(Path.class);
+        doReturn(UUID.randomUUID().toString()).when(path).toString();
+        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+        when(violation.getPropertyPath()).thenReturn(path);
+        when(violation.getMessage()).thenReturn(message);
+
+        return violation;
     }
 }

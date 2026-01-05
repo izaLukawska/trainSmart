@@ -45,7 +45,7 @@ public class ExerciseService {
         }
     }
 
-    public ExerciseResponse getExercise(@NotBlank String name) {
+    public ExerciseResponse getExerciseByName(@NotBlank String name) {
         Exercise foundExercise = exerciseRepository.findByName(name).orElseThrow(
                 () -> new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
@@ -70,7 +70,7 @@ public class ExerciseService {
         return exercises;
     }
 
-    public List<Exercise> getExercisesFrom(@NotNull Instant date) {
+    public List<Exercise> getExercisesByCreatedAtSince(@NotNull Instant date) {
         List<Exercise> exercises = exerciseRepository.findAllByCreatedAtGreaterThanEqual(date);
         log.info("Found {} exercises created after: {}", exercises.size(), date);
 
