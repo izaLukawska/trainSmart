@@ -12,6 +12,8 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+    servlet:
+      path: /api/v1
   config:
     import: optional:classpath:statements.yml
   jpa:
