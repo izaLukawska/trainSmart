@@ -30,17 +30,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
         '401':
-          description: Unauthorized action
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
         '400':
-          description: Validation failure
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
   /auth/refresh-token:
     post:
       tags:
@@ -60,17 +52,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
         '401':
-          description: Unauthorized action
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
         '400':
-          description: Validation failure
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
   /auth/logout:
     post:
       tags:
@@ -86,7 +70,9 @@ paths:
         '204':
           description: Successfully logged out
         '401':
-          description: Unauthorized action
+          $ref: '#/components/responses/ProblemDetailResponse'
+        '400':
+          $ref: '#/components/responses/ProblemDetailResponse'
   /users/password-reset:
     post:
       tags:
@@ -102,11 +88,7 @@ paths:
         '204':
           description: Reset password success
         '400':
-          description: Validation failure
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
   /users/send-verification-link:
     post:
       tags:
@@ -122,11 +104,7 @@ paths:
         '204':
           description: Link send for given action (reset password or account activation)
         '400':
-          description: Validation failure
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
   /users/activate:
     post:
       tags:
@@ -146,18 +124,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfileResponse'
-        '400':
-          description: Invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
         '404':
-          description: Token not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
   /users/register:
     post:
       tags:
@@ -177,11 +145,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfileResponse'
         '400':
-          description: User already exists or wrong data provided
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          $ref: '#/components/responses/ProblemDetailResponse'
   /users/me/delete:
     delete:
       tags:
@@ -195,17 +159,7 @@ paths:
         '204':
           description: Account deleted
         '401':
-          description: Unauthorized - authentication required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-        '403':
-          description: Forbidden access
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          description: Unauthorized access
   /users/me/change-email:
     patch:
       tags:
@@ -225,17 +179,7 @@ paths:
         '204':
           description: Email changed
         '401':
-          description: Unauthorized - authentication required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-        '403':
-          description: Forbidden access
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          description: Unauthorized access
   /users/me/change-password:
     patch:
       tags:
@@ -255,19 +199,16 @@ paths:
         '204':
           description: Password changed
         '401':
-          description: Unauthorized - authentication required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-        '403':
-          description: Forbidden access
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
+          description: Unauthorized access
 
 components:
+  responses:
+    ProblemDetailResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
   securitySchemes:
     bearerAuth:
       type: http
@@ -422,21 +363,22 @@ components:
       type: object
       properties:
         type:
+          description: URI identifying the problem type
           type: string
-          example: "about:blank"
+          example: "GenericError"
         title:
+          description: Short, human-readable summary of the problem
           type: string
-          example: "Validation failure"
+          example: "Some error occurred"
         status:
+          description: HTTP status code
           type: integer
           example: 400
         instance:
+          description: URI identifying the specific occurrence
           type: string
-          example: "/api/v1/auth/login"
+          example: "/resource/xyz"
         detail:
+          description: Detailed message
           type: string
-          example: "Invalid request content"
-      additionalProperties:
-        type: string
-        example:
-          username: "size must be between 1 and 20"
+          example: "Detailed error message here"
