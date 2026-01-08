@@ -44,7 +44,7 @@
         <lombok.version>1.18.42</lombok.version>
         <spring-boot.version>3.5.6</spring-boot.version>
         <spring-webmvc.version>6.2.10</spring-webmvc.version>
-        <springdoc-openapi.version>2.5.0</springdoc-openapi.version>
+        <springdoc-openapi.version>2.8.5</springdoc-openapi.version>
         <spring-retry.version>2.0.12</spring-retry.version>
         <postgresql.version>42.7.8</postgresql.version>
         <jacoco.version>0.8.13</jacoco.version>
@@ -54,6 +54,11 @@
         <jjwt.version>0.13.0</jjwt.version>
         <!-- Plugin version -->
         <maven-compiler.plugin.version>3.14.0</maven-compiler.plugin.version>
+        <openapi.generator.version>7.17.0</openapi.generator.version>
+
+        <!-- OpenAPI base properties -->
+        <openapi.packagePrefix>org.lukawska.trainsmart</openapi.packagePrefix>
+        <openapi.baseName>default</openapi.baseName>
     </properties>
     <dependencies>
         <dependency>
@@ -154,7 +159,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -185,6 +189,10 @@
                     <excludes>
                         <exclude>**/*Controller.class</exclude>
                         <exclude>**/*Controller$*.class</exclude>
+                        <exclude>**/model/**/*.class</exclude>
+                        <exclude>**/api/**/*.class</exclude>
+                        <exclude>**/invoker/**/*.class</exclude>
+                        <exclude>**/Api*.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -224,6 +232,34 @@
                 </executions>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi.generator.version}</version>
+                    <configuration>
+                        <generatorName>spring</generatorName>
+                        <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+                        <output>${project.build.directory}/generated-sources/openapi</output>
+                        <addCompileSourceRoot>true</addCompileSourceRoot>
+
+                        <configOptions>
+                            <useSpringBoot3>true</useSpringBoot3>
+                            <useBeanValidation>true</useBeanValidation>
+                            <openApiNullable>false</openApiNullable>
+                            <interfaceOnly>true</interfaceOnly>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+
+                            <apiPackage>${openapi.packagePrefix}.${openapi.baseName}.api</apiPackage>
+                            <modelPackage>${openapi.packagePrefix}.${openapi.baseName}.model</modelPackage>
+                            <invokerPackage>${openapi.packagePrefix}.${openapi.baseName}.invoker</invokerPackage>
+                        </configOptions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>

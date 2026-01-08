@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.user.*;
-import org.lukawska.trainsmart.usermanagement.application.dto.response.UserProfileResponse;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
 import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.VerificationToken;
 import org.lukawska.trainsmart.usermanagement.domain.repository.UserRepository;
 import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
+import org.lukawska.trainsmart.usermanagement.model.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,9 +33,9 @@ public class UserService {
 
     @Transactional
     public UserProfileResponse registerUser(RegisterUserRequest registerUserRequest) {
-        log.info("Registering user with username: {}", registerUserRequest.username());
+        log.info("Registering user with username: {}", registerUserRequest.getUsername());
         try {
-            String encodedPassword = passwordEncoder.encode(registerUserRequest.password());
+            String encodedPassword = passwordEncoder.encode(registerUserRequest.getPassword());
             User newUser = mapToUser(registerUserRequest, encodedPassword);
             userRepository.save(newUser);
             log.info("Saved user with ID {}", newUser.getId());
@@ -63,12 +62,12 @@ public class UserService {
     public void changeEmail(String username, ChangeEmailRequest emailUpdateRequest) {
         log.info("Changing mail for user {}", username);
         User user = getUserByUsername(username);
-        if (!user.getEmail().equals(emailUpdateRequest.oldEmail())) {
+        if (!user.getEmail().equals(emailUpdateRequest.getOldEmail())) {
             throw new UserManagementException(ExceptionType.INVALID_EMAIL);
         }
 
         try {
-            user.changeEmail(emailUpdateRequest.newMail());
+            user.changeEmail(emailUpdateRequest.getNewEmail());
             userRepository.save(user);
             log.info("Mail updated");
         } catch (DataIntegrityViolationException e) {
@@ -81,17 +80,17 @@ public class UserService {
         log.info("Changing password for user {}", username);
         User user = getUserByUsername(username);
 
-        if (!passwordEncoder.matches(changePasswordRequest.oldPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
             throw new UserManagementException(ExceptionType.INVALID_PASSWORD);
         }
 
-        updatePassword(user, changePasswordRequest.newPassword());
+        updatePassword(user, changePasswordRequest.getNewPassword());
     }
 
     @Transactional
     public void sendVerificationLink(SendVerificationLinkRequest request) {
-        User user = getUserByUsername(request.username());
-        TokenType tokenType = request.tokenType();
+        User user = getUserByUsername(request.getUsername());
+        TokenType tokenType = TokenType.valueOf(request.getTokenType().name());
         log.info("Sending {} mail for user {}", tokenType.name(), user.getUsername());
         verificationTokenService.sendVerificationMail(user, tokenType);
     }
@@ -99,11 +98,11 @@ public class UserService {
     @Transactional
     public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
         VerificationToken verificationToken = verificationTokenService.consumeActiveVerificationToken(
-                resetPasswordRequest.token());
+                resetPasswordRequest.getToken());
 
         User user = verificationToken.getUser();
         log.info("Resetting password for user {}", user.getId());
-        updatePassword(user, resetPasswordRequest.newPassword());
+        updatePassword(user, resetPasswordRequest.getNewPassword());
     }
 
     @Transactional
@@ -112,7 +111,7 @@ public class UserService {
         log.info("Account deleted for user: {}", username);
     }
 
-    public User getUserByUsername(String username) {
+    User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 

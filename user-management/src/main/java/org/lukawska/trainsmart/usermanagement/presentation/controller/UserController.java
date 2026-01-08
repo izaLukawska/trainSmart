@@ -1,72 +1,80 @@
 package org.lukawska.trainsmart.usermanagement.presentation.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.user.*;
-import org.lukawska.trainsmart.usermanagement.application.dto.response.UserProfileResponse;
+import org.lukawska.trainsmart.usermanagement.api.UsersApi;
 import org.lukawska.trainsmart.usermanagement.application.service.UserService;
+import org.lukawska.trainsmart.usermanagement.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/users")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-public class UserController {
+public class UserController implements UsersApi {
 
     private final UserService userService;
 
-    @PreAuthorize("hasRole('USER')")
-    @PatchMapping("/me/change-password")
-    public ResponseEntity<Void> changePassword(Authentication auth, @RequestBody @Valid ChangePasswordRequest request) {
-        String username = auth.getName();
-        log.info("Change password request received for user {}", username);
-        userService.changePassword(username, request);
+    @Override
+    public ResponseEntity<UserProfileResponse> activateAccount(String token) {
+        log.info("Received activate account request");
 
-        return ResponseEntity.noContent().build();
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @PatchMapping("/me/change-email")
-    public ResponseEntity<Void> changeEmail(Authentication auth, @RequestBody @Valid ChangeEmailRequest request) {
-        String username = auth.getName();
-        log.info("Change email request received for user {}", username);
-        userService.changeEmail(username, request);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @DeleteMapping("/me/delete")
-    public ResponseEntity<Void> deleteAccount(Authentication auth) {
-        String username = auth.getName();
-        log.info("Delete account request received for user {}", username);
-        userService.deleteAccount(username);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<UserProfileResponse> register(@RequestBody @Valid RegisterUserRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(request));
-    }
-
-    @PostMapping("/activate")
-    public ResponseEntity<UserProfileResponse> activate(@RequestParam String token) {
         return ResponseEntity.ok(userService.activateAccount(token));
     }
 
-    @PostMapping("/send-verification-link")
-    public ResponseEntity<Void> sendVerificationLink(@RequestBody @Valid SendVerificationLinkRequest request) {
-        userService.sendVerificationLink(request);
-        return ResponseEntity.accepted().build();
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Override
+    public ResponseEntity<Void> changeEmail(ChangeEmailRequest changeEmailRequest) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("Change email request received for user {}", username);
+        userService.changeEmail(username, changeEmailRequest);
+
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/password-reset")
-    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
-        userService.resetPassword(request);
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @Override
+    public ResponseEntity<Void> changePassword(ChangePasswordRequest changePasswordRequest) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("Change password request received for user {}", username);
+        userService.changePassword(username, changePasswordRequest);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @Override
+    public ResponseEntity<Void> deleteAccount() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("Delete account request received for user {}", username);
+        userService.deleteAccount(username);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<UserProfileResponse> register(RegisterUserRequest registerUserRequest) {
+        log.info("Received registration request for user {}", registerUserRequest.getUsername());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(registerUserRequest));
+    }
+
+    @Override
+    public ResponseEntity<Void> resetPassword(ResetPasswordRequest resetPasswordRequest) {
+        log.info("Received reset password request");
+        userService.resetPassword(resetPasswordRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> sendVerificationLink(SendVerificationLinkRequest sendVerificationLinkRequest) {
+        log.info("Received send verification link request for type: {}",
+                 sendVerificationLinkRequest.getTokenType().getValue());
+        userService.sendVerificationLink(sendVerificationLinkRequest);
+
+        return ResponseEntity.accepted().build();
     }
 }

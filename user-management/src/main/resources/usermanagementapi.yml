@@ -1,0 +1,442 @@
+openapi: 3.0.3
+info:
+  title: User Management API
+  version: 1.0.0
+tags:
+  - name: Auth
+    description: Authentication endpoints (login, logout, refresh-token)
+  - name: User
+    description: |
+      User endpoints (password reset, send verification link, register, activate, change email, 
+      change password, delete account)
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /auth/refresh-token:
+    post:
+      tags:
+        - Auth
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refresh successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: Successfully logged out
+        '401':
+          description: Unauthorized action
+  /users/password-reset:
+    post:
+      tags:
+        - User
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '204':
+          description: Reset password success
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /users/send-verification-link:
+    post:
+      tags:
+        - User
+      operationId: sendVerificationLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendVerificationLinkRequest'
+      responses:
+        '204':
+          description: Link send for given action (reset password or account activation)
+        '400':
+          description: Validation failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /users/activate:
+    post:
+      tags:
+        - User
+      operationId: activateAccount
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Activation token
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /users/register:
+    post:
+      tags:
+        - User
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: Registration completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: User already exists or wrong data provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /users/me/delete:
+    delete:
+      tags:
+        - User
+      operationId: deleteAccount
+      security:
+        - bearerAuth: [ ]
+      x-roles:
+        - ROLE_USER
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /users/me/change-email:
+    patch:
+      tags:
+        - User
+      operationId: changeEmail
+      security:
+        - bearerAuth: [ ]
+      x-roles:
+        - ROLE_USER
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeEmailRequest'
+      responses:
+        '204':
+          description: Email changed
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /users/me/change-password:
+    patch:
+      tags:
+        - User
+      operationId: changePassword
+      security:
+        - bearerAuth: [ ]
+      x-roles:
+        - ROLE_USER
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '204':
+          description: Password changed
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Forbidden access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Username:
+      type: string
+      minLength: 1
+      example: "john.doe12"
+    Password:
+      type: string
+      minLength: 1
+      example: "secret1234"
+    Email:
+      type: string
+      format: email
+      minLength: 1
+      example: "oldEmail@example.com"
+    RefreshToken:
+      type: string
+      minLength: 1
+      example: "dGhpcy1pcy1yZWZyZXNo"
+    ChangeEmailRequest:
+      type: object
+      required:
+        - oldEmail
+        - newEmail
+      properties:
+        oldEmail:
+          $ref: '#/components/schemas/Email'
+        newEmail:
+          type: string
+          format: email
+          minLength: 1
+          example: "newEmail@example.com"
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          $ref: '#/components/schemas/Password'
+        newPassword:
+          type: string
+          minLength: 1
+          example: "newSecret1234"
+    RegisterUserRequest:
+      type: object
+      required:
+        - username
+        - password
+        - email
+        - role
+        - birthDate
+      properties:
+        username:
+          $ref: '#/components/schemas/Username'
+        password:
+          $ref: '#/components/schemas/Password'
+        email:
+          $ref: '#/components/schemas/Email'
+        role:
+          type: string
+          enum:
+            - ROLE_ADMIN
+            - ROLE_USER
+          example: "ROLE_ADMIN"
+        birthDate:
+          type: string
+          format: date
+          example: "1990-04-05"
+    SendVerificationLinkRequest:
+      type: object
+      required:
+        - username
+        - tokenType
+      properties:
+        username:
+          $ref: '#/components/schemas/Username'
+        tokenType:
+          type: string
+          enum:
+            - ACTIVATION
+            - PASSWORD_RESET
+          example: "PASSWORD_RESET"
+    ResetPasswordRequest:
+      type: object
+      required:
+        - token
+        - newPassword
+      properties:
+        token:
+          $ref: '#/components/schemas/RefreshToken'
+        newPassword:
+          $ref: '#/components/schemas/Password'
+    UserProfileResponse:
+      type: object
+      required:
+        - username
+        - email
+        - role
+        - disabled
+      properties:
+        username:
+          $ref: '#/components/schemas/Username'
+        email:
+          $ref: '#/components/schemas/Email'
+        role:
+          type: string
+          enum:
+            - ROLE_USER
+            - ROLE_ADMIN
+          example: "ROLE_USER"
+        disabled:
+          type: boolean
+          example: false
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          $ref: '#/components/schemas/Username'
+        password:
+          $ref: '#/components/schemas/Password'
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          $ref: '#/components/schemas/RefreshToken'
+    LogoutRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          $ref: '#/components/schemas/RefreshToken'
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: "eyJhbGciOieyJhbGciOi"
+        refreshToken:
+          $ref: '#/components/schemas/RefreshToken'
+    ProblemDetail:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "about:blank"
+        title:
+          type: string
+          example: "Validation failure"
+        status:
+          type: integer
+          example: 400
+        instance:
+          type: string
+          example: "/api/v1/auth/login"
+        detail:
+          type: string
+          example: "Invalid request content"
+      additionalProperties:
+        type: string
+        example:
+          username: "size must be between 1 and 20"

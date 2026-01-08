@@ -4,27 +4,29 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.user.*;
-import org.lukawska.trainsmart.usermanagement.application.dto.response.UserProfileResponse;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
 import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.VerificationToken;
 import org.lukawska.trainsmart.usermanagement.domain.repository.UserRepository;
 import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
+import org.lukawska.trainsmart.usermanagement.model.*;
+import org.lukawska.trainsmart.usermanagement.model.RegisterUserRequest.RoleEnum;
+import org.lukawska.trainsmart.usermanagement.model.SendVerificationLinkRequest.TokenTypeEnum;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.user;
-import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.verificationToken;
+import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -44,26 +46,24 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private static RegisterUserRequest registerUserRequest(User user) {
-        return new RegisterUserRequest(
-                user.getUsername(), user.getPassword(), user.getEmail(), user.getRole(), user.getBirthDate());
-    }
-
     @Test
     void shouldRegisterUserSuccessfully() {
         //given
         final User user = user();
-        final RegisterUserRequest registerUserRequest = registerUserRequest(user);
+        final RegisterUserRequest registerUserRequest = new RegisterUserRequest(user.getUsername(), user.getPassword(),
+                                                                                user.getEmail(),
+                                                                                RoleEnum.valueOf(user.getRole().name()),
+                                                                                user.getBirthDate());
         when(userRepository.save(any())).thenReturn(user);
 
         //when
         UserProfileResponse result = userService.registerUser(registerUserRequest);
 
         //then
-        assertThat(result.username()).isEqualTo(user.getUsername());
-        assertThat(result.email()).isEqualTo(user.getEmail());
-        assertThat(result.role()).isEqualTo(user.getRole());
-        assertThat(result.disabled()).isEqualTo(user.isDisabled());
+        assertThat(result.getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getEmail()).isEqualTo(user.getEmail());
+        assertThat(result.getRole().name()).isEqualTo(user.getRole().name());
+        assertThat(result.getDisabled()).isEqualTo(user.isDisabled());
     }
 
     @Test
@@ -78,10 +78,10 @@ class UserServiceTest {
         UserProfileResponse result = userService.activateAccount(token);
 
         //then
-        assertThat(result.username()).isEqualTo(user.getUsername());
-        assertThat(result.email()).isEqualTo(user.getEmail());
-        assertThat(result.role()).isEqualTo(user.getRole());
-        assertThat(result.disabled()).isEqualTo(user.isDisabled());
+        assertThat(result.getUsername()).isEqualTo(user.getUsername());
+        assertThat(result.getEmail()).isEqualTo(user.getEmail());
+        assertThat(result.getRole().name()).isEqualTo(user.getRole().name());
+        assertThat(result.getDisabled()).isEqualTo(user.isDisabled());
     }
 
     @Test
@@ -89,7 +89,7 @@ class UserServiceTest {
         //given
         final User user = user();
         final String username = user.getUsername();
-        final String newEmail = "newMail@test.com";
+        final String newEmail = randomEmail();
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(user.getEmail(), newEmail);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
@@ -105,10 +105,10 @@ class UserServiceTest {
         //given
         final User user = user();
         final String username = user.getUsername();
-        final String newPassword = "newSecret";
+        final String newPassword = randomString();
         final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(user.getPassword(), newPassword);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(user.getPassword(), changePasswordRequest.oldPassword())).thenReturn(true);
+        when(passwordEncoder.matches(user.getPassword(), changePasswordRequest.getOldPassword())).thenReturn(true);
         when(passwordEncoder.encode(newPassword)).thenReturn(newPassword);
 
         //when
@@ -123,7 +123,9 @@ class UserServiceTest {
         //given
         final User user = user();
         final TokenType tokenType = TokenType.PASSWORD_RESET;
-        final SendVerificationLinkRequest request = new SendVerificationLinkRequest(user.getUsername(), tokenType);
+        final SendVerificationLinkRequest request = new SendVerificationLinkRequest(user.getUsername(),
+                                                                                    TokenTypeEnum.valueOf(
+                                                                                            tokenType.name()));
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
         //when
@@ -139,7 +141,7 @@ class UserServiceTest {
         final User user = user();
         final VerificationToken verificationToken = verificationToken(user);
         final String token = verificationToken.getToken();
-        final String expectedPassword = "newPassword";
+        final String expectedPassword = randomString();
         final ResetPasswordRequest resetPasswordRequest = new ResetPasswordRequest(token, expectedPassword);
 
         when(verificationTokenService.consumeActiveVerificationToken(token)).thenReturn(verificationToken);
@@ -187,14 +189,13 @@ class UserServiceTest {
     void shouldThrowInvalidEmailExceptionWhenChangeEmail() {
         //given
         final User user = user();
-        final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest("wrong@test.com", "newEmail@test.com");
+        final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(randomEmail(), randomEmail());
         final String username = user.getUsername();
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         //when && then
-        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest))
-                .isInstanceOf(UserManagementException.class)
-                .hasMessage(ExceptionType.INVALID_EMAIL.getMessage());
+        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest)).isInstanceOf(
+                UserManagementException.class).hasMessage(ExceptionType.INVALID_EMAIL.getMessage());
     }
 
     @Test
@@ -202,14 +203,13 @@ class UserServiceTest {
         //given
         final User user = user();
         final String username = user.getUsername();
-        final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(user.getEmail(), "newEmail@test.com");
+        final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(user.getEmail(), randomEmail());
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then
-        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest))
-                .isInstanceOf(UserManagementException.class)
-                .hasMessage(ExceptionType.EMAIL_TAKEN.getMessage());
+        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest)).isInstanceOf(
+                UserManagementException.class).hasMessage(ExceptionType.EMAIL_TAKEN.getMessage());
     }
 
     @Test
@@ -217,15 +217,15 @@ class UserServiceTest {
         //given
         final User user = user();
         final String username = user.getUsername();
-        final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(user.getPassword(), "newSecret");
+        final String password = user.getPassword();
+        final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(password, randomString());
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(user.getPassword(), changePasswordRequest.oldPassword())).thenReturn(false);
+        when(passwordEncoder.matches(password, changePasswordRequest.getOldPassword())).thenReturn(false);
 
         //when && then
-        assertThatThrownBy(() -> userService.changePassword(username, changePasswordRequest))
-                .isInstanceOf(UserManagementException.class)
-                .hasMessage(ExceptionType.INVALID_PASSWORD.getMessage());
+        assertThatThrownBy(() -> userService.changePassword(username, changePasswordRequest)).isInstanceOf(
+                UserManagementException.class).hasMessage(ExceptionType.INVALID_PASSWORD.getMessage());
     }
 
     @Test
@@ -235,19 +235,21 @@ class UserServiceTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         //when && then
-        assertThatThrownBy(() -> userService.getUserByUsername(username))
-                .isInstanceOf(UserNotFoundException.class);
+        assertThatThrownBy(() -> userService.getUserByUsername(username)).isInstanceOf(UserNotFoundException.class);
     }
 
     @Test
     void shouldThrowUserAlreadyExistsExceptionWhenRegisterUser() {
         //given
-        final RegisterUserRequest registerUserRequest = registerUserRequest(mock(User.class));
+        final RegisterUserRequest registerUserRequest = new RegisterUserRequest(randomString(),
+                                                                                randomString(),
+                                                                                randomString(),
+                                                                                RoleEnum.ROLE_USER,
+                                                                                LocalDate.of(2000, 10, 10));
         when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then
-        assertThatThrownBy(() -> userService.registerUser(registerUserRequest))
-                .isInstanceOf(UserManagementException.class)
-                .hasMessage(ExceptionType.USER_ALREADY_EXISTS.getMessage());
+        assertThatThrownBy(() -> userService.registerUser(registerUserRequest)).isInstanceOf(
+                UserManagementException.class).hasMessage(ExceptionType.USER_ALREADY_EXISTS.getMessage());
     }
 }

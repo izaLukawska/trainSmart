@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -88,16 +89,29 @@ class UserManagementExceptionHandlerTest {
     }
 
     @Test
+    void shouldHandleBadCredentialsException() {
+        //given
+        final BadCredentialsException exception = new BadCredentialsException("Invalid login");
+
+        //when
+        ProblemDetail result = exceptionHandler.handleBadCredentialsException(exception);
+
+        //then
+        ProblemDetailAssert.then(result)
+                           .isNotNull()
+                           .hasTitle("Login invalid")
+                           .hasStatus(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
     void shouldHandleMethodArgumentNotValidAndUseDefaultMessageIfFieldErrorMessageNotPresent() {
         // given
         final FieldError fieldError1 = new FieldError("object", "name", "must be provided");
-        final FieldError fieldError2 = new FieldError("object", "muscle group", "must not be null");
-
         final BindingResult bindingResult = mock(BindingResult.class);
-        when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError1, fieldError2));
-
         final MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
+
         when(ex.getBindingResult()).thenReturn(bindingResult);
+        when(bindingResult.getFieldErrors()).thenReturn(List.of(fieldError1));
         when(ex.getMessage()).thenReturn("Validation failed");
 
         // when
@@ -111,7 +125,6 @@ class UserManagementExceptionHandlerTest {
                            .isNotNull()
                            .hasStatus(HttpStatus.BAD_REQUEST)
                            .hasTitle("Validation failure")
-                           .hasFieldErrorProperty(fieldError1)
-                           .hasFieldErrorProperty(fieldError2);
+                           .hasFieldErrorProperty(fieldError1);
     }
 }

@@ -4,17 +4,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.LoginRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.LogoutRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.response.AuthResponse;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
+import org.lukawska.trainsmart.usermanagement.model.AuthResponse;
+import org.lukawska.trainsmart.usermanagement.model.LoginRequest;
+import org.lukawska.trainsmart.usermanagement.model.LogoutRequest;
+import org.lukawska.trainsmart.usermanagement.model.RefreshTokenRequest;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.user;
@@ -41,26 +43,27 @@ class AuthenticationServiceTest {
     @InjectMocks
     private AuthenticationService authenticationService;
 
+    private static final String accessTokenValue = UUID.randomUUID().toString();
+
     @Test
     void shouldLoginUser() {
         //given
         final User user = user();
         final LoginRequest loginRequest = new LoginRequest(user.getUsername(), user.getPassword());
-        final String accessToken = "accessToken";
         final RefreshToken refreshToken = userRefreshToken(user);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mock(Authentication.class));
         when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
-        when(jwtService.generateAccessToken(user.getUsername())).thenReturn(accessToken);
+        when(jwtService.generateAccessToken(user.getUsername())).thenReturn(accessTokenValue);
         when(refreshTokenService.createRefreshToken(user)).thenReturn(refreshToken);
 
         //when
         AuthResponse result = authenticationService.login(loginRequest);
 
         //then
-        assertThat(result.accessToken()).isEqualTo(accessToken);
-        assertThat(result.refreshToken()).isEqualTo(refreshToken.getToken());
+        assertThat(result.getAccessToken()).isEqualTo(accessTokenValue);
+        assertThat(result.getRefreshToken()).isEqualTo(refreshToken.getToken());
     }
 
     @Test
@@ -69,17 +72,16 @@ class AuthenticationServiceTest {
         final User user = user();
         final RefreshToken refreshToken = userRefreshToken(user);
         final RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(refreshToken.getToken());
-        final String accessToken = "accessToken";
 
-        when(refreshTokenService.rotateRefreshToken(refreshTokenRequest)).thenReturn(refreshToken);
-        when(jwtService.generateAccessToken(user.getUsername())).thenReturn(accessToken);
+        when(refreshTokenService.rotateRefreshToken(refreshTokenRequest.getRefreshToken())).thenReturn(refreshToken);
+        when(jwtService.generateAccessToken(user.getUsername())).thenReturn(accessTokenValue);
 
         //when
         AuthResponse result = authenticationService.refreshToken(refreshTokenRequest);
 
         //then
-        assertThat(result.accessToken()).isEqualTo(accessToken);
-        assertThat(result.refreshToken()).isEqualTo(refreshToken.getToken());
+        assertThat(result.getAccessToken()).isEqualTo(accessTokenValue);
+        assertThat(result.getRefreshToken()).isEqualTo(refreshToken.getToken());
     }
 
     @Test

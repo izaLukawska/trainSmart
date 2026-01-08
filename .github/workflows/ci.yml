@@ -47,11 +47,8 @@ jobs:
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
 
-      - name: Build project
-        run: mvn -B -U -DskipTests package
-
-      - name: Run tests and check coverage
-        run: mvn verify
+      - name: Build, test and check coverage
+        run: mvn -B -U verify
 
       - name: Upload Jacoco Reports
         if: always()

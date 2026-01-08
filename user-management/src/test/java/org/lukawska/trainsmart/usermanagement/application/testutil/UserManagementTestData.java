@@ -16,19 +16,27 @@ public class UserManagementTestData {
 
     public static User user() {
         return User.builder()
-                   .username("user")
-                   .password("secret1234")
-                   .email("test@email.com")
+                   .username(randomString())
+                   .password(randomString())
+                   .email(randomEmail())
                    .role(Role.ROLE_USER)
                    .birthDate(LocalDate.of(1990, 10, 10))
                    .build();
     }
 
     public static RefreshToken userRefreshToken(User user) {
-        return new RefreshToken(UUID.randomUUID().toString(), user, Instant.MAX, false);
+        return new RefreshToken(randomString(), user, Instant.MAX, false);
     }
 
     public static VerificationToken verificationToken(User user) {
-        return new VerificationToken(UUID.randomUUID().toString(), user, Instant.MAX, TokenType.ACTIVATION);
+        return new VerificationToken(randomString(), user, Instant.MAX, TokenType.ACTIVATION);
+    }
+
+    public static String randomString() {
+        return UUID.randomUUID().toString();
+    }
+
+    public static String randomEmail() {
+        return randomString().concat("@example.com");
     }
 }

@@ -1,43 +1,39 @@
 package org.lukawska.trainsmart.usermanagement.presentation.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.LoginRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.LogoutRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
-import org.lukawska.trainsmart.usermanagement.application.dto.response.AuthResponse;
+import org.lukawska.trainsmart.usermanagement.api.AuthApi;
 import org.lukawska.trainsmart.usermanagement.application.service.AuthenticationService;
+import org.lukawska.trainsmart.usermanagement.model.AuthResponse;
+import org.lukawska.trainsmart.usermanagement.model.LoginRequest;
+import org.lukawska.trainsmart.usermanagement.model.LogoutRequest;
+import org.lukawska.trainsmart.usermanagement.model.RefreshTokenRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/auth")
 @RestController
 @Slf4j
-public class AuthenticationController {
+public class AuthenticationController implements AuthApi {
 
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/login")
-    public AuthResponse login(@RequestBody @Valid LoginRequest loginRequest) {
-        log.debug("Received login request for username {}", loginRequest.username());
-        return authenticationService.login(loginRequest);
+    @Override
+    public ResponseEntity<AuthResponse> login(LoginRequest loginRequest) {
+        log.info("Received login request for username {}", loginRequest.getUsername());
+        return ResponseEntity.ok().body(authenticationService.login(loginRequest));
     }
 
-    @PostMapping("/refresh-token")
-    public AuthResponse refreshToken(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
-        log.debug("Received refresh token request");
-        return authenticationService.refreshToken(refreshTokenRequest);
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody @Valid LogoutRequest logoutRequest) {
-        log.debug("Received logout request");
+    @Override
+    public ResponseEntity<Void> logout(LogoutRequest logoutRequest) {
+        log.info("Received logout request");
         authenticationService.logout(logoutRequest);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<AuthResponse> refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        log.info("Received refresh token request");
+        return ResponseEntity.ok().body(authenticationService.refreshToken(refreshTokenRequest));
     }
 }

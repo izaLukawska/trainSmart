@@ -3,7 +3,6 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
 import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
@@ -46,8 +45,8 @@ class RefreshTokenService {
     }
 
     @Transactional(noRollbackFor = UserManagementException.class)
-    RefreshToken rotateRefreshToken(RefreshTokenRequest refreshTokenRequest) {
-        RefreshToken refreshToken = getRefreshToken(refreshTokenRequest.refreshToken());
+    RefreshToken rotateRefreshToken(String refreshTokenValue) {
+        RefreshToken refreshToken = getRefreshToken(refreshTokenValue);
         log.info("Rotating refresh token: {}", refreshToken.getId());
 
         if (isInvalid(refreshToken)) {

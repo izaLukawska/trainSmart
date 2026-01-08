@@ -20,12 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.user;
-import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.verificationToken;
+import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -93,7 +91,7 @@ class VerificationTokenServiceTest {
     @Test
     void shouldThrowInvalidVerificationTokenException() {
         //given
-        final String token = UUID.randomUUID().toString();
+        final String token = randomString();
         when(verificationTokenRepository.findByTokenAndExpiresAtAfter(eq(token), any(Instant.class)))
                 .thenReturn(Optional.empty());
 

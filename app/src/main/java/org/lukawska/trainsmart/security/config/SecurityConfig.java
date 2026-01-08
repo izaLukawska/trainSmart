@@ -1,6 +1,7 @@
 package org.lukawska.trainsmart.security.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.security.jwt.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -30,24 +32,22 @@ public class SecurityConfig {
             "/users/password-reset",
             "/users/send-verification-link",
             "/auth/**",
-            "/actuator/**"
+            "/actuator/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml",
+            "/webjars/**"
     };
 
-    private static final String[] ADMIN_ONLY = {"/exercises", "/mail/**"};
-
-    private static final String[] AUTHENTICATED_ONLY = {
-            "/auth/logout",
-            "/users/{userId}/agreements",
-            "/users/{userId}/health-survey"
-    };
+    private static final String[] ADMIN_ONLY = {"/exercises/**", "/mail/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authorize -> authorize
                            .requestMatchers(WHITELIST).permitAll()
-                           .requestMatchers(AUTHENTICATED_ONLY).authenticated()
+                           .requestMatchers("/auth/logout").authenticated()
                            .requestMatchers(ADMIN_ONLY).hasRole("ADMIN")
-                           .requestMatchers("/users/**").hasRole("USER")
                            .anyRequest().authenticated())
                    .csrf(AbstractHttpConfigurer::disable)
                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

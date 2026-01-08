@@ -3,7 +3,6 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.usermanagement.application.dto.request.auth.RefreshTokenRequest;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
 import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
@@ -34,11 +33,16 @@ class RefreshTokenServiceTest {
     @InjectMocks
     private RefreshTokenService refreshTokenService;
 
+    private static final String username = UUID.randomUUID().toString();
+
+    private static final String refreshTokenValue = UUID.randomUUID().toString();
+
+    private static final User user = mock(User.class);
+
     @Test
     void shouldReturnRefreshToken() {
         //given
-        final String refreshTokenValue = UUID.randomUUID().toString();
-        final RefreshToken refreshToken = userRefreshToken(mock(User.class));
+        final RefreshToken refreshToken = userRefreshToken(user);
         when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(Optional.of(refreshToken));
 
         //when
@@ -53,7 +57,6 @@ class RefreshTokenServiceTest {
     @Test
     void shouldReturnCreatedRefreshToken() {
         //given
-        final User user = mock(User.class);
         final long expirationMs = 10000L;
         when(refreshTokenProperties.getExpirationMs()).thenReturn(expirationMs);
 
@@ -70,14 +73,12 @@ class RefreshTokenServiceTest {
     @Test
     void shouldRotateRefreshTokenWhenTokenValid() {
         //given
-        final String tokenValue = UUID.randomUUID().toString();
-        final RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(tokenValue);
-        final RefreshToken oldRefreshToken = userRefreshToken(mock(User.class));
-        when(refreshTokenRepository.findByToken(refreshTokenRequest.refreshToken())).thenReturn(
+        final RefreshToken oldRefreshToken = userRefreshToken(user);
+        when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(
                 Optional.of(oldRefreshToken));
 
         //when
-        RefreshToken result = refreshTokenService.rotateRefreshToken(refreshTokenRequest);
+        RefreshToken result = refreshTokenService.rotateRefreshToken(refreshTokenValue);
 
         //then
         assertThat(oldRefreshToken.isRevoked()).isTrue();
@@ -88,13 +89,11 @@ class RefreshTokenServiceTest {
     @Test
     void shouldDeleteAllUserRefreshTokensAndThrowInvalidTokenExceptionWhenRotateRefreshToken() {
         //given
-        final String tokenValue = UUID.randomUUID().toString();
-        final RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(tokenValue);
-        final RefreshToken refreshToken = new RefreshToken(tokenValue, mock(User.class), Instant.MIN, true);
-        when(refreshTokenRepository.findByToken(tokenValue)).thenReturn(Optional.of(refreshToken));
+        final RefreshToken refreshToken = new RefreshToken(refreshTokenValue, user, Instant.MIN, true);
+        when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(Optional.of(refreshToken));
 
         //when && then
-        assertThatThrownBy(() -> refreshTokenService.rotateRefreshToken(refreshTokenRequest))
+        assertThatThrownBy(() -> refreshTokenService.rotateRefreshToken(refreshTokenValue))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.INVALID_TOKEN.getMessage());
     }
@@ -102,9 +101,7 @@ class RefreshTokenServiceTest {
     @Test
     void shouldDeleteAllRefreshTokenForUserWhenTokenRevoked() {
         //given
-        final String tokenValue = UUID.randomUUID().toString();
-        final RefreshToken refreshToken = new RefreshToken(tokenValue, mock(User.class), Instant.MAX, true);
-        final String username = "username";
+        final RefreshToken refreshToken = new RefreshToken(refreshTokenValue, user, Instant.MAX, true);
         when(refreshToken.getUser().getUsername()).thenReturn(username);
 
         //when
@@ -117,7 +114,7 @@ class RefreshTokenServiceTest {
     @Test
     void shouldDeleteAllRefreshTokenForUserWhenTokenNotRevoked() {
         //given
-        final RefreshToken refreshToken = userRefreshToken(mock(User.class));
+        final RefreshToken refreshToken = userRefreshToken(user);
 
         //when
         refreshTokenService.deleteInvalidRefreshToken(refreshToken);
@@ -128,9 +125,6 @@ class RefreshTokenServiceTest {
 
     @Test
     void shouldDeleteAllRefreshTokenForUser() {
-        //given
-        final String username = "username";
-
         //when
         refreshTokenService.deleteRefreshTokenForUser(username);
 
@@ -141,7 +135,6 @@ class RefreshTokenServiceTest {
     @Test
     void shouldThrowInvalidTokenExceptionWhenGetRefreshToken() {
         //given
-        final String refreshTokenValue = UUID.randomUUID().toString();
         when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(Optional.empty());
 
         //when && then

@@ -7,6 +7,7 @@ import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFo
 import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.springframework.http.*;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +20,14 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class UserManagementExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentialsException(BadCredentialsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        problemDetail.setTitle("Login invalid");
+
+        return problemDetail;
+    }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFoundException(UserNotFoundException exception) {
