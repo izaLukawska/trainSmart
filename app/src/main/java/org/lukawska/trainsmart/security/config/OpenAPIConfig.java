@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenAPIConfig {
 
-    private static final String SCHEMA_KEY = "bearerAuth";
+    private static final String SCHEME_KEY = "bearerAuth";
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -23,11 +23,11 @@ public class OpenAPIConfig {
     }
 
     private Components buildComponents(SecurityScheme securityScheme) {
-        return new Components().addSecuritySchemes(SCHEMA_KEY, securityScheme);
+        return new Components().addSecuritySchemes(SCHEME_KEY, securityScheme);
     }
 
     private SecurityRequirement buildSecurityRequirement() {
-        return new SecurityRequirement().addList(SCHEMA_KEY);
+        return new SecurityRequirement().addList(SCHEME_KEY);
     }
 
     private SecurityScheme buildSecurityScheme() {

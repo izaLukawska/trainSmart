@@ -1,5 +1,6 @@
 package org.lukawska.trainsmart.usermanagement.presentation.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.usermanagement.api.AuthApi;
@@ -19,6 +20,7 @@ public class AuthenticationController implements AuthApi {
     private final AuthenticationService authenticationService;
 
     @Override
+    @SecurityRequirements
     public ResponseEntity<AuthResponse> login(LoginRequest loginRequest) {
         log.info("Received login request for username {}", loginRequest.getUsername());
         return ResponseEntity.ok().body(authenticationService.login(loginRequest));

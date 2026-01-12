@@ -1,5 +1,6 @@
 package org.lukawska.trainsmart.usermanagement.presentation.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.usermanagement.api.UsersApi;
@@ -18,6 +19,7 @@ public class UserController implements UsersApi {
     private final UserService userService;
 
     @Override
+    @SecurityRequirements
     public ResponseEntity<UserProfileResponse> activateAccount(String token) {
         log.info("Received activate account request");
 
@@ -52,6 +54,7 @@ public class UserController implements UsersApi {
     }
 
     @Override
+    @SecurityRequirements
     public ResponseEntity<UserProfileResponse> register(RegisterUserRequest registerUserRequest) {
         log.info("Received registration request for user {}", registerUserRequest.getUsername());
 
@@ -59,6 +62,7 @@ public class UserController implements UsersApi {
     }
 
     @Override
+    @SecurityRequirements
     public ResponseEntity<Void> resetPassword(ResetPasswordRequest resetPasswordRequest) {
         log.info("Received reset password request");
         userService.resetPassword(resetPasswordRequest);
@@ -67,6 +71,7 @@ public class UserController implements UsersApi {
     }
 
     @Override
+    @SecurityRequirements
     public ResponseEntity<Void> sendVerificationLink(SendVerificationLinkRequest sendVerificationLinkRequest) {
         log.info("Received send verification link request for type: {}",
                  sendVerificationLinkRequest.getTokenType().getValue());
