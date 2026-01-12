@@ -16,6 +16,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -25,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -92,10 +94,12 @@ class UserServiceTest {
         final String username = user.getUsername();
         final String newEmail = randomEmail();
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(user.getEmail(), newEmail);
+
+        mockAuthenticatedUser(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         //when
-        userService.changeEmail(username, changeEmailRequest);
+        userService.changeEmail(changeEmailRequest);
 
         //then
         assertThat(user.getEmail()).isEqualTo(newEmail);
@@ -108,12 +112,14 @@ class UserServiceTest {
         final String username = user.getUsername();
         final String newPassword = randomString();
         final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(user.getPassword(), newPassword);
+
+        mockAuthenticatedUser(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(user.getPassword(), changePasswordRequest.getPreviousPassword())).thenReturn(true);
         when(passwordEncoder.encode(newPassword)).thenReturn(newPassword);
 
         //when
-        userService.changePassword(username, changePasswordRequest);
+        userService.changePassword(changePasswordRequest);
 
         //then
         assertThat(user.getPassword()).isEqualTo(newPassword);
@@ -159,9 +165,10 @@ class UserServiceTest {
     void shouldDeleteAccount() {
         //given
         final String username = randomString();
+        mockAuthenticatedUser(username);
 
         //when
-        userService.deleteAccount(username);
+        userService.deleteAccount();
 
         //then
         verify(userRepository).deleteByUsername(username);
@@ -191,10 +198,11 @@ class UserServiceTest {
         final User user = user();
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(randomEmail(), randomEmail());
         final String username = user.getUsername();
+        mockAuthenticatedUser(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         //when && then
-        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest))
+        assertThatThrownBy(() -> userService.changeEmail(changeEmailRequest))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.INVALID_EMAIL.getMessage());
     }
@@ -205,11 +213,12 @@ class UserServiceTest {
         final User user = user();
         final String username = user.getUsername();
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(user.getEmail(), randomEmail());
+        mockAuthenticatedUser(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then
-        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest))
+        assertThatThrownBy(() -> userService.changeEmail(changeEmailRequest))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.EMAIL_TAKEN.getMessage());
     }
@@ -221,12 +230,12 @@ class UserServiceTest {
         final String username = user.getUsername();
         final String password = user.getPassword();
         final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(password, randomString());
-
+        mockAuthenticatedUser(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(password, changePasswordRequest.getPreviousPassword())).thenReturn(false);
 
         //when && then
-        assertThatThrownBy(() -> userService.changePassword(username, changePasswordRequest))
+        assertThatThrownBy(() -> userService.changePassword(changePasswordRequest))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.INVALID_PASSWORD.getMessage());
     }
@@ -255,5 +264,15 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.registerUser(registerUserRequest))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.USER_ALREADY_EXISTS.getMessage());
+    }
+
+    private void mockAuthenticatedUser(String username) {
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(authentication.getName()).thenReturn(username);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+
+        SecurityContextHolder.setContext(securityContext);
     }
 }

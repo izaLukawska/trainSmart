@@ -11,6 +11,7 @@ import org.lukawska.trainsmart.usermanagement.domain.repository.UserRepository;
 import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
 import org.lukawska.trainsmart.usermanagement.model.*;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +60,8 @@ public class UserService {
     }
 
     @Transactional
-    public void changeEmail(String username, ChangeEmailRequest emailUpdateRequest) {
+    public void changeEmail(ChangeEmailRequest emailUpdateRequest) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("Changing mail for user {}", username);
         User user = getUserByUsername(username);
         if (!user.getEmail().equals(emailUpdateRequest.getPreviousEmail())) {
@@ -76,7 +78,8 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(String username, ChangePasswordRequest changePasswordRequest) {
+    public void changePassword(ChangePasswordRequest changePasswordRequest) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("Changing password for user {}", username);
         User user = getUserByUsername(username);
 
@@ -106,7 +109,8 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteAccount(String username) {
+    public void deleteAccount() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         userRepository.deleteByUsername(username);
         log.info("Account deleted for user: {}", username);
     }

@@ -8,7 +8,6 @@ import org.lukawska.trainsmart.usermanagement.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -28,9 +27,8 @@ public class UserController implements UsersApi {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Override
     public ResponseEntity<Void> changeEmail(ChangeEmailRequest changeEmailRequest) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info("Change email request received for user {}", username);
-        userService.changeEmail(username, changeEmailRequest);
+        log.info("Received change email request");
+        userService.changeEmail(changeEmailRequest);
 
         return ResponseEntity.noContent().build();
     }
@@ -38,9 +36,8 @@ public class UserController implements UsersApi {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Override
     public ResponseEntity<Void> changePassword(ChangePasswordRequest changePasswordRequest) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info("Change password request received for user {}", username);
-        userService.changePassword(username, changePasswordRequest);
+        log.info("Received change password request");
+        userService.changePassword(changePasswordRequest);
 
         return ResponseEntity.noContent().build();
     }
@@ -48,9 +45,8 @@ public class UserController implements UsersApi {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Override
     public ResponseEntity<Void> deleteAccount() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info("Delete account request received for user {}", username);
-        userService.deleteAccount(username);
+        log.info("Received delete account request ");
+        userService.deleteAccount();
 
         return ResponseEntity.noContent().build();
     }
@@ -66,6 +62,7 @@ public class UserController implements UsersApi {
     public ResponseEntity<Void> resetPassword(ResetPasswordRequest resetPasswordRequest) {
         log.info("Received reset password request");
         userService.resetPassword(resetPasswordRequest);
+
         return ResponseEntity.ok().build();
     }
 

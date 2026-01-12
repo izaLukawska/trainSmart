@@ -153,8 +153,6 @@ paths:
       operationId: deleteAccount
       security:
         - bearerAuth: [ ]
-      x-roles:
-        - ROLE_USER
       responses:
         '204':
           description: Account deleted
@@ -167,8 +165,6 @@ paths:
       operationId: changeEmail
       security:
         - bearerAuth: [ ]
-      x-roles:
-        - ROLE_USER
       requestBody:
         required: true
         content:
@@ -187,8 +183,6 @@ paths:
       operationId: changePassword
       security:
         - bearerAuth: [ ]
-      x-roles:
-        - ROLE_USER
       requestBody:
         required: true
         content:
