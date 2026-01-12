@@ -194,8 +194,9 @@ class UserServiceTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         //when && then
-        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest)).isInstanceOf(
-                UserManagementException.class).hasMessage(ExceptionType.INVALID_EMAIL.getMessage());
+        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest))
+                .isInstanceOf(UserManagementException.class)
+                .hasMessage(ExceptionType.INVALID_EMAIL.getMessage());
     }
 
     @Test
@@ -208,8 +209,9 @@ class UserServiceTest {
         when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then
-        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest)).isInstanceOf(
-                UserManagementException.class).hasMessage(ExceptionType.EMAIL_TAKEN.getMessage());
+        assertThatThrownBy(() -> userService.changeEmail(username, changeEmailRequest))
+                .isInstanceOf(UserManagementException.class)
+                .hasMessage(ExceptionType.EMAIL_TAKEN.getMessage());
     }
 
     @Test
@@ -224,8 +226,9 @@ class UserServiceTest {
         when(passwordEncoder.matches(password, changePasswordRequest.getPreviousPassword())).thenReturn(false);
 
         //when && then
-        assertThatThrownBy(() -> userService.changePassword(username, changePasswordRequest)).isInstanceOf(
-                UserManagementException.class).hasMessage(ExceptionType.INVALID_PASSWORD.getMessage());
+        assertThatThrownBy(() -> userService.changePassword(username, changePasswordRequest))
+                .isInstanceOf(UserManagementException.class)
+                .hasMessage(ExceptionType.INVALID_PASSWORD.getMessage());
     }
 
     @Test
@@ -249,7 +252,8 @@ class UserServiceTest {
         when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then
-        assertThatThrownBy(() -> userService.registerUser(registerUserRequest)).isInstanceOf(
-                UserManagementException.class).hasMessage(ExceptionType.USER_ALREADY_EXISTS.getMessage());
+        assertThatThrownBy(() -> userService.registerUser(registerUserRequest))
+                .isInstanceOf(UserManagementException.class)
+                .hasMessage(ExceptionType.USER_ALREADY_EXISTS.getMessage());
     }
 }

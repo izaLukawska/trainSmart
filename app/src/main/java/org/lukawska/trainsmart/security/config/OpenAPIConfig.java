@@ -12,10 +12,6 @@ public class OpenAPIConfig {
 
     private static final String SCHEMA_KEY = "bearerAuth";
 
-    private static Components buildComponents(SecurityScheme securityScheme) {
-        return new Components().addSecuritySchemes(SCHEMA_KEY, securityScheme);
-    }
-
     @Bean
     public OpenAPI customOpenAPI() {
         SecurityScheme securityScheme = buildSecurityScheme();
@@ -24,6 +20,10 @@ public class OpenAPIConfig {
 
         return new OpenAPI().components(components)
                             .addSecurityItem(securityRequirement);
+    }
+
+    private Components buildComponents(SecurityScheme securityScheme) {
+        return new Components().addSecuritySchemes(SCHEMA_KEY, securityScheme);
     }
 
     private SecurityRequirement buildSecurityRequirement() {

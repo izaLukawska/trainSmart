@@ -14,10 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.randomString;
 import static org.lukawska.trainsmart.usermanagement.application.testutil.UserManagementTestData.userRefreshToken;
 import static org.mockito.Mockito.*;
 
@@ -33,20 +33,20 @@ class RefreshTokenServiceTest {
     @InjectMocks
     private RefreshTokenService refreshTokenService;
 
-    private static final String username = UUID.randomUUID().toString();
+    private static final String USERNAME = randomString();
 
-    private static final String refreshTokenValue = UUID.randomUUID().toString();
+    private static final String REFRESH_TOKEN_VALUE = randomString();
 
-    private static final User user = mock(User.class);
+    private static final User USER = mock(User.class);
 
     @Test
     void shouldReturnRefreshToken() {
         //given
-        final RefreshToken refreshToken = userRefreshToken(user);
-        when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(Optional.of(refreshToken));
+        final RefreshToken refreshToken = userRefreshToken(USER);
+        when(refreshTokenRepository.findByToken(REFRESH_TOKEN_VALUE)).thenReturn(Optional.of(refreshToken));
 
         //when
-        RefreshToken result = refreshTokenService.getRefreshToken(refreshTokenValue);
+        RefreshToken result = refreshTokenService.getRefreshToken(REFRESH_TOKEN_VALUE);
 
         //then
         assertThat(result.getToken()).isEqualTo(refreshToken.getToken());
@@ -61,7 +61,7 @@ class RefreshTokenServiceTest {
         when(refreshTokenProperties.getExpirationMs()).thenReturn(expirationMs);
 
         //when
-        RefreshToken result = refreshTokenService.createRefreshToken(user);
+        RefreshToken result = refreshTokenService.createRefreshToken(USER);
 
         //then
         assertThat(result.getToken()).isNotNull();
@@ -73,12 +73,12 @@ class RefreshTokenServiceTest {
     @Test
     void shouldRotateRefreshTokenWhenTokenValid() {
         //given
-        final RefreshToken oldRefreshToken = userRefreshToken(user);
-        when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(
+        final RefreshToken oldRefreshToken = userRefreshToken(USER);
+        when(refreshTokenRepository.findByToken(REFRESH_TOKEN_VALUE)).thenReturn(
                 Optional.of(oldRefreshToken));
 
         //when
-        RefreshToken result = refreshTokenService.rotateRefreshToken(refreshTokenValue);
+        RefreshToken result = refreshTokenService.rotateRefreshToken(REFRESH_TOKEN_VALUE);
 
         //then
         assertThat(oldRefreshToken.isRevoked()).isTrue();
@@ -89,11 +89,11 @@ class RefreshTokenServiceTest {
     @Test
     void shouldDeleteAllUserRefreshTokensAndThrowInvalidTokenExceptionWhenRotateRefreshToken() {
         //given
-        final RefreshToken refreshToken = new RefreshToken(refreshTokenValue, user, Instant.MIN, true);
-        when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(Optional.of(refreshToken));
+        final RefreshToken refreshToken = new RefreshToken(REFRESH_TOKEN_VALUE, USER, Instant.MIN, true);
+        when(refreshTokenRepository.findByToken(REFRESH_TOKEN_VALUE)).thenReturn(Optional.of(refreshToken));
 
         //when && then
-        assertThatThrownBy(() -> refreshTokenService.rotateRefreshToken(refreshTokenValue))
+        assertThatThrownBy(() -> refreshTokenService.rotateRefreshToken(REFRESH_TOKEN_VALUE))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.INVALID_TOKEN.getMessage());
     }
@@ -101,20 +101,20 @@ class RefreshTokenServiceTest {
     @Test
     void shouldDeleteAllRefreshTokenForUserWhenTokenRevoked() {
         //given
-        final RefreshToken refreshToken = new RefreshToken(refreshTokenValue, user, Instant.MAX, true);
-        when(refreshToken.getUser().getUsername()).thenReturn(username);
+        final RefreshToken refreshToken = new RefreshToken(REFRESH_TOKEN_VALUE, USER, Instant.MAX, true);
+        when(refreshToken.getUser().getUsername()).thenReturn(USERNAME);
 
         //when
         refreshTokenService.deleteInvalidRefreshToken(refreshToken);
 
         //then
-        verify(refreshTokenRepository).deleteAllByUsername(username);
+        verify(refreshTokenRepository).deleteAllByUsername(USERNAME);
     }
 
     @Test
     void shouldDeleteAllRefreshTokenForUserWhenTokenNotRevoked() {
         //given
-        final RefreshToken refreshToken = userRefreshToken(user);
+        final RefreshToken refreshToken = userRefreshToken(USER);
 
         //when
         refreshTokenService.deleteInvalidRefreshToken(refreshToken);
@@ -126,19 +126,19 @@ class RefreshTokenServiceTest {
     @Test
     void shouldDeleteAllRefreshTokenForUser() {
         //when
-        refreshTokenService.deleteRefreshTokenForUser(username);
+        refreshTokenService.deleteRefreshTokenForUser(USERNAME);
 
         //then
-        verify(refreshTokenRepository).deleteAllByUsername(username);
+        verify(refreshTokenRepository).deleteAllByUsername(USERNAME);
     }
 
     @Test
     void shouldThrowInvalidTokenExceptionWhenGetRefreshToken() {
         //given
-        when(refreshTokenRepository.findByToken(refreshTokenValue)).thenReturn(Optional.empty());
+        when(refreshTokenRepository.findByToken(REFRESH_TOKEN_VALUE)).thenReturn(Optional.empty());
 
         //when && then
-        assertThatThrownBy(() -> refreshTokenService.getRefreshToken(refreshTokenValue))
+        assertThatThrownBy(() -> refreshTokenService.getRefreshToken(REFRESH_TOKEN_VALUE))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.INVALID_TOKEN.getMessage());
     }
