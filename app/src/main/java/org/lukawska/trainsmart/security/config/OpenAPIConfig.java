@@ -10,20 +10,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenAPIConfig {
 
+    private static final String SCHEMA_KEY = "bearerAuth";
+
+    private static Components buildComponents(SecurityScheme securityScheme) {
+        return new Components().addSecuritySchemes(SCHEMA_KEY, securityScheme);
+    }
+
     @Bean
     public OpenAPI customOpenAPI() {
-        String schemaKey = "bearerAuth";
         SecurityScheme securityScheme = buildSecurityScheme();
+        Components components = buildComponents(securityScheme);
+        SecurityRequirement securityRequirement = buildSecurityRequirement();
 
-        return new OpenAPI().components(new Components().addSecuritySchemes(schemaKey, securityScheme))
-                            .addSecurityItem(new SecurityRequirement().addList(schemaKey));
+        return new OpenAPI().components(components)
+                            .addSecurityItem(securityRequirement);
+    }
+
+    private SecurityRequirement buildSecurityRequirement() {
+        return new SecurityRequirement().addList(SCHEMA_KEY);
     }
 
     private SecurityScheme buildSecurityScheme() {
         return new SecurityScheme().type(SecurityScheme.Type.HTTP)
                                    .scheme("bearer")
-                                   .bearerFormat("JWT")
-                                   .name("Authorization")
-                                   .in(SecurityScheme.In.HEADER);
+                                   .bearerFormat("JWT");
     }
 }

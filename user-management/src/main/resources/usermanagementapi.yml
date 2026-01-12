@@ -235,12 +235,12 @@ components:
     ChangeEmailRequest:
       type: object
       required:
-        - oldEmail
-        - newEmail
+        - previousEmail
+        - currentEmail
       properties:
-        oldEmail:
+        previousEmail:
           $ref: '#/components/schemas/Email'
-        newEmail:
+        currentEmail:
           type: string
           format: email
           minLength: 1
@@ -248,12 +248,12 @@ components:
     ChangePasswordRequest:
       type: object
       required:
-        - oldPassword
-        - newPassword
+        - previousPassword
+        - currentPassword
       properties:
-        oldPassword:
+        previousPassword:
           $ref: '#/components/schemas/Password'
-        newPassword:
+        currentPassword:
           type: string
           minLength: 1
           example: "newSecret1234"
@@ -300,11 +300,11 @@ components:
       type: object
       required:
         - token
-        - newPassword
+        - currentPassword
       properties:
         token:
           $ref: '#/components/schemas/RefreshToken'
-        newPassword:
+        currentPassword:
           $ref: '#/components/schemas/Password'
     UserProfileResponse:
       type: object
@@ -353,6 +353,9 @@ components:
           $ref: '#/components/schemas/RefreshToken'
     AuthResponse:
       type: object
+      required:
+        - accessToken
+        - refreshToken
       properties:
         accessToken:
           type: string

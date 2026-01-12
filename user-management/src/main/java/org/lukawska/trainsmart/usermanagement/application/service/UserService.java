@@ -62,12 +62,12 @@ public class UserService {
     public void changeEmail(String username, ChangeEmailRequest emailUpdateRequest) {
         log.info("Changing mail for user {}", username);
         User user = getUserByUsername(username);
-        if (!user.getEmail().equals(emailUpdateRequest.getOldEmail())) {
+        if (!user.getEmail().equals(emailUpdateRequest.getPreviousEmail())) {
             throw new UserManagementException(ExceptionType.INVALID_EMAIL);
         }
 
         try {
-            user.changeEmail(emailUpdateRequest.getNewEmail());
+            user.changeEmail(emailUpdateRequest.getCurrentEmail());
             userRepository.save(user);
             log.info("Mail updated");
         } catch (DataIntegrityViolationException e) {
@@ -80,11 +80,11 @@ public class UserService {
         log.info("Changing password for user {}", username);
         User user = getUserByUsername(username);
 
-        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(changePasswordRequest.getPreviousPassword(), user.getPassword())) {
             throw new UserManagementException(ExceptionType.INVALID_PASSWORD);
         }
 
-        updatePassword(user, changePasswordRequest.getNewPassword());
+        updatePassword(user, changePasswordRequest.getCurrentPassword());
     }
 
     @Transactional
@@ -102,7 +102,7 @@ public class UserService {
 
         User user = verificationToken.getUser();
         log.info("Resetting password for user {}", user.getId());
-        updatePassword(user, resetPasswordRequest.getNewPassword());
+        updatePassword(user, resetPasswordRequest.getCurrentPassword());
     }
 
     @Transactional

@@ -40,7 +40,7 @@ public class AuthenticationService {
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
         log.info("Login success. Created refresh token {}.", refreshToken.getId());
 
-        return new AuthResponse().accessToken(accessToken).refreshToken(refreshToken.getToken());
+        return new AuthResponse(accessToken, refreshToken.getToken());
     }
 
     @Transactional(noRollbackFor = UserManagementException.class)
@@ -48,7 +48,7 @@ public class AuthenticationService {
         RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenRequest.getRefreshToken());
         String accessToken = jwtService.generateAccessToken(newRefreshToken.getUser().getUsername());
 
-        return new AuthResponse().accessToken(accessToken).refreshToken(newRefreshToken.getToken());
+        return new AuthResponse(accessToken, newRefreshToken.getToken());
     }
 
     @Transactional

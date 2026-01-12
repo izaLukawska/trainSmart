@@ -50,7 +50,8 @@ class UserServiceTest {
     void shouldRegisterUserSuccessfully() {
         //given
         final User user = user();
-        final RegisterUserRequest registerUserRequest = new RegisterUserRequest(user.getUsername(), user.getPassword(),
+        final RegisterUserRequest registerUserRequest = new RegisterUserRequest(user.getUsername(),
+                                                                                user.getPassword(),
                                                                                 user.getEmail(),
                                                                                 RoleEnum.valueOf(user.getRole().name()),
                                                                                 user.getBirthDate());
@@ -108,7 +109,7 @@ class UserServiceTest {
         final String newPassword = randomString();
         final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(user.getPassword(), newPassword);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(user.getPassword(), changePasswordRequest.getOldPassword())).thenReturn(true);
+        when(passwordEncoder.matches(user.getPassword(), changePasswordRequest.getPreviousPassword())).thenReturn(true);
         when(passwordEncoder.encode(newPassword)).thenReturn(newPassword);
 
         //when
@@ -123,9 +124,8 @@ class UserServiceTest {
         //given
         final User user = user();
         final TokenType tokenType = TokenType.PASSWORD_RESET;
-        final SendVerificationLinkRequest request = new SendVerificationLinkRequest(user.getUsername(),
-                                                                                    TokenTypeEnum.valueOf(
-                                                                                            tokenType.name()));
+        final SendVerificationLinkRequest request = new SendVerificationLinkRequest(
+                user.getUsername(), TokenTypeEnum.valueOf(tokenType.name()));
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
         //when
@@ -158,7 +158,7 @@ class UserServiceTest {
     @Test
     void shouldDeleteAccount() {
         //given
-        final String username = "username";
+        final String username = randomString();
 
         //when
         userService.deleteAccount(username);
@@ -221,7 +221,7 @@ class UserServiceTest {
         final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(password, randomString());
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(password, changePasswordRequest.getOldPassword())).thenReturn(false);
+        when(passwordEncoder.matches(password, changePasswordRequest.getPreviousPassword())).thenReturn(false);
 
         //when && then
         assertThatThrownBy(() -> userService.changePassword(username, changePasswordRequest)).isInstanceOf(
@@ -231,7 +231,7 @@ class UserServiceTest {
     @Test
     void shouldThrowUserNotFoundExceptionWhenGetUserByUsername() {
         //given
-        final String username = "username";
+        final String username = randomString();
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         //when && then
