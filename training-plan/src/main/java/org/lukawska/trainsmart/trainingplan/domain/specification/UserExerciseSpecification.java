@@ -2,7 +2,6 @@ package org.lukawska.trainsmart.trainingplan.domain.specification;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
@@ -31,11 +30,5 @@ public final class UserExerciseSpecification {
     public static Specification<UserExercise> isEnabled(Boolean enabled) {
         return ((root, query, criteriaBuilder) -> enabled == null ?
                 criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("enabled"), enabled));
-    }
-
-    public static Specification<UserExercise> nameContains(String keyword) {
-        return (root, query, criteriaBuilder) -> StringUtils.isBlank(keyword) ?
-                criteriaBuilder.conjunction() : criteriaBuilder.like(
-                criteriaBuilder.lower(root.get("exercise").get("name")), "%" + keyword.toLowerCase() + "%");
     }
 }

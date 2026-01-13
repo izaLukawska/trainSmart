@@ -7,13 +7,14 @@ import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
-import org.lukawska.trainsmart.trainingplan.application.dto.request.UserExerciseFilterRequest;
-import org.lukawska.trainsmart.trainingplan.application.dto.response.UserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseException;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.UserExerciseRepository;
+import org.lukawska.trainsmart.trainingplan.model.PagingRequest;
+import org.lukawska.trainsmart.trainingplan.model.SliceUserExerciseResponse;
+import org.lukawska.trainsmart.trainingplan.model.UserExerciseFilterRequest;
+import org.lukawska.trainsmart.trainingplan.model.UserExerciseResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,7 +22,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
@@ -48,20 +48,20 @@ class UserExerciseServiceTest {
     @InjectMocks
     private UserExerciseService userExerciseService;
 
-    private static final Long userId = 1L;
+    private static final Long USER_ID = 1L;
 
     @Test
     void shouldReturnNewUserExercisesNamesWhenSyncUserExercise() {
         // given
         final List<UserExercise> savedExercises = List.of(userExerciseWithMockedData());
 
-        when(userService.getUserById(userId)).thenReturn(mock(User.class));
-        when(userExerciseRepository.findAllByUserId(userId)).thenReturn(List.of());
+        when(userService.getUserById(USER_ID)).thenReturn(mock(User.class));
+        when(userExerciseRepository.findAllByUserId(USER_ID)).thenReturn(List.of());
         when(exerciseService.getAllExercises()).thenReturn(List.of(mock(Exercise.class)));
         when(userExerciseRepository.saveAll(anyList())).thenReturn(savedExercises);
 
         // when
-        List<String> result = userExerciseService.syncUserExercise(userId);
+        List<String> result = userExerciseService.syncUserExercise(USER_ID);
 
         // then
         assertThat(result.size()).isEqualTo(savedExercises.size());
@@ -70,11 +70,11 @@ class UserExerciseServiceTest {
     @Test
     void shouldReturnEmptyListWhenSyncUserExerciseAndExerciseListEmpty() {
         //given
-        when(userExerciseRepository.findAllByUserId(userId)).thenReturn(List.of());
+        when(userExerciseRepository.findAllByUserId(USER_ID)).thenReturn(List.of());
         when(exerciseService.getAllExercises()).thenReturn(List.of());
 
         //when
-        List<String> result = userExerciseService.syncUserExercise(userId);
+        List<String> result = userExerciseService.syncUserExercise(USER_ID);
 
         //then
         assertThat(result).isEmpty();
@@ -111,13 +111,13 @@ class UserExerciseServiceTest {
                 .thenReturn(mockedPage);
 
         //when
-        Slice<UserExerciseResponse> result = userExerciseService.getAllUserExercisesByUserId(
-                userId, pagingRequest, filterRequest);
+        SliceUserExerciseResponse result = userExerciseService.getAllUserExercisesByUserId(
+                USER_ID, pagingRequest, filterRequest);
 
         //then
         List<UserExerciseResponse> content = result.getContent();
-        assertThat(content.getFirst().id()).isEqualTo(userExercise1.getId());
-        assertThat(content.getLast().id()).isEqualTo(userExercise2.getId());
+        assertThat(content.getFirst().getId()).isEqualTo(userExercise1.getId());
+        assertThat(content.getLast().getId()).isEqualTo(userExercise2.getId());
     }
 
     @Test
@@ -127,14 +127,14 @@ class UserExerciseServiceTest {
         final UserExercise userExercise = userExerciseWithMockedData();
 
         when(userExercise.getExercise().getName()).thenReturn(exerciseName);
-        when(userExerciseRepository.findByUserIdAndExerciseName(userId, exerciseName))
+        when(userExerciseRepository.findByUserIdAndExerciseName(USER_ID, exerciseName))
                 .thenReturn(Optional.of(userExercise));
 
         //when
-        UserExerciseResponse result = userExerciseService.getUserExerciseByUserIdAndExerciseName(userId, exerciseName);
+        UserExerciseResponse result = userExerciseService.getUserExerciseByUserIdAndExerciseName(USER_ID, exerciseName);
 
         //then
-        assertThat(result.exerciseName()).isEqualTo(exerciseName);
+        assertThat(result.getExerciseName()).isEqualTo(exerciseName);
     }
 
     @Test
@@ -143,10 +143,10 @@ class UserExerciseServiceTest {
         final List<String> disabledNames = List.of();
 
         //when
-        userExerciseService.updateUserExerciseEnabledStatus(userId, disabledNames);
+        userExerciseService.updateUserExerciseEnabledStatus(USER_ID, disabledNames);
 
         //then
-        verify(userExerciseRepository).enableAllByUserId(eq(userId), any());
+        verify(userExerciseRepository).enableAllByUserId(eq(USER_ID), any());
     }
 
     @Test
@@ -159,13 +159,13 @@ class UserExerciseServiceTest {
         when(userExercise2.getExercise()).thenReturn(mock(Exercise.class));
         when(userExercise1.getExercise().getMuscleGroup()).thenReturn(MuscleGroup.ABS);
         when(userExercise2.getExercise().getMuscleGroup()).thenReturn(MuscleGroup.QUADS);
-        when(userExerciseRepository.findAllByUserIdAndEnabledIsTrue(userId))
+        when(userExerciseRepository.findAllByUserIdAndEnabledIsTrue(USER_ID))
                 .thenReturn(List.of(userExercise1, userExercise2));
 
         final Map<MuscleGroup, List<UserExercise>> expectedMap = Map.of(MuscleGroup.ABS, List.of(userExercise1),
                                                                         MuscleGroup.QUADS, List.of(userExercise2));
         //when
-        Map<MuscleGroup, List<UserExercise>> result = userExerciseService.getEnabledUserExercisesByMuscleGroup(userId);
+        Map<MuscleGroup, List<UserExercise>> result = userExerciseService.getEnabledUserExercisesByMuscleGroup(USER_ID);
 
         //then
         assertThat(result).isEqualTo(expectedMap);
@@ -174,10 +174,10 @@ class UserExerciseServiceTest {
     @Test
     void shouldReturnAllExerciseNamesByUserId() {
         //given
-        when(userExerciseRepository.findAllExerciseNamesByUserId(userId)).thenReturn(List.of("pull up", "push up"));
+        when(userExerciseRepository.findAllExerciseNamesByUserId(USER_ID)).thenReturn(List.of("pull up", "push up"));
 
         //when
-        List<String> result = userExerciseService.getAllExerciseNames(userId);
+        List<String> result = userExerciseService.getAllExerciseNames(USER_ID);
 
         //then
         assertThat(result).containsExactlyInAnyOrder("pull up", "push up");
@@ -187,10 +187,10 @@ class UserExerciseServiceTest {
     void shouldThrowUserExerciseNotFoundExceptionWhenGetUserExerciseByUserIdAndExerciseName() {
         //given
         final String exerciseName = "back squat";
-        when(userExerciseRepository.findByUserIdAndExerciseName(userId, exerciseName)).thenReturn(Optional.empty());
+        when(userExerciseRepository.findByUserIdAndExerciseName(USER_ID, exerciseName)).thenReturn(Optional.empty());
 
         //when && then
-        assertThatThrownBy(() -> userExerciseService.getUserExerciseByUserIdAndExerciseName(userId, exerciseName))
+        assertThatThrownBy(() -> userExerciseService.getUserExerciseByUserIdAndExerciseName(USER_ID, exerciseName))
                 .isInstanceOf(UserExerciseException.class)
                 .hasMessage(ExceptionType.USER_EXERCISE_NOT_FOUND.getMessage());
     }
@@ -202,12 +202,12 @@ class UserExerciseServiceTest {
         final Instant lastModifiedDate = Instant.now();
         final List<UserExercise> userExercises = List.of(userExercise);
         when(userExercise.getModifiedAt()).thenReturn(lastModifiedDate);
-        when(userExerciseRepository.findAllByUserId(userId)).thenReturn(userExercises);
+        when(userExerciseRepository.findAllByUserId(USER_ID)).thenReturn(userExercises);
         when(exerciseService.getExercisesByCreatedAtSince(lastModifiedDate)).thenReturn(List.of(mock(Exercise.class)));
         when(userExerciseRepository.saveAll(anyList())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then
-        assertThatThrownBy(() -> userExerciseService.syncUserExercise(userId))
+        assertThatThrownBy(() -> userExerciseService.syncUserExercise(USER_ID))
                 .isInstanceOf(UserExerciseException.class)
                 .hasMessage(ExceptionType.USER_EXERCISE_ALREADY_EXISTS.getMessage());
     }

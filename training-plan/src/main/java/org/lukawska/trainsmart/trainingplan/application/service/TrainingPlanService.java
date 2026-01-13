@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
-import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
@@ -19,6 +18,7 @@ import org.lukawska.trainsmart.trainingplan.application.preparation.resolvers.Tr
 import org.lukawska.trainsmart.trainingplan.application.specification.TrainingPlanSpecificationBuilder;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
+import org.lukawska.trainsmart.trainingplan.model.PagingRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

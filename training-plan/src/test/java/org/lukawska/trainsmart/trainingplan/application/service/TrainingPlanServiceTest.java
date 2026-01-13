@@ -7,7 +7,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
-import org.lukawska.trainsmart.trainingplan.application.dto.request.PagingRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
 import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
@@ -20,6 +19,7 @@ import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
+import org.lukawska.trainsmart.trainingplan.model.PagingRequest;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -65,7 +65,7 @@ class TrainingPlanServiceTest {
                          new TrainingPlanFilterRequest());
     }
 
-    private static final Long userId = 2L;
+    private static final Long USER_ID = 2L;
 
     @Test
     void shouldDeleteTrainingPlan() {
@@ -73,10 +73,10 @@ class TrainingPlanServiceTest {
         final Long planId = 42L;
 
         // when
-        trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, userId);
+        trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, USER_ID);
 
         // then
-        verify(trainingPlanRepository).deleteByIdAndUserId(planId, userId);
+        verify(trainingPlanRepository).deleteByIdAndUserId(planId, USER_ID);
     }
 
     @Test
@@ -87,12 +87,12 @@ class TrainingPlanServiceTest {
         final TrainingPlan generatedPlan = trainingPlan(user);
         final TrainingPlanGenerationData generationData = mock(TrainingPlanGenerationData.class);
 
-        when(userService.getUserById(userId)).thenReturn(user);
+        when(userService.getUserById(USER_ID)).thenReturn(user);
         when(trainingPlanDataResolver.getResolvedData(user, request, Optional.empty())).thenReturn(generationData);
         when(trainingPlanGenerator.generateTrainingPlan(generationData)).thenReturn(generatedPlan);
 
         //when
-        TrainingPlanResponse actualResult = trainingPlanService.createTrainingPlan(userId, request);
+        TrainingPlanResponse actualResult = trainingPlanService.createTrainingPlan(USER_ID, request);
 
         //then
         assertThat(actualResult.planDuration()).isEqualTo(generatedPlan.getPlanDuration());
@@ -116,7 +116,7 @@ class TrainingPlanServiceTest {
 
         //when
         Slice<TrainingPlanSummaryResponse> result = trainingPlanService.getAllTrainingPlansSummaryByUserId(
-                userId, pagingRequest, filterRequest);
+                USER_ID, pagingRequest, filterRequest);
 
         //then
         List<TrainingPlanSummaryResponse> content = result.getContent();
@@ -131,7 +131,7 @@ class TrainingPlanServiceTest {
         when(trainingPlanRepository.save(any())).thenThrow(new DataIntegrityViolationException("Exception"));
 
         //when && then
-        assertThatThrownBy(() -> trainingPlanService.createTrainingPlan(userId, request))
+        assertThatThrownBy(() -> trainingPlanService.createTrainingPlan(USER_ID, request))
                 .isInstanceOf(TrainingPlanException.class)
                 .hasMessage(ExceptionType.INVALID_TRAINING_PLAN_DATA.getMessage());
     }
@@ -140,10 +140,10 @@ class TrainingPlanServiceTest {
     void shouldThrowTrainingPlanNotFoundWhenGetTrainingPlanByIdAndUserId() {
         // given
         final Long planId = 99L;
-        when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.empty());
+        when(trainingPlanRepository.findByIdAndUserId(planId, USER_ID)).thenReturn(Optional.empty());
 
         // when / then
-        assertThatThrownBy(() -> trainingPlanService.getTrainingPlanByIdAndUserId(planId, userId))
+        assertThatThrownBy(() -> trainingPlanService.getTrainingPlanByIdAndUserId(planId, USER_ID))
                 .isInstanceOf(TrainingPlanException.class)
                 .hasMessage(ExceptionType.TRAINING_PLAN_NOT_FOUND.getMessage());
     }
@@ -154,10 +154,10 @@ class TrainingPlanServiceTest {
         final Long planId = 7L;
         final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
 
-        when(trainingPlanRepository.findByIdAndUserId(planId, userId)).thenReturn(Optional.of(trainingPlan));
+        when(trainingPlanRepository.findByIdAndUserId(planId, USER_ID)).thenReturn(Optional.of(trainingPlan));
 
         // when
-        TrainingPlanResponse actualResult = trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId);
+        TrainingPlanResponse actualResult = trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, USER_ID);
 
         // then
         assertThat(actualResult.planDuration()).isEqualTo(trainingPlan.getPlanDuration());
