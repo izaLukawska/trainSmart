@@ -59,7 +59,7 @@ class MailControllerIT {
     @Test
     void shouldReturnAllMailsByRecipient() throws Exception {
         // given
-        final String recipient = "recipient@test.com";
+        final String recipient = randomEmail();
         when(mailService.getAllMailsByRecipient(recipient))
                 .thenReturn(List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
 

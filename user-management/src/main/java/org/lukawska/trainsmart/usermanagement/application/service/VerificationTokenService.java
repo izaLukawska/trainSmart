@@ -2,7 +2,7 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
@@ -50,9 +50,9 @@ class VerificationTokenService {
         log.info("Created verification token {}", verificationToken.getId());
 
         MailContentProvider provider = mailContentProviderResolver.getProvider(tokenType);
-        MailRequest mailRequest = provider.createMailRequest(user.getEmail(), mailingProperties.getBaseUrl(), token);
+        MailDetails mailDetails = provider.createMailRequest(user.getEmail(), mailingProperties.getBaseUrl(), token);
 
-        mailService.sendMail(mailRequest);
+        mailService.sendMail(mailDetails);
     }
 
     @Transactional

@@ -7,17 +7,18 @@ import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
 @UtilityClass
 public class HealthSurveyTestData {
 
-    public static HealthSurveyCreateRequest healthSurveyRequest() {
+    public HealthSurveyCreateRequest healthSurveyRequest() {
         return new HealthSurveyCreateRequest(Gender.MALE, 180, 80, defaultInjuries());
     }
 
-    public static HealthSurvey healthSurveyEntity() {
+    public HealthSurvey healthSurveyEntity() {
         return HealthSurvey.builder()
                            .user(mock(User.class))
                            .gender(Gender.MALE)
@@ -28,6 +29,10 @@ public class HealthSurveyTestData {
     }
 
     public Set<String> defaultInjuries() {
-        return Set.of("sprained ankle", "wrist pain", "dislocated arm");
+        return Set.of(randomInjury(), randomInjury(), randomInjury());
+    }
+
+    public String randomInjury() {
+        return UUID.randomUUID().toString();
     }
 }

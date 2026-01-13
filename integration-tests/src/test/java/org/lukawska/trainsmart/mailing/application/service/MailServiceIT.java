@@ -5,7 +5,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,14 +48,14 @@ class MailServiceIT {
     @Test
     void shouldSendAndSaveMailSuccess() throws MessagingException {
         //given
-        final MailRequest mailRequest = mailRequestWithAttachments();
-        doNothing().when(mailSender).sendEmail(mailRequest);
+        final MailDetails mailDetails = mailDetailsWithAttachments();
+        doNothing().when(mailSender).sendEmail(mailDetails);
 
         //when
-        MailResponse mailResponse = mailService.sendMail(mailRequest);
+        MailResponse mailResponse = mailService.sendMail(mailDetails);
 
         //then
-        verify(mailSender, times(1)).sendEmail(mailRequest);
+        verify(mailSender, times(1)).sendEmail(mailDetails);
         MailEntity savedMail = mailRepository.findById(mailResponse.id())
                                              .orElseThrow(() -> new AssertionError("Mail not saved"));
 
@@ -84,8 +85,8 @@ class MailServiceIT {
     @Test
     void shouldReturnAllMailsByRecipient() {
         //given
-        final String recipient = "test@test.com";
-        mailRepository.saveAll(List.of(mailWithRecipient(recipient), mailWithRecipient("test1@test.com")));
+        final String recipient = randomEmail();
+        mailRepository.saveAll(List.of(mailWithRecipient(recipient), mailWithRecipient(randomEmail())));
 
         //when
         List<MailResponse> mailResponses = mailService.getAllMailsByRecipient(recipient);
@@ -100,8 +101,8 @@ class MailServiceIT {
     @Test
     void shouldReturnAllMailsBySubjectContaining() {
         //given
-        final String keyword = "test";
-        mailRepository.saveAll(List.of(mailWithSubject("test subject"), mailWithSubject("different subject")));
+        final String keyword = UUID.randomUUID().toString();
+        mailRepository.saveAll(List.of(mailWithSubject(keyword + "subject"), mailWithSubject("different subject")));
 
         //when
         List<MailResponse> mailResponses = mailService.getAllMailsBySubjectContaining(keyword);
@@ -115,11 +116,11 @@ class MailServiceIT {
     @Test
     void shouldThrowExceptionWhenSendMailError() throws MessagingException {
         //given
-        final MailRequest mailRequest = mailRequestWithAttachments();
-        doThrow(new MessagingException("send error")).when(mailSender).sendEmail(mailRequest);
+        final MailDetails mailDetails = mailDetailsWithAttachments();
+        doThrow(new MessagingException("send error")).when(mailSender).sendEmail(mailDetails);
 
         //when && then
-        assertThatThrownBy(() -> mailService.sendMail(mailRequest))
+        assertThatThrownBy(() -> mailService.sendMail(mailDetails))
                 .isInstanceOf(MailingException.class)
                 .hasMessage(ExceptionType.MAIL_SEND_ERROR.getMessage());
 
@@ -129,10 +130,10 @@ class MailServiceIT {
     @Test
     void shouldThrowInvalidAttachmentExtensionWhenSendMail() {
         //given
-        final MailRequest mailRequest = mailRequestWithInvalidAttachment();
+        final MailDetails mailDetails = mailDetailsWithInvalidAttachment();
 
         //when && then
-        assertThatThrownBy(() -> mailService.sendMail(mailRequest))
+        assertThatThrownBy(() -> mailService.sendMail(mailDetails))
                 .isInstanceOf(MailingException.class)
                 .hasMessage(ExceptionType.INVALID_ATTACHMENT_EXTENSION.getMessage());
 

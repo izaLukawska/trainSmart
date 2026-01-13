@@ -33,4 +33,13 @@ public class Exercise extends AuditableEntity {
         this.muscleGroup = muscleGroup;
         this.exerciseType = exerciseType;
     }
+
+    @PrePersist
+    @PreUpdate
+    void normalizeName() {
+        this.name = name.replaceAll("[^A-Za-z]+", " ")
+                        .replaceAll("\\s+", " ")
+                        .trim()
+                        .toLowerCase();
+    }
 }

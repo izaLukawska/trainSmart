@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.lukawska.trainsmart.exercisecatalog.testutil.ExerciseTestData.*;
 
 @SpringBootTest
 @Transactional
@@ -37,7 +38,7 @@ class ExerciseServiceIT {
     @Test
     void shouldCreateExerciseSuccess() {
         //given
-        final ExerciseRequest request = new ExerciseRequest("front squat", MuscleGroup.QUADS, ExerciseType.BARBELL);
+        final ExerciseRequest request = randomQuadsDumbbellExerciseRequest();
 
         //when
         ExerciseResponse result = exerciseService.createExercise(request);
@@ -56,7 +57,7 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExerciseByName() {
         //given
-        final Exercise exercise = new Exercise("walking lunges", MuscleGroup.QUADS, ExerciseType.DUMBBELL);
+        final Exercise exercise = randomQuadsDumbbellExercise();
         exerciseRepository.save(exercise);
 
         //when
@@ -70,10 +71,10 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesByMuscleGroup() {
         //given
-        final MuscleGroup muscleGroup = MuscleGroup.QUADS;
-        final Exercise exercise1 = new Exercise("walking lunges", muscleGroup, ExerciseType.DUMBBELL);
-        final Exercise exercise2 = new Exercise("lunges", muscleGroup, ExerciseType.DUMBBELL);
-        final Exercise exercise3 = new Exercise("DB strict press", MuscleGroup.ABS, ExerciseType.DUMBBELL);
+        final Exercise exercise1 = randomQuadsDumbbellExercise();
+        final Exercise exercise2 = randomQuadsDumbbellExercise();
+        final Exercise exercise3 = new Exercise(randomExerciseName(), MuscleGroup.ABS, ExerciseType.DUMBBELL);
+        final MuscleGroup muscleGroup = exercise1.getMuscleGroup();
         exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
@@ -89,9 +90,9 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnAllExercises() {
         //given
-        final Exercise exercise1 = new Exercise("walking lunges", MuscleGroup.QUADS, ExerciseType.DUMBBELL);
-        final Exercise exercise2 = new Exercise("pull up", MuscleGroup.BACK, ExerciseType.BODYWEIGHT);
-        final Exercise exercise3 = new Exercise("strict press", MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final Exercise exercise1 = randomQuadsDumbbellExercise();
+        final Exercise exercise2 = randomQuadsDumbbellExercise();
+        final Exercise exercise3 = new Exercise(randomExerciseName(), MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
         exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
@@ -105,10 +106,10 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesByType() {
         //given
-        final ExerciseType exerciseType = ExerciseType.DUMBBELL;
-        final Exercise exercise1 = new Exercise("walking lunges", MuscleGroup.QUADS, exerciseType);
-        final Exercise exercise2 = new Exercise("lateral raises", MuscleGroup.SHOULDERS, exerciseType);
-        final Exercise exercise3 = new Exercise("strict press", MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final Exercise exercise1 = randomQuadsDumbbellExercise();
+        final Exercise exercise2 = randomQuadsDumbbellExercise();
+        final Exercise exercise3 = new Exercise(randomExerciseName(), MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final ExerciseType exerciseType = exercise1.getExerciseType();
         exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
@@ -121,14 +122,13 @@ class ExerciseServiceIT {
     }
 
     @Test
-    void shouldReturnExercisesCreatedAtGreaterOrEqual() throws InterruptedException {
+    void shouldReturnExercisesCreatedAtGreaterOrEqual() {
         //given
-        final Exercise exercise1 = new Exercise("walking lunges", MuscleGroup.QUADS, ExerciseType.DUMBBELL);
-        final Exercise exercise2 = new Exercise("lateral raises", MuscleGroup.SHOULDERS, ExerciseType.DUMBBELL);
-        final Exercise exercise3 = new Exercise("strict press", MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final Exercise exercise1 = randomQuadsDumbbellExercise();
+        final Exercise exercise2 = randomQuadsDumbbellExercise();
+        final Exercise exercise3 = randomQuadsDumbbellExercise();
 
         exerciseRepository.save(exercise1);
-        Thread.sleep(5000);
         exerciseRepository.saveAll(List.of(exercise2, exercise3));
 
         //when
@@ -143,7 +143,7 @@ class ExerciseServiceIT {
     @Test
     void shouldThrowDataIntegrityViolationExceptionWhenCreateExerciseAlreadyExists() {
         //given
-        final ExerciseRequest request = new ExerciseRequest("front squat", MuscleGroup.QUADS, ExerciseType.BARBELL);
+        final ExerciseRequest request = randomQuadsDumbbellExerciseRequest();
         final Exercise exercise = new Exercise(request.name(), request.muscleGroup(), request.exerciseType());
         exerciseRepository.save(exercise);
 

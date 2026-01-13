@@ -27,10 +27,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
-        '401':
-          $ref: '#/components/responses/ProblemDetailResponse'
         '400':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Invalid login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
   /auth/refresh-token:
     post:
       tags:
@@ -50,9 +52,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
         '401':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedProblem'
         '400':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
   /auth/logout:
     post:
       tags:
@@ -68,9 +78,17 @@ paths:
         '204':
           description: Successfully logged out
         '401':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedProblem'
         '400':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
   /users/password-reset:
     post:
       tags:
@@ -86,7 +104,11 @@ paths:
         '204':
           description: Reset password success
         '400':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
   /users/send-verification-link:
     post:
       tags:
@@ -102,7 +124,11 @@ paths:
         '204':
           description: Link send for given action (reset password or account activation)
         '400':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Invalid token or verification token type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
   /users/activate:
     post:
       tags:
@@ -122,8 +148,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
         '404':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
   /users/register:
     post:
       tags:
@@ -143,7 +179,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfileResponse'
         '400':
-          $ref: '#/components/responses/ProblemDetailResponse'
+          description: Invalid values in request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictProblem'
   /users/me/delete:
     delete:
       tags:
@@ -174,6 +220,12 @@ paths:
           description: Email changed
         '401':
           description: Unauthorized access
+        '400':
+          description: Invalid email value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
   /users/me/change-password:
     patch:
       tags:
@@ -192,15 +244,14 @@ paths:
           description: Password changed
         '401':
           description: Unauthorized access
+        '400':
+          description: Invalid password value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
 
 components:
-  responses:
-    ProblemDetailResponse:
-      description: Error response
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ProblemDetail'
   securitySchemes:
     bearerAuth:
       type: http
@@ -219,7 +270,7 @@ components:
       type: string
       format: email
       minLength: 1
-      example: "oldEmail@example.com"
+      example: "email@example.com"
     RefreshToken:
       type: string
       minLength: 1
@@ -356,24 +407,67 @@ components:
           $ref: '#/components/schemas/RefreshToken'
     ProblemDetail:
       type: object
+      required:
+        - type
+        - title
+        - status
+        - instance
       properties:
         type:
-          description: URI identifying the problem type
           type: string
-          example: "GenericError"
         title:
-          description: Short, human-readable summary of the problem
           type: string
-          example: "Some error occurred"
         status:
-          description: HTTP status code
           type: integer
-          example: 400
         instance:
-          description: URI identifying the specific occurrence
           type: string
-          example: "/resource/xyz"
-        detail:
-          description: Detailed message
-          type: string
-          example: "Detailed error message here"
+          format: uri
+    BadRequestProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetail'
+        - type: object
+          additionalProperties:
+            type: string
+          example:
+            type: "about:blank"
+            title: "Validation failure"
+            status: 400
+            instance: "/api/v1/current-endpoint-path"
+            username: "size must be between 1 and 2147483647"
+            password: "size must be between 1 and 2147483647"
+    UnauthorizedProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetail'
+        - type: object
+          additionalProperties:
+            type: string
+          example:
+            type: "about:blank"
+            title: "User management exception"
+            status: 401
+            detail: "Invalid token"
+            instance: "/api/v1/current-endpoint-path"
+    NotFoundProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetail'
+        - type: object
+          additionalProperties:
+            type: string
+          example:
+            type: "about:blank"
+            title: "User management exception"
+            status: 404
+            detail: "Token not found"
+            instance: "/api/v1/current-endpoint-path"
+    ConflictProblem:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetail'
+        - type: object
+          additionalProperties:
+            type: string
+          example:
+            type: "about:blank"
+            title: "User management exception"
+            status: 409
+            detail: "User already exists"
+            instance: "/api/v1/current-endpoint-path"

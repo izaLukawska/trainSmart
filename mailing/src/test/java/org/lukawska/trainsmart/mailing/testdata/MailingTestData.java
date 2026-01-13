@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.mailing.testdata;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 
@@ -12,9 +12,9 @@ import java.util.UUID;
 @UtilityClass
 public final class MailingTestData {
 
-    public static MailRequest randomMailRequest(boolean hasAttachments) {
+    public static MailDetails mailDetails(boolean hasAttachments) {
         List<Attachment> attachments = hasAttachments ? List.of(randomValidAttachment()) : List.of();
-        return new MailRequest(List.of(randomMail()),
+        return new MailDetails(List.of(randomMail()),
                                List.of(randomMail()),
                                List.of(randomMail()),
                                randomText(),

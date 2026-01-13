@@ -10,8 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import static org.lukawska.trainsmart.mailing.testdata.MailingTestData.mailDetails;
 import static org.lukawska.trainsmart.mailing.testdata.MailingTestData.randomMail;
-import static org.lukawska.trainsmart.mailing.testdata.MailingTestData.randomMailRequest;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +35,7 @@ class MailSenderAdapterTest {
         when(mailingProperties.getReplyTo()).thenReturn(randomMail());
 
         //when
-        mailSenderAdapter.sendEmail(randomMailRequest(true));
+        mailSenderAdapter.sendEmail(mailDetails(true));
 
         //then
         verify(mailSender).send(mimeMessage);

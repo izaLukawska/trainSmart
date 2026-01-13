@@ -2,7 +2,7 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
@@ -61,7 +61,7 @@ class VerificationTokenServiceTest {
         when(verificationTokenRepository.save(any())).thenReturn(verificationToken);
         when(mailContentProviderResolver.getProvider(tokenType)).thenReturn(mailContentProvider);
         when(mailContentProvider.createMailRequest(anyString(), anyString(), anyString()))
-                .thenReturn(mock(MailRequest.class));
+                .thenReturn(mock(MailDetails.class));
 
         //when
         verificationTokenService.sendVerificationMail(user, tokenType);

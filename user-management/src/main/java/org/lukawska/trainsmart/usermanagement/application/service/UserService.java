@@ -60,16 +60,16 @@ public class UserService {
     }
 
     @Transactional
-    public void changeEmail(ChangeEmailRequest emailUpdateRequest) {
+    public void changeEmail(ChangeEmailRequest changeEmailRequest) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("Changing mail for user {}", username);
         User user = getUserByUsername(username);
-        if (!user.getEmail().equals(emailUpdateRequest.getPreviousEmail())) {
+        if (!user.getEmail().equals(changeEmailRequest.getPreviousEmail())) {
             throw new UserManagementException(ExceptionType.INVALID_EMAIL);
         }
 
         try {
-            user.changeEmail(emailUpdateRequest.getCurrentEmail());
+            user.changeEmail(changeEmailRequest.getCurrentEmail());
             userRepository.save(user);
             log.info("Mail updated");
         } catch (DataIntegrityViolationException e) {

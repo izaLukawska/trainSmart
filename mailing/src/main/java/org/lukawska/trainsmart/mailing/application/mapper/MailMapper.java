@@ -2,7 +2,7 @@ package org.lukawska.trainsmart.mailing.application.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
@@ -12,15 +12,15 @@ import java.util.List;
 @UtilityClass
 public final class MailMapper {
 
-    public static MailEntity mapToEntity(MailRequest mailRequest) {
+    public static MailEntity mapToEntity(MailDetails mailDetails) {
         return MailEntity.builder()
-                         .recipients(mailRequest.recipients())
-                         .cc(defaultListIfNull(mailRequest.cc()))
-                         .bcc(defaultListIfNull(mailRequest.bcc()))
-                         .subject(mailRequest.subject())
-                         .text(mailRequest.text())
-                         .isHtml(mailRequest.isHtml())
-                         .attachments(mailRequest.attachments())
+                         .recipients(mailDetails.recipients())
+                         .cc(defaultListIfNull(mailDetails.cc()))
+                         .bcc(defaultListIfNull(mailDetails.bcc()))
+                         .subject(mailDetails.subject())
+                         .text(mailDetails.text())
+                         .isHtml(mailDetails.isHtml())
+                         .attachments(defaultListIfNull(mailDetails.attachments()))
                          .build();
     }
 

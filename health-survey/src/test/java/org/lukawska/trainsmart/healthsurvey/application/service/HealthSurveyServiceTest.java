@@ -80,7 +80,8 @@ class HealthSurveyServiceTest {
     void shouldUpdateOnlyHealthSurveyInjuries() {
         //given
         final Long userId = 1L;
-        final HealthSurveyUpdateRequest healthSurveyUpdateRequest = new HealthSurveyUpdateRequest(Set.of("back pain"));
+        final HealthSurveyUpdateRequest healthSurveyUpdateRequest =
+                new HealthSurveyUpdateRequest(Set.of(randomInjury()));
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(existingHealthSurvey));
 
@@ -130,14 +131,15 @@ class HealthSurveyServiceTest {
     void shouldGetAllInjuriesByUserId() {
         //given
         final Long userId = 1L;
-        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(defaultInjuries()));
+        Set<String> injuries = defaultInjuries();
+        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(injuries));
 
         //when
         Set<String> actualInjuries = healthSurveyService.getAllInjuriesByUserId(userId);
 
         //then
-        assertThat(actualInjuries).hasSize(3);
-        assertThat(actualInjuries).isEqualTo(defaultInjuries());
+        assertThat(actualInjuries).hasSize(injuries.size());
+        assertThat(actualInjuries).isEqualTo(injuries);
     }
 
     @Test

@@ -1,10 +1,9 @@
 package org.lukawska.trainsmart.usermanagement.application.strategy;
 
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
 import java.util.List;
 
 public interface MailContentProvider {
@@ -21,14 +20,12 @@ public interface MailContentProvider {
                                    .toUriString();
     }
 
-    default MailRequest createMailRequest(String email, String baseUrl, String token) {
+    default MailDetails createMailRequest(String email, String baseUrl, String token) {
         String link = generateLink(baseUrl, token);
-        return new MailRequest(List.of(email),
-                               Collections.emptyList(),
-                               Collections.emptyList(),
-                               getSubject(),
-                               getBody(link),
-                               false,
-                               Collections.emptyList());
+        return MailDetails.builder()
+                          .recipients(List.of(email))
+                          .subject(getSubject())
+                          .text(getBody(link))
+                          .build();
     }
 }

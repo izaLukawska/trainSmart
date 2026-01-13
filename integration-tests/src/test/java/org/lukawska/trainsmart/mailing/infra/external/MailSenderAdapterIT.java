@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.MailSenderAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailRequestWithAttachments;
+import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailDetailsWithAttachments;
 
 @Testcontainers
 @SpringBootTest
@@ -61,7 +61,7 @@ class MailSenderAdapterIT {
     @Test
     void shouldSendMailSuccess() throws Exception {
         //given
-        final MailRequest mailRequest = mailRequestWithAttachments();
+        final MailDetails mailRequest = mailDetailsWithAttachments();
 
         //when
         mailSenderAdapter.sendEmail(mailRequest);
@@ -94,7 +94,7 @@ class MailSenderAdapterIT {
         mailhog.stop();
 
         //when && then
-        assertThatThrownBy(() -> mailSenderAdapter.sendEmail(mailRequestWithAttachments()))
+        assertThatThrownBy(() -> mailSenderAdapter.sendEmail(mailDetailsWithAttachments()))
                 .isInstanceOf(MailException.class);
     }
 

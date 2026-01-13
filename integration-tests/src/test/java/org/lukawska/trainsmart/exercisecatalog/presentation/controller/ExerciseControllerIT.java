@@ -8,7 +8,6 @@ import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
 import org.lukawska.trainsmart.security.config.SecurityConfig;
@@ -24,6 +23,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.util.List;
 
+import static org.lukawska.trainsmart.exercisecatalog.testutil.ExerciseTestData.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,7 +52,7 @@ class ExerciseControllerIT {
     @Test
     void shouldCreateExercise() throws Exception {
         //given
-        final ExerciseRequest exerciseRequest = new ExerciseRequest("pull up", MuscleGroup.BACK, ExerciseType.OTHER);
+        final ExerciseRequest exerciseRequest = randomQuadsDumbbellExerciseRequest();
         final ObjectMapper objectMapper = new ObjectMapper();
 
         //when && then
@@ -66,8 +66,8 @@ class ExerciseControllerIT {
     @Test
     void shouldReturnExerciseByName() throws Exception {
         //given
-        final String name = "crunches";
-        final ExerciseResponse exerciseResponse = new ExerciseResponse(1L, name);
+        final ExerciseResponse exerciseResponse = randomExerciseResponse();
+        final String name = exerciseResponse.name();
         when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
 
         //when && then
@@ -84,8 +84,8 @@ class ExerciseControllerIT {
     void shouldReturnExercisesByMuscleGroup() throws Exception {
         //given
         final MuscleGroup muscleGroup = MuscleGroup.QUADS;
-        final ExerciseResponse exerciseResponse1 = new ExerciseResponse(1L, "front squat");
-        final ExerciseResponse exerciseResponse2 = new ExerciseResponse(2L, "goblet squat");
+        final ExerciseResponse exerciseResponse1 = randomExerciseResponse();
+        final ExerciseResponse exerciseResponse2 = randomExerciseResponse();
         final List<ExerciseResponse> expectedResponse = List.of(exerciseResponse1, exerciseResponse2);
         when(exerciseService.getExercisesByMuscleGroup(muscleGroup)).thenReturn(expectedResponse);
 
@@ -110,9 +110,9 @@ class ExerciseControllerIT {
     @Test
     void shouldReturnBadRequestWhenNotFound() throws Exception {
         //given
-        final String name = "invalid";
-        when(exerciseService.getExerciseByName(name)).thenThrow(
-                new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
+        final String name = randomExerciseName();
+        when(exerciseService.getExerciseByName(name))
+                .thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
         //when && then
         RequestBuilder request = get("/exercises/name").with(csrf())
@@ -126,8 +126,8 @@ class ExerciseControllerIT {
     @Test
     void shouldReturnForbiddenWhenGetExerciseByName() throws Exception {
         //given
-        final String name = "crunches";
-        final ExerciseResponse exerciseResponse = new ExerciseResponse(1L, name);
+        final ExerciseResponse exerciseResponse = randomExerciseResponse();
+        final String name = exerciseResponse.name();
         when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
 
         //when && then

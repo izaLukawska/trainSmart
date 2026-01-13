@@ -4,8 +4,6 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.lukawska.trainsmart.exercisecatalog.testutil.ExerciseTestData.randomQuadsDumbbellExercise;
 
 @DataJpaTest
 @Transactional
@@ -28,9 +27,10 @@ class ExerciseRepositoryIT {
     @Test
     void shouldThrowExceptionWhenConstraintViolation() {
         //given
-        final Exercise exercise = new Exercise("back squat", MuscleGroup.QUADS, ExerciseType.BARBELL);
+        final Exercise exercise = randomQuadsDumbbellExercise();
         exerciseRepository.saveAndFlush(exercise);
-        final Exercise duplicate = new Exercise(exercise.getName(), MuscleGroup.BACK, ExerciseType.BARBELL);
+        final Exercise duplicate = new Exercise(
+                exercise.getName(), exercise.getMuscleGroup(), exercise.getExerciseType());
 
         //when && then
         assertThatThrownBy(() -> exerciseRepository.saveAndFlush(duplicate))
