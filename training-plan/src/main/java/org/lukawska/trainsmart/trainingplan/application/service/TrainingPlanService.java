@@ -82,7 +82,7 @@ public class TrainingPlanService {
                                                                                            trainingPlanFilterDto);
         Slice<TrainingPlan> foundTrainingPlans = trainingPlanRepository.findAll(specification, pageable);
 
-        log.info("Found {} training plans", foundTrainingPlans.getSize());
+        log.info("Found {} training plans", foundTrainingPlans.getContent().size());
         return mapToTrainingPlanSummarySlice(foundTrainingPlans);
     }
 

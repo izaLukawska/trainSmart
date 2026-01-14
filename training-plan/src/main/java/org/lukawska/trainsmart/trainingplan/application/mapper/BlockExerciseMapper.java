@@ -12,11 +12,13 @@ import java.util.List;
 class BlockExerciseMapper {
 
     static BlockExerciseDetails mapToBlockExerciseDetails(BlockExercise blockExercise) {
-        return new BlockExerciseDetails(blockExercise.getUserExercise().getExercise().getName(),
-                                        blockExercise.getReps(),
-                                        blockExercise.getSets(),
-                                        blockExercise.getIntensity(),
-                                        blockExercise.getLoadPercent());
+        return BlockExerciseDetails.builder()
+                                   .exerciseName(blockExercise.getUserExercise().getExercise().getName())
+                                   .reps(blockExercise.getReps())
+                                   .sets(blockExercise.getSets())
+                                   .intensity(blockExercise.getIntensity())
+                                   .loadPercent(blockExercise.getLoadPercent())
+                                   .build();
     }
 
     static List<BlockExerciseDetails> mapToBlockExerciseDetailsList(List<BlockExercise> blockExerciseList) {
@@ -31,7 +33,8 @@ class BlockExerciseMapper {
                                     .reps(blockExercise.getReps())
                                     .sets(blockExercise.getSets())
                                     .intensityLevel(IntensityLevelEnum.valueOf(blockExercise.getIntensity().name()))
-                                    .loadPercent(blockExercise.getLoadPercent()).build();
+                                    .loadPercent(blockExercise.getLoadPercent())
+                                    .build();
     }
 
     static List<BlockExerciseResponse> mapToBlockExerciseResposnseList(List<BlockExercise> blockExerciseList) {

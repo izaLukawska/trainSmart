@@ -103,7 +103,7 @@ public class UserExerciseService {
         Specification<UserExercise> specification = UserExerciseSpecificationBuilder.build(userId,
                                                                                            userExerciseFilterDto);
         Slice<UserExercise> foundExercises = userExerciseRepository.findAll(specification, pageable);
-        log.info("Found {} exercises matching the criteria", foundExercises.getNumberOfElements());
+        log.info("Found {} exercises matching the criteria", foundExercises.getContent().size());
 
         return mapToUserExerciseResponseSlice(foundExercises);
     }
