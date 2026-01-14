@@ -1,25 +1,43 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingBlockResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingBlockDetails;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingBlock;
+import org.lukawska.trainsmart.trainingplan.model.AssignedDayEnum;
+import org.lukawska.trainsmart.trainingplan.model.TrainingBlockResponse;
 
 import java.util.List;
 
-import static org.lukawska.trainsmart.trainingplan.application.mapper.BlockExerciseMapper.mapToBlockExerciseResponseList;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.BlockExerciseMapper.mapToBlockExerciseDetailsList;
 
 @UtilityClass
 class TrainingBlockMapper {
 
-    static TrainingBlockResponse mapToTrainingBlockResponse(TrainingBlock trainingBlock) {
-        return new TrainingBlockResponse(trainingBlock.getId(), trainingBlock.getAssignedDay(),
-                                         mapToBlockExerciseResponseList(trainingBlock.getBlockExercises()));
+    static TrainingBlockDetails mapToTrainingBlockDetails(TrainingBlock trainingBlock) {
+        return new TrainingBlockDetails(trainingBlock.getAssignedDay(),
+                                        mapToBlockExerciseDetailsList(trainingBlock.getBlockExercises()));
 
     }
 
-    static List<TrainingBlockResponse> mapToTrainingBlockResponseList(List<TrainingBlock> trainingBlockList) {
+    static List<TrainingBlockDetails> mapToTrainingBlockDetailsList(List<TrainingBlock> trainingBlockList) {
         return trainingBlockList.stream()
-                                .map(TrainingBlockMapper::mapToTrainingBlockResponse)
+                                .map(TrainingBlockMapper::mapToTrainingBlockDetails)
                                 .toList();
+    }
+
+    static TrainingBlockResponse mapToTrainingBlockResponse(TrainingBlock trainingBlock) {
+        return TrainingBlockResponse.builder()
+                                    .blockId(trainingBlock.getId())
+                                    .assignedDay(AssignedDayEnum.valueOf(trainingBlock.getAssignedDay().name()))
+                                    .blockExercises(
+                                            BlockExerciseMapper.mapToBlockExerciseResposnseList(
+                                                    trainingBlock.getBlockExercises()))
+                                    .build();
+    }
+
+    static List<TrainingBlockResponse> mapToTrainingBlockResponseList(List<TrainingBlock> list) {
+        return list.stream()
+                   .map(TrainingBlockMapper::mapToTrainingBlockResponse)
+                   .toList();
     }
 }

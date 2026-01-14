@@ -24,7 +24,7 @@ paths:
         - name: name
           in: query
           required: true
-          description: Exercise name to look up (use `?name=back squat`)
+          description: Exercise name to look up
           schema:
             type: string
             example: "back squat"
@@ -65,7 +65,7 @@ paths:
           explode: true
           schema:
             $ref: '#/components/schemas/PagingRequest'
-        - name: filterRequest
+        - name: userExerciseFilterRequest
           in: query
           explode: true
           schema:
@@ -78,10 +78,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/SliceUserExerciseResponse'
         '400':
-          description: Bad request (validation failed)
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
         '404':
-          description: User not found
-  /users/user/{userId}/training-plans:
+          description: Exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
+  /users/user/{userId}/training-plans/{planId}:
     get:
       tags:
         - TrainingPlan
@@ -103,11 +111,103 @@ paths:
             minimum: 1
       responses:
         '200':
-          description: Training plan details
+          description: Training plan data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TrainingPlanResponse'
+        '400':
+          description: Invalid id provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+        '404':
+          description: Training plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
+
+    delete:
+      tags:
+        - TrainingPlan
+      operationId: deleteTrainingPlanByIdAndUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '204':
+          description: Training plan deleted
+        '400':
+          description: Invalid id provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+        '404':
+          description: Training plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
+
+  /users/user/{userId}/training-plans/all:
+    get:
+      tags:
+        - TrainingPlan
+      operationId: getAllTrainingPlansByUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: pagingRequest
+          in: query
+          explode: true
+          schema:
+            $ref: '#/components/schemas/PagingRequest'
+        - name: trainingPlanFilterRequest
+          in: query
+          explode: true
+          schema:
+            $ref: '#/components/schemas/TrainingPlanFilterRequest'
+      responses:
+        '200':
+          description: Paged slice of trainingPlans
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SliceTrainingPlanSummaryResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+        '404':
+          description: Training plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
+        '401':
+          description: Unauthorized access
 
 
 components:
@@ -136,6 +236,7 @@ components:
         - HYPERTROPHY
         - ENDURANCE
     PlanDurationEnum:
+      type: string
       enum:
         - FOUR_WEEKS
         - EIGHT_WEEKS
@@ -172,6 +273,10 @@ components:
           $ref: '#/components/schemas/TrainingTypeEnum'
         planDuration:
           $ref: '#/components/schemas/PlanDurationEnum'
+        trainingWeeks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingWeekResponse'
     TrainingWeekResponse:
       type: object
       required:
@@ -210,7 +315,7 @@ components:
         - exerciseName
         - reps
         - sets
-        - intensity
+        - intensityLevel
         - loadPercent
       properties:
         exerciseName:
@@ -222,13 +327,66 @@ components:
         intensityLevel:
           $ref: '#/components/schemas/IntensityLevelEnum'
         loadPercent:
-          type: string
-          description: "Internally stored as a Double (0.78), but returned as a formatted percentage string."
+          type: number
+          format: double
           x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonSerialize(
           using = org.lukawska.trainsmart.trainingplan.application.serializer.LoadPercentageSerializer.class)"
-          example: "78%"
-
-
+          example: 0.67
+    TrainingPlanSummaryResponse:
+      type: object
+      required:
+        - id
+        - trainingType
+        - planDuration
+        - daysPerWeek
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        trainingType:
+          $ref: '#/components/schemas/TrainingTypeEnum'
+        planDuration:
+          $ref: '#/components/schemas/PlanDurationEnum'
+        daysPerWeek:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+          x-java-type: java.time.Instant
+          example: "2025-01-01T12:00:00Z"
+    SliceTrainingPlanSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingPlanSummaryResponse'
+        pageNumber:
+          type: integer
+          example: 0
+        pageSize:
+          type: integer
+          example: 20
+        hasNext:
+          type: boolean
+          description: "True if there is another page of data available."
+        isFirst:
+          type: boolean
+        last:
+          type: boolean
+          description: "True if this is the last available page."
+    TrainingPlanFilterRequest:
+      type: object
+      properties:
+        trainingType:
+          allOf:
+            - $ref: '#/components/schemas/TrainingTypeEnum'
+          nullable: true
+        planDuration:
+          allOf:
+            - $ref: '#/components/schemas/PlanDurationEnum'
+          nullable: true
     PagingRequest:
       type: object
       properties:
@@ -279,14 +437,18 @@ components:
             $ref: '#/components/schemas/UserExerciseResponse'
         pageNumber:
           type: integer
+          example: 0
         pageSize:
           type: integer
-        totalElements:
-          type: integer
-        totalPages:
-          type: integer
+          example: 20
+        hasNext:
+          type: boolean
+          description: "True if there is another page of data available."
+        isFirst:
+          type: boolean
         last:
           type: boolean
+          description: "True if this is the last available page."
     UserExerciseResponse:
       type: object
       required:
@@ -338,40 +500,17 @@ components:
             title: "Validation failure"
             status: 400
             instance: "/api/v1/current-endpoint-path"
-            name: "size must be between 1 and 2147483647"
-    UnauthorizedProblem:
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetail'
-        - type: object
-          additionalProperties:
-            type: string
-          example:
-            type: "about:blank"
-            title: "User management exception"
-            status: 401
-            detail: "Invalid token"
-            instance: "/api/v1/current-endpoint-path"
+            username: "size must be between 1 and 2147483647"
+            password: "size must be between 1 and 2147483647"
     NotFoundProblem:
       allOf:
         - $ref: '#/components/schemas/ProblemDetail'
         - type: object
           additionalProperties:
             type: string
-          example:
-            type: "about:blank"
-            title: "Exercise exception"
-            status: 404
-            detail: "Exercise not found"
-            instance: "/api/v1/current-endpoint-path"
-    ConflictProblem:
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetail'
-        - type: object
-          additionalProperties:
-            type: string
-          example:
-            type: "about:blank"
-            title: "Exercise exception"
-            status: 409
-            detail: "Exercise already exists"
-            instance: "/api/v1/current-endpoint-path"
+      example:
+        type: "about:blank"
+        title: "Training plan exception"
+        status: 404
+        detail: "Training plan not found"
+        instance: "/api/v1/current-endpoint-path"

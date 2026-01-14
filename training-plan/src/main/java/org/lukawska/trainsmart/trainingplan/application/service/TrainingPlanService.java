@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDetails;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
-import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
-import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
-import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
+import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanFilterDto;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.application.generation.TrainingPlanGenerator;
@@ -19,6 +18,9 @@ import org.lukawska.trainsmart.trainingplan.application.specification.TrainingPl
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.repositories.TrainingPlanRepository;
 import org.lukawska.trainsmart.trainingplan.model.PagingRequest;
+import org.lukawska.trainsmart.trainingplan.model.SliceTrainingPlanSummaryResponse;
+import org.lukawska.trainsmart.trainingplan.model.TrainingPlanFilterRequest;
+import org.lukawska.trainsmart.trainingplan.model.TrainingPlanResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -31,8 +33,8 @@ import java.time.Instant;
 import java.util.Optional;
 
 import static org.lukawska.trainsmart.trainingplan.application.mapper.PageableMapper.mapToPageable;
-import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.mapToTrainingPlanResponse;
-import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.mapToTrainingPlanSummarySlice;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanFilterMapper.mapToTrainingPlanFilterDto;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingPlanMapper.*;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class TrainingPlanService {
     private final TrainingPlanDataResolver trainingPlanDataResolver;
 
     @Transactional
-    public TrainingPlanResponse createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanDto request) {
+    public TrainingPlanDetails createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanDto request) {
         log.info("Creating plan for user: {}", userId);
         User existingUser = userService.getUserById(userId);
         TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
@@ -59,7 +61,7 @@ public class TrainingPlanService {
         try {
             trainingPlanRepository.save(generatedPlan);
             log.info("Successfully generated plan with ID {}", generatedPlan.getId());
-            return mapToTrainingPlanResponse(generatedPlan);
+            return mapToTrainingPlanDetails(generatedPlan);
 
         } catch (DataIntegrityViolationException e) {
             throw new TrainingPlanException(ExceptionType.INVALID_TRAINING_PLAN_DATA);
@@ -72,14 +74,20 @@ public class TrainingPlanService {
         log.info("Deleted plan: {} for user: {}", planId, userId);
     }
 
-    public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansSummaryByUserId(
+    public SliceTrainingPlanSummaryResponse getAllTrainingPlansSummaryByUserId(
             Long userId, PagingRequest pagingRequest, TrainingPlanFilterRequest filterRequest) {
         Pageable pageable = mapToPageable(pagingRequest);
-        Specification<TrainingPlan> specification = TrainingPlanSpecificationBuilder.build(userId, filterRequest);
+        TrainingPlanFilterDto trainingPlanFilterDto = mapToTrainingPlanFilterDto(filterRequest);
+        Specification<TrainingPlan> specification = TrainingPlanSpecificationBuilder.build(userId,
+                                                                                           trainingPlanFilterDto);
         Slice<TrainingPlan> foundTrainingPlans = trainingPlanRepository.findAll(specification, pageable);
 
         log.info("Found {} training plans", foundTrainingPlans.getSize());
         return mapToTrainingPlanSummarySlice(foundTrainingPlans);
+    }
+
+    public TrainingPlanDetails getTrainingPlanDetailsByIdAndUserId(Long planId, Long userId) {
+        return mapToTrainingPlanDetails(getTrainingPlanByIdAndUserId(planId, userId));
     }
 
     public TrainingPlanResponse getTrainingPlanResponseByIdAndUserId(Long planId, Long userId) {

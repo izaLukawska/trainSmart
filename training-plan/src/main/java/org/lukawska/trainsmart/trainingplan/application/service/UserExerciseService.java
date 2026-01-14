@@ -9,7 +9,7 @@ import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
-import org.lukawska.trainsmart.trainingplan.application.dto.request.UserExerciseFilterDto;
+import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseFilterDto;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseException;
 import org.lukawska.trainsmart.trainingplan.application.specification.UserExerciseSpecificationBuilder;
@@ -20,8 +20,8 @@ import org.lukawska.trainsmart.trainingplan.model.SliceUserExerciseResponse;
 import org.lukawska.trainsmart.trainingplan.model.UserExerciseFilterRequest;
 import org.lukawska.trainsmart.trainingplan.model.UserExerciseResponse;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,7 +102,7 @@ public class UserExerciseService {
         UserExerciseFilterDto userExerciseFilterDto = mapToUserExerciseFilterDto(filterRequest);
         Specification<UserExercise> specification = UserExerciseSpecificationBuilder.build(userId,
                                                                                            userExerciseFilterDto);
-        Page<UserExercise> foundExercises = userExerciseRepository.findAll(specification, pageable);
+        Slice<UserExercise> foundExercises = userExerciseRepository.findAll(specification, pageable);
         log.info("Found {} exercises matching the criteria", foundExercises.getNumberOfElements());
 
         return mapToUserExerciseResponseSlice(foundExercises);

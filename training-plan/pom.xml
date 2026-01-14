@@ -47,9 +47,6 @@
                         </goals>
                         <configuration>
                             <inputSpec>${project.basedir}/src/main/resources/${openapi.baseName}api.yml</inputSpec>
-                            <enumNameMappings>
-                                <enumNameMapping>MuscleGroup=MuscleGroupEnum</enumNameMapping>
-                            </enumNameMappings>
                             <configOptions>
                                 <generateBuilders>true</generateBuilders>
                             </configOptions>

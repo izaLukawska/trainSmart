@@ -1,48 +1,41 @@
 package org.lukawska.trainsmart.trainingplan.presentation.controllers;
 
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.trainingplan.application.dto.request.TrainingPlanFilterRequest;
-import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanResponse;
-import org.lukawska.trainsmart.trainingplan.application.dto.response.TrainingPlanSummaryResponse;
+import org.lukawska.trainsmart.trainingplan.api.TrainingPlanApi;
 import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanService;
 import org.lukawska.trainsmart.trainingplan.model.PagingRequest;
-import org.springframework.data.domain.Slice;
+import org.lukawska.trainsmart.trainingplan.model.SliceTrainingPlanSummaryResponse;
+import org.lukawska.trainsmart.trainingplan.model.TrainingPlanFilterRequest;
+import org.lukawska.trainsmart.trainingplan.model.TrainingPlanResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/user/{userId}/training-plans")
 @Slf4j
-public class TrainingPlanController {
+public class TrainingPlanController implements TrainingPlanApi {
 
     private final TrainingPlanService trainingPlanService;
 
-    @GetMapping("/{planId}")
-    public TrainingPlanResponse getTrainingPlanByIdAndUserId(@PathVariable @Positive Long planId,
-                                                             @PathVariable @Positive Long userId) {
-        log.info("Getting training plan for user {} and plan {}", userId, planId);
-        return trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId);
+    @Override
+    public ResponseEntity<TrainingPlanResponse> getTrainingPlanByIdAndUserId(Long userId, Long planId) {
+        log.info("Received request for get training plan for user {} and plan {}", userId, planId);
+        return ResponseEntity.ok().body(trainingPlanService.getTrainingPlanResponseByIdAndUserId(planId, userId));
     }
 
-    @DeleteMapping("/{planId}")
-    public ResponseEntity<Void> deleteTrainingPlanByIdAndUserId(@PathVariable @Positive Long planId,
-                                                                @PathVariable @Positive Long userId) {
-        log.info("Deleting training plan {} for user {}", planId, userId);
+    @Override
+    public ResponseEntity<Void> deleteTrainingPlanByIdAndUserId(Long userId, Long planId) {
+        log.info("Received delete request for training plan {} for user {}", planId, userId);
         trainingPlanService.deleteTrainingPlanByIdAndUserId(planId, userId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    public Slice<TrainingPlanSummaryResponse> getAllTrainingPlansByUserId(
-            @PathVariable @Positive Long userId,
-            @ModelAttribute PagingRequest pagingRequest,
-            @ModelAttribute TrainingPlanFilterRequest filterRequest) {
-        log.info("Getting training plan summaries for user {} with filters: training type {} and plan duration {}",
-                 userId, filterRequest.getTrainingType(), filterRequest.getPlanDuration());
-
-        return trainingPlanService.getAllTrainingPlansSummaryByUserId(userId, pagingRequest, filterRequest);
+    @Override
+    public ResponseEntity<SliceTrainingPlanSummaryResponse> getAllTrainingPlansByUserId(
+            Long userId, PagingRequest pagingRequest, TrainingPlanFilterRequest trainingPlanFilterRequest) {
+        log.info("Received request to get all training plan for user {}", userId);
+        return ResponseEntity.ok().body(trainingPlanService.getAllTrainingPlansSummaryByUserId(
+                userId, pagingRequest, trainingPlanFilterRequest));
     }
 }

@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.trainingplan.application.dto.request;
+package org.lukawska.trainsmart.trainingplan.application.dto;
 
 import lombok.Builder;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
