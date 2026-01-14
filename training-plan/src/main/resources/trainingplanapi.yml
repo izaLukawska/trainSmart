@@ -5,6 +5,8 @@ info:
 tags:
   - name: UserExercise
     description: User exercise endpoints
+  - name: TrainingPlan
+    description: Training plan endpoints
 paths:
   /users/{userId}/exercises:
     get:
@@ -79,9 +81,65 @@ paths:
           description: Bad request (validation failed)
         '404':
           description: User not found
+  /users/user/{userId}/training-plans:
+    get:
+      tags:
+        - TrainingPlan
+      operationId: getTrainingPlanByIdAndUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Training plan details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingPlanResponse'
+
 
 components:
   schemas:
+    AssignedDayEnum:
+      type: string
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
+    IntensityLevelEnum:
+      type: string
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+      example: MEDIUM
+    TrainingTypeEnum:
+      type: string
+      enum:
+        - STRENGTH
+        - HYPERTROPHY
+        - ENDURANCE
+    PlanDurationEnum:
+      enum:
+        - FOUR_WEEKS
+        - EIGHT_WEEKS
+        - TWELVE_WEEKS
     MuscleGroupEnum:
       type: string
       enum:
@@ -99,6 +157,78 @@ components:
         - DUMBBELL
         - KETTLEBELL
         - OTHER
+    TrainingPlanResponse:
+      type: object
+      required:
+        - planId
+        - trainingType
+        - planDuration
+        - trainingWeeks
+      properties:
+        planId:
+          type: integer
+          format: int64
+        trainingType:
+          $ref: '#/components/schemas/TrainingTypeEnum'
+        planDuration:
+          $ref: '#/components/schemas/PlanDurationEnum'
+    TrainingWeekResponse:
+      type: object
+      required:
+        - weekId
+        - weekIndex
+        - trainingBlocks
+      properties:
+        weekId:
+          type: integer
+          format: int64
+        weekIndex:
+          type: integer
+        trainingBlocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingBlockResponse'
+    TrainingBlockResponse:
+      type: object
+      required:
+        - blockId
+        - assignedDay
+        - blockExercises
+      properties:
+        blockId:
+          type: integer
+          format: int64
+        assignedDay:
+          $ref: '#/components/schemas/AssignedDayEnum'
+        blockExercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockExerciseResponse'
+    BlockExerciseResponse:
+      type: object
+      required:
+        - exerciseName
+        - reps
+        - sets
+        - intensity
+        - loadPercent
+      properties:
+        exerciseName:
+          type: string
+        reps:
+          type: integer
+        sets:
+          type: integer
+        intensityLevel:
+          $ref: '#/components/schemas/IntensityLevelEnum'
+        loadPercent:
+          type: string
+          description: "Internally stored as a Double (0.78), but returned as a formatted percentage string."
+          x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonSerialize(
+          using = org.lukawska.trainsmart.trainingplan.application.serializer.LoadPercentageSerializer.class)"
+          example: "78%"
+
+
     PagingRequest:
       type: object
       properties:
