@@ -7,6 +7,7 @@ tags:
     description: User exercise endpoints
   - name: TrainingPlan
     description: Training plan endpoints
+
 paths:
   /users/{userId}/exercises:
     get:
@@ -83,12 +84,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestProblem'
-        '404':
-          description: Exercise not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundProblem'
   /users/user/{userId}/training-plans/{planId}:
     get:
       tags:
@@ -128,7 +123,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundProblem'
-
     delete:
       tags:
         - TrainingPlan
@@ -163,7 +157,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundProblem'
-
   /users/user/{userId}/training-plans/all:
     get:
       tags:
@@ -200,15 +193,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestProblem'
-        '404':
-          description: Training plan not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundProblem'
-        '401':
-          description: Unauthorized access
-
 
 components:
   schemas:
@@ -269,6 +253,7 @@ components:
         planId:
           type: integer
           format: int64
+          example: 10
         trainingType:
           $ref: '#/components/schemas/TrainingTypeEnum'
         planDuration:
@@ -287,8 +272,10 @@ components:
         weekId:
           type: integer
           format: int64
+          example: 1
         weekIndex:
           type: integer
+          example: 4
         trainingBlocks:
           type: array
           items:
@@ -303,6 +290,7 @@ components:
         blockId:
           type: integer
           format: int64
+          example: 12
         assignedDay:
           $ref: '#/components/schemas/AssignedDayEnum'
         blockExercises:
@@ -320,17 +308,21 @@ components:
       properties:
         exerciseName:
           type: string
+          example: "back squat"
         reps:
           type: integer
+          example: 5
         sets:
           type: integer
+          example: 2
         intensityLevel:
           $ref: '#/components/schemas/IntensityLevelEnum'
         loadPercent:
           type: number
           format: double
-          x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonSerialize(
-          using = org.lukawska.trainsmart.trainingplan.application.serializer.LoadPercentageSerializer.class)"
+          x-field-extra-annotation: |
+            @com.fasterxml.jackson.databind.annotation.JsonSerialize(
+            using = org.lukawska.trainsmart.trainingplan.application.serializer.LoadPercentageSerializer.class)
           example: 0.67
     TrainingPlanSummaryResponse:
       type: object
@@ -472,7 +464,7 @@ components:
           format: date-time
           x-java-type: java.time.Instant
           example: "2025-01-01T12:00:00Z"
-    ProblemDetail:
+    BadRequestProblem:
       type: object
       required:
         - type
@@ -482,35 +474,40 @@ components:
       properties:
         type:
           type: string
+          example: "about:blank"
         title:
           type: string
+          example: "Training plan exception"
         status:
           type: integer
+          example: 400
         instance:
           type: string
           format: uri
-    BadRequestProblem:
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetail'
-        - type: object
-          additionalProperties:
-            type: string
-          example:
-            type: "about:blank"
-            title: "Validation failure"
-            status: 400
-            instance: "/api/v1/current-endpoint-path"
-            username: "size must be between 1 and 2147483647"
-            password: "size must be between 1 and 2147483647"
+          example: "/api/v1/users/-1/training-plans"
+      additionalProperties:
+        type: string
     NotFoundProblem:
-      allOf:
-        - $ref: '#/components/schemas/ProblemDetail'
-        - type: object
-          additionalProperties:
-            type: string
-      example:
-        type: "about:blank"
-        title: "Training plan exception"
-        status: 404
-        detail: "Training plan not found"
-        instance: "/api/v1/current-endpoint-path"
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - instance
+      properties:
+        type:
+          type: string
+          example: "about:blank"
+        title:
+          type: string
+          example: "Training plan exception"
+        status:
+          type: integer
+          example: 404
+        details:
+          type: string
+          example: "Plan not found"
+        instance:
+          type: string
+          format: uri
+          example: "/api/v1/users/1/training-plans/1"
