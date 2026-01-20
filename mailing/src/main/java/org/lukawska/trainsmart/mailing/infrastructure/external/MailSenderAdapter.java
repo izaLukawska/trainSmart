@@ -17,6 +17,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -51,22 +53,23 @@ public class MailSenderAdapter implements MailSender {
         helper.setText(mailDetails.text(), mailDetails.isHtml());
         helper.setFrom(mailingProperties.getFrom());
         helper.setReplyTo(mailingProperties.getReplyTo());
+        addAttachments(mailDetails.attachments(), helper);
 
         if (!CollectionUtils.isEmpty(mailDetails.cc())) {
             helper.setCc(mailDetails.cc().toArray(String[]::new));
         }
 
         if (!CollectionUtils.isEmpty(mailDetails.bcc())) {
-            helper.setCc(mailDetails.bcc().toArray(String[]::new));
-        }
-
-        if (!CollectionUtils.isEmpty(mailDetails.attachments())) {
-            addAttachments(mailDetails, helper);
+            helper.setBcc(mailDetails.bcc().toArray(String[]::new));
         }
     }
 
-    private void addAttachments(MailDetails mailDetails, MimeMessageHelper helper) throws MessagingException {
-        for (Attachment attachment : mailDetails.attachments()) {
+    private void addAttachments(List<Attachment> attachments, MimeMessageHelper helper) throws MessagingException {
+        if (CollectionUtils.isEmpty(attachments)) {
+            return;
+        }
+
+        for (Attachment attachment : attachments) {
             ByteArrayResource resource = new ByteArrayResource(attachment.getContent());
             helper.addAttachment(attachment.getFileName(), resource);
         }
