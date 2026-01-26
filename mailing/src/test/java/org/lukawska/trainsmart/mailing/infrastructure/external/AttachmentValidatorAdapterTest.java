@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
-import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

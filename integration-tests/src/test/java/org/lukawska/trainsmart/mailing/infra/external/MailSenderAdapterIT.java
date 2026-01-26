@@ -3,14 +3,16 @@ package org.lukawska.trainsmart.mailing.infra.external;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.lukawska.trainsmart.config.PostgresTestBase;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.config.PostgresTestConfig;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.MailSenderAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mail.MailException;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
@@ -24,11 +26,13 @@ import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailRequestWithAttachments;
+import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailDetailsWithAttachments;
 
 @Testcontainers
 @SpringBootTest
-class MailSenderAdapterIT extends PostgresTestBase {
+@ActiveProfiles("test")
+@Import(PostgresTestConfig.class)
+class MailSenderAdapterIT {
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
@@ -50,12 +54,14 @@ class MailSenderAdapterIT extends PostgresTestBase {
     static void properties(DynamicPropertyRegistry registry) {
         registry.add("spring.mail.host", mailhog::getHost);
         registry.add("spring.mail.port", () -> mailhog.getMappedPort(1025));
+        registry.add("spring.mail.properties.mail.smtp.auth", () -> "false");
+        registry.add("spring.mail.properties.mail.smtp.starttls.enable", () -> "false");
     }
 
     @Test
     void shouldSendMailSuccess() throws Exception {
         //given
-        final MailRequest mailRequest = mailRequestWithAttachments();
+        final MailDetails mailRequest = mailDetailsWithAttachments();
 
         //when
         mailSenderAdapter.sendEmail(mailRequest);
@@ -88,7 +94,7 @@ class MailSenderAdapterIT extends PostgresTestBase {
         mailhog.stop();
 
         //when && then
-        assertThatThrownBy(() -> mailSenderAdapter.sendEmail(mailRequestWithAttachments()))
+        assertThatThrownBy(() -> mailSenderAdapter.sendEmail(mailDetailsWithAttachments()))
                 .isInstanceOf(MailException.class);
     }
 

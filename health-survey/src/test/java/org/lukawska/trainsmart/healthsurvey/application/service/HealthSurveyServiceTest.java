@@ -11,7 +11,7 @@ import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyEx
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,7 +37,7 @@ class HealthSurveyServiceTest {
     private HealthSurveyRepository healthSurveyRepository;
 
     @Mock
-    private UserService userService;
+    private UserAccessService userService;
 
     @InjectMocks
     private HealthSurveyService healthSurveyService;
@@ -80,7 +80,8 @@ class HealthSurveyServiceTest {
     void shouldUpdateOnlyHealthSurveyInjuries() {
         //given
         final Long userId = 1L;
-        final HealthSurveyUpdateRequest healthSurveyUpdateRequest = new HealthSurveyUpdateRequest(Set.of("back pain"));
+        final HealthSurveyUpdateRequest healthSurveyUpdateRequest =
+                new HealthSurveyUpdateRequest(Set.of(randomInjury()));
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(existingHealthSurvey));
 
@@ -130,14 +131,15 @@ class HealthSurveyServiceTest {
     void shouldGetAllInjuriesByUserId() {
         //given
         final Long userId = 1L;
-        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(defaultInjuries()));
+        Set<String> injuries = defaultInjuries();
+        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(injuries));
 
         //when
         Set<String> actualInjuries = healthSurveyService.getAllInjuriesByUserId(userId);
 
         //then
-        assertThat(actualInjuries).hasSize(3);
-        assertThat(actualInjuries).isEqualTo(defaultInjuries());
+        assertThat(actualInjuries).hasSize(injuries.size());
+        assertThat(actualInjuries).isEqualTo(injuries);
     }
 
     @Test
@@ -176,12 +178,12 @@ class HealthSurveyServiceTest {
     @Test
     void shouldThrowUserNotFoundExceptionWhenSubmitHealthSurvey() {
         //given
-        when(userService.getUserById(any())).thenThrow(new UserNotFoundException(2L));
+        when(userService.getUserById(any())).thenThrow(new UserNotFoundException());
 
         //when && then
         assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(2L, healthSurveyRequest()))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found for ID: %d", 2L);
+                .hasMessage("User not found");
     }
 
     @Test

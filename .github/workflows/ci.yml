@@ -45,12 +45,10 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
           echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
 
-      - name: Build project
-        run: mvn -B -U -DskipTests package
-
-      - name: Run tests and check coverage
-        run: mvn verify
+      - name: Build, test and check coverage
+        run: mvn -B -U verify
 
       - name: Upload Jacoco Reports
         if: always()
@@ -81,6 +79,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: jar-artifacts
+          path: ./app/target
+
       - name: Generate .env from secrets
         run: |
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -88,13 +92,13 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_PORT=${{ secrets.DB_DOCKER_PORT }}" >> .env
           echo "DB_HOST=${{ secrets.DB_DOCKER_HOST }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
       - name: Build and start services
         run: docker compose up -d --build
 
       - name: Smoke test (healthcheck)
         run: |
-          sleep 10
           for i in {1..15}; do
             if curl -sSf http://localhost:8080/api/v1/actuator/health; then
               echo "Application run successfully"

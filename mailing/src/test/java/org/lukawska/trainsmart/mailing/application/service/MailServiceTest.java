@@ -3,12 +3,12 @@ package org.lukawska.trainsmart.mailing.application.service;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
-import org.lukawska.trainsmart.mailing.domain.repository.MailRepository;
+import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
 import org.mockito.InjectMocks;
@@ -46,7 +46,7 @@ class MailServiceTest {
     @Test
     void shouldSendMailWithAttachmentSuccess() throws MessagingException {
         //given
-        final MailRequest mailRequest = randomMailRequest(true);
+        final MailDetails mailRequest = mailDetails(true);
 
         //when
         MailResponse result = mailService.sendMail(mailRequest);
@@ -63,7 +63,7 @@ class MailServiceTest {
     @Test
     void shouldSendMailWithoutAttachmentSuccess() throws MessagingException {
         //given
-        final MailRequest mailRequest = randomMailRequest(false);
+        final MailDetails mailRequest = mailDetails(false);
 
         //when
         MailResponse result = mailService.sendMail(mailRequest);
@@ -124,7 +124,7 @@ class MailServiceTest {
     @Test
     void shouldThrowMessagingExceptionWhenSendMail() throws MessagingException {
         //given
-        final MailRequest mailRequest = randomMailRequest(new Random().nextBoolean());
+        final MailDetails mailRequest = mailDetails(new Random().nextBoolean());
         doThrow(new MessagingException(randomText())).when(mailSender).sendEmail(mailRequest);
 
         //when && then
