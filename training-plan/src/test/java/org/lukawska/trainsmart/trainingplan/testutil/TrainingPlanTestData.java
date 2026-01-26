@@ -6,6 +6,7 @@ import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.TrainingPlanGenerationData;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
+import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingWeek;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
@@ -35,6 +36,8 @@ public class TrainingPlanTestData {
     }
 
     public static TrainingPlan trainingPlan(User user) {
-        return new TrainingPlan(user, TrainingType.STRENGTH, PlanDuration.FOUR_WEEKS, 1);
+        TrainingPlan trainingPlan = new TrainingPlan(user, TrainingType.STRENGTH, PlanDuration.FOUR_WEEKS, 1);
+        trainingPlan.addTrainingWeek(mock(TrainingWeek.class));
+        return trainingPlan;
     }
 }

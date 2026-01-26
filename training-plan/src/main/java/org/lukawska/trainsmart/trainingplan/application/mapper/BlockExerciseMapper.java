@@ -37,7 +37,7 @@ class BlockExerciseMapper {
                                     .build();
     }
 
-    static List<BlockExerciseResponse> mapToBlockExerciseResposnseList(List<BlockExercise> blockExerciseList) {
+    static List<BlockExerciseResponse> mapToBlockExerciseResponseList(List<BlockExercise> blockExerciseList) {
         return blockExerciseList.stream()
                                 .map(BlockExerciseMapper::mapToBlockExerciseResponse)
                                 .toList();

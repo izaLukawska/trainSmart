@@ -8,6 +8,7 @@ import org.lukawska.trainsmart.trainingplan.model.TrainingWeekResponse;
 import java.util.List;
 
 import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingBlockMapper.mapToTrainingBlockDetailsList;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.TrainingBlockMapper.mapToTrainingBlockResponseList;
 
 @UtilityClass
 class TrainingWeekMapper {
@@ -27,8 +28,7 @@ class TrainingWeekMapper {
         return TrainingWeekResponse.builder()
                                    .weekId(trainingWeek.getId())
                                    .weekIndex(trainingWeek.getWeekIndex())
-                                   .trainingBlocks(TrainingBlockMapper.mapToTrainingBlockResponseList(
-                                           trainingWeek.getTrainingBlocks()))
+                                   .trainingBlocks(mapToTrainingBlockResponseList(trainingWeek.getTrainingBlocks()))
                                    .build();
     }
 

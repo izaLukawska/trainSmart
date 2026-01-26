@@ -9,6 +9,7 @@ import org.lukawska.trainsmart.trainingplan.model.TrainingBlockResponse;
 import java.util.List;
 
 import static org.lukawska.trainsmart.trainingplan.application.mapper.BlockExerciseMapper.mapToBlockExerciseDetailsList;
+import static org.lukawska.trainsmart.trainingplan.application.mapper.BlockExerciseMapper.mapToBlockExerciseResponseList;
 
 @UtilityClass
 class TrainingBlockMapper {
@@ -16,7 +17,6 @@ class TrainingBlockMapper {
     static TrainingBlockDetails mapToTrainingBlockDetails(TrainingBlock trainingBlock) {
         return new TrainingBlockDetails(trainingBlock.getAssignedDay(),
                                         mapToBlockExerciseDetailsList(trainingBlock.getBlockExercises()));
-
     }
 
     static List<TrainingBlockDetails> mapToTrainingBlockDetailsList(List<TrainingBlock> trainingBlockList) {
@@ -29,9 +29,7 @@ class TrainingBlockMapper {
         return TrainingBlockResponse.builder()
                                     .blockId(trainingBlock.getId())
                                     .assignedDay(AssignedDayEnum.valueOf(trainingBlock.getAssignedDay().name()))
-                                    .blockExercises(
-                                            BlockExerciseMapper.mapToBlockExerciseResposnseList(
-                                                    trainingBlock.getBlockExercises()))
+                                    .blockExercises(mapToBlockExerciseResponseList(trainingBlock.getBlockExercises()))
                                     .build();
     }
 

@@ -11,9 +11,13 @@ import java.util.Optional;
 @UtilityClass
 public class PageableMapper {
 
+    private static final Integer BASE_PAGE_NUMBER = 0;
+
+    private static final Integer BASE_PAGE_SIZE = 5;
+
     public static Pageable mapToPageable(PagingRequest pagingRequest) {
-        int page = Optional.ofNullable(pagingRequest.getPageNumber()).orElse(0);
-        int size = Optional.ofNullable(pagingRequest.getPageSize()).orElse(5);
+        int page = Optional.ofNullable(pagingRequest.getPageNumber()).orElse(BASE_PAGE_NUMBER);
+        int size = Optional.ofNullable(pagingRequest.getPageSize()).orElse(BASE_PAGE_SIZE);
         Sort.Direction direction = Optional.of(Sort.Direction.valueOf(pagingRequest.getDirection().name()))
                                            .orElse(Sort.Direction.DESC);
         Sort sort = Optional.ofNullable(pagingRequest.getSortBy())

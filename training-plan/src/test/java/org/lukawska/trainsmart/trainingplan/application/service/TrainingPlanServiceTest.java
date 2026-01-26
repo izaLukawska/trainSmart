@@ -123,7 +123,6 @@ class TrainingPlanServiceTest {
     void shouldGetTrainingPlanResponseByPlanId() {
         // given
         final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
-
         when(trainingPlanRepository.findByIdAndUserId(PLAN_ID, USER_ID)).thenReturn(Optional.of(trainingPlan));
 
         // when
@@ -139,7 +138,6 @@ class TrainingPlanServiceTest {
     void shouldGetTrainingPlanDetailsByPlanId() {
         // given
         final TrainingPlan trainingPlan = trainingPlan(mock(User.class));
-
         when(trainingPlanRepository.findByIdAndUserId(PLAN_ID, USER_ID)).thenReturn(Optional.of(trainingPlan));
 
         // when
