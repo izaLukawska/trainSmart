@@ -6,6 +6,7 @@ import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
 import org.lukawska.trainsmart.security.config.SecurityConfig;
+import org.lukawska.trainsmart.testutils.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -14,10 +15,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Random;
 
 import static org.hamcrest.Matchers.*;
-import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,11 +47,12 @@ class MailControllerIT {
     @Test
     void shouldReturnMailById() throws Exception {
         // given
-        final MailResponse mailResponse = mailResponseWithId(1L);
-        when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
+        final MailResponse mailResponse = mailResponse();
+        final Long id = mailResponse.id();
+        when(mailService.getMailResponseById(id)).thenReturn(mailResponse);
 
         // when && then
-        mockMvc.perform(get("/mail/1").with(csrf()))
+        mockMvc.perform(get("/mail/" + id).with(csrf()))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id").value(mailResponse.id()))
                .andExpect(jsonPath("$.subject").value(mailResponse.subject()))
@@ -59,9 +62,10 @@ class MailControllerIT {
     @Test
     void shouldReturnAllMailsByRecipient() throws Exception {
         // given
-        final String recipient = randomEmail();
-        when(mailService.getAllMailsByRecipient(recipient))
-                .thenReturn(List.of(mailResponseWithRecipient(recipient), mailResponseWithRecipient(recipient)));
+        final MailResponse mailResponse = mailResponse();
+        final List<MailResponse> mailResponses = List.of(mailResponse, mailResponse);
+        final String recipient = mailResponses.getFirst().recipients().getFirst();
+        when(mailService.getAllMailsByRecipient(recipient)).thenReturn(mailResponses);
 
         // when && then
         mockMvc.perform(get("/mail/recipient").with(csrf()).param("recipient", recipient))
@@ -73,10 +77,9 @@ class MailControllerIT {
     @Test
     void shouldReturnAllMailsBySubject() throws Exception {
         // given
-        final String subject = "subject";
-        final String keyword = "sub";
-        when(mailService.getAllMailsBySubjectContaining(keyword))
-                .thenReturn(List.of(mailResponseWithSubject(subject), mailResponseWithSubject(subject)));
+        final List<MailResponse> mailResponses = List.of(mailResponse(), mailResponse());
+        final String keyword = mailResponses.getFirst().subject().substring(3);
+        when(mailService.getAllMailsBySubjectContaining(keyword)).thenReturn(mailResponses);
 
         // when && then
         mockMvc.perform(get("/mail/subject").with(csrf()).param("keyword", keyword))
@@ -95,10 +98,22 @@ class MailControllerIT {
     @Test
     void shouldReturnForbidden() throws Exception {
         // given
-        final MailResponse mailResponse = mailResponseWithId(1L);
-        when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
+        final MailResponse mailResponse = mailResponse();
+        final Long id = mailResponse.id();
+        when(mailService.getMailResponseById(id)).thenReturn(mailResponse);
 
         // when && then
-        mockMvc.perform(get("/mail/1").with(csrf())).andExpect(status().isForbidden());
+        mockMvc.perform(get("/mail/" + id).with(csrf())).andExpect(status().isForbidden());
+    }
+
+    private MailResponse mailResponse() {
+        return new MailResponse(new Random().nextLong(100),
+                                List.of(TestData.email()),
+                                List.of(TestData.email()),
+                                "subject",
+                                TestData.email(),
+                                TestData.email(),
+                                List.of(),
+                                Instant.now());
     }
 }

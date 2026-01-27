@@ -61,10 +61,10 @@ class MailSenderAdapterIT {
     @Test
     void shouldSendMailSuccess() throws Exception {
         //given
-        final MailDetails mailRequest = mailDetailsWithAttachments();
+        final MailDetails mailDetails = mailDetailsWithAttachments();
 
         //when
-        mailSenderAdapter.sendEmail(mailRequest);
+        mailSenderAdapter.sendEmail(mailDetails);
 
         //then
         URI uri = URI.create(String.format("http://%s:%d/api/v2/messages",
@@ -82,7 +82,7 @@ class MailSenderAdapterIT {
         String from = getHeaderValue(sentMail, "From");
         String replyTo = getHeaderValue(sentMail, "Reply-To");
 
-        assertThat(subject).isEqualTo(mailRequest.subject());
+        assertThat(subject).isEqualTo(mailDetails.subject());
         assertThat(replyTo).isEqualTo(mailingProperties.getReplyTo());
         assertThat(from).isEqualTo(mailingProperties.getFrom());
     }

@@ -70,7 +70,7 @@ public class UserService {
 
         try {
             user.changeEmail(changeEmailRequest.getCurrentEmail());
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
             log.info("Mail updated");
         } catch (DataIntegrityViolationException e) {
             throw new UserManagementException(ExceptionType.EMAIL_TAKEN);
