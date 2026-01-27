@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,18 +44,21 @@ public class AuthenticationServiceIT {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
+    @Autowired
+    private JwtService jwtService;
+
     @MockitoBean
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private JwtService jwtService;
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void shouldReturnAuthResponseWhenLogin() {
         //given
         final String rawPassword = TestData.rawPassword();
         final User user = testFixtures.user()
-                                      .withPassword(rawPassword)
+                                      .withPassword(passwordEncoder.encode(rawPassword))
                                       .save();
         final LoginRequest loginRequest = new LoginRequest(user.getUsername(), rawPassword);
 

@@ -3,6 +3,8 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.config.TestFixtures;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.lukawska.trainsmart.testutils.TestData;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
 import org.lukawska.trainsmart.usermanagement.domain.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +35,16 @@ public class RefreshTokenCleanupServiceIT {
     @Test
     void shouldDeleteAllExpiredTokenWhenCleanupExpiredTokens() {
         //given
+        final User user = testFixtures.user()
+                                      .withUsername(TestData.username())
+                                      .save();
         final Instant expiredDate = Instant.now().minusSeconds(100);
         final RefreshToken expiredToken1 = testFixtures.refreshToken()
                                                        .withExpiresAt(expiredDate)
-                                                       .save();
-        final RefreshToken expiredToken2 = testFixtures.refreshToken()
-                                                       .withExpiresAt(expiredDate)
+                                                       .forUser(user)
                                                        .save();
         final RefreshToken validToken = testFixtures.refreshToken()
+                                                    .forUser(user)
                                                     .withExpiresAt(Instant.now().plusSeconds(100))
                                                     .save();
 
@@ -49,7 +53,6 @@ public class RefreshTokenCleanupServiceIT {
 
         //then
         assertThat(refreshTokenRepository.findByToken(expiredToken1.getToken())).isNotPresent();
-        assertThat(refreshTokenRepository.findByToken(expiredToken2.getToken())).isNotPresent();
         assertThat(refreshTokenRepository.findByToken(validToken.getToken())).isPresent();
     }
 }

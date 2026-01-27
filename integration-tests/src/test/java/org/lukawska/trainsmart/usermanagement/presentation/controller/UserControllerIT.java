@@ -1,7 +1,6 @@
 package org.lukawska.trainsmart.usermanagement.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
@@ -22,6 +21,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.time.LocalDate;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static org.lukawska.trainsmart.testutils.TestData.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -47,8 +47,8 @@ public class UserControllerIT {
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
 
-    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule())
-                                                          .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule())
+                                                                .disable(WRITE_DATES_AS_TIMESTAMPS);
 
     @Test
     void shouldReturn200WithUserProfileResponseWhenActivateAccount() throws Exception {

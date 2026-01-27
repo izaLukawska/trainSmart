@@ -2,6 +2,7 @@ package org.lukawska.trainsmart.config;
 
 import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.repositories.ExerciseRepository;
+import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
 import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
 import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
 import org.lukawska.trainsmart.testutils.builders.*;
@@ -26,6 +27,8 @@ public class TestFixtures {
 
     private final UserAgreementRepository userAgreementRepository;
 
+    private final HealthSurveyRepository healthSurveyRepository;
+
     public UserFixtureBuilder user() {
         return new UserFixtureBuilder(userRepository);
     }
@@ -48,5 +51,9 @@ public class TestFixtures {
 
     public UserAgreementFixtureBuilder userAgreement() {
         return new UserAgreementFixtureBuilder(userAgreementRepository, this);
+    }
+
+    public HealthSurveyFixtureBuilder healthSurvey() {
+        return new HealthSurveyFixtureBuilder(healthSurveyRepository, this);
     }
 }
