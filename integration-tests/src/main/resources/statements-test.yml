@@ -1,0 +1,16 @@
+statements:
+  PESEL:
+    title: "PESEL Consent"
+    version: 5
+    required: true
+    content: Example Content
+  RODO:
+    title: "RODO Consent"
+    version: 3
+    required: true
+    content: Example Content
+  MARKETING:
+    title: "MARKETING Consent"
+    version: 8
+    required: false
+    content: Example Content

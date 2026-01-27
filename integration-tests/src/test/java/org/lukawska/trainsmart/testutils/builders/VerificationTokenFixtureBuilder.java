@@ -30,11 +30,6 @@ public class VerificationTokenFixtureBuilder {
         return this;
     }
 
-    public VerificationTokenFixtureBuilder withTokenType(TokenType tokenType) {
-        this.tokenType = tokenType;
-        return this;
-    }
-
     public VerificationToken build() {
         User user = Optional.ofNullable(this.user).orElseGet(() -> testFixtures.user().save());
         return new VerificationToken(tokenValue, user, expiresAt, tokenType);

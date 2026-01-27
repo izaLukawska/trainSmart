@@ -1,0 +1,100 @@
+package org.lukawska.trainsmart.statements.presentation.controller;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.lukawska.trainsmart.commons.jwt.JwtService;
+import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
+import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
+import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
+import org.lukawska.trainsmart.statements.application.services.UserAgreementService;
+import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+
+import java.util.List;
+import java.util.Random;
+
+import static org.lukawska.trainsmart.statements.presentation.controller.UserAgreementResponseAssert.then;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(UserAgreementController.class)
+@ActiveProfiles("test")
+@WithMockUser
+public class UserAgreementControllerIT {
+
+    private final static String BASE_URL = "/users/{userId}/agreements";
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Long userId = 1L;
+    @MockitoBean
+    private UserAgreementService userAgreementService;
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;
+    @MockitoBean
+    private JwtService jwtService;
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void shouldSignAgreementAndReturnOkStatus() throws Exception {
+        //given
+        final UserAgreementResponse response = userAgreementResponse("RODO");
+        final UserAgreementRequest request = new UserAgreementRequest(
+                response.statementCode(), response.agreementStatus());
+        when(userAgreementService.signAgreement(userId, request)).thenReturn(response);
+
+        //when && then
+        RequestBuilder requestBuilder = put(BASE_URL.concat("/sign"), userId)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        mockMvc.perform(requestBuilder).andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnUserAgreementResponses() throws Exception {
+        //given
+        final UserAgreementResponse response1 = userAgreementResponse("PESEL");
+        final UserAgreementResponse response2 = userAgreementResponse("RODO");
+        when(userAgreementService.getRequiredStatementsToSign(userId)).thenReturn(List.of(response1, response2));
+
+        //when
+        String content = mockMvc.perform(get(BASE_URL, userId).with(csrf()))
+                                .andReturn().getResponse().getContentAsString();
+
+        //then
+        List<UserAgreementResponse> actualResponse = objectMapper.readValue(content, new TypeReference<>() {});
+        then(actualResponse.getFirst()).hasId(response1.id())
+                                       .hasStatementCode(response1.statementCode())
+                                       .hasVersion(response1.version())
+                                       .hasStatus(response1.agreementStatus());
+        then(actualResponse.getLast()).hasId(response2.id())
+                                      .hasStatementCode(response2.statementCode())
+                                      .hasVersion(response2.version())
+                                      .hasStatus(response2.agreementStatus());
+    }
+
+    @Test
+    void shouldThrowBadRequestWhenGetRequiredStatementsToSignByInvalidUserId() throws Exception {
+        //given
+        final Long userId = -10L;
+
+        //when && then
+        mockMvc.perform(get(BASE_URL, userId)).andExpect(status().isBadRequest());
+    }
+
+    private UserAgreementResponse userAgreementResponse(String code) {
+        return new UserAgreementResponse(new Random().nextLong(), code, 2, AgreementStatus.ACCEPTED);
+    }
+}

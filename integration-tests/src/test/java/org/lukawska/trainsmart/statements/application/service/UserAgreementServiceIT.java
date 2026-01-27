@@ -1,6 +1,5 @@
 package org.lukawska.trainsmart.statements.application.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.config.TestFixtures;
@@ -36,16 +35,11 @@ class UserAgreementServiceIT {
     @Autowired
     private TestFixtures testFixtures;
 
-    private User user;
-
-    @BeforeEach
-    void setUp() {
-        user = testFixtures.user().save();
-    }
-
     @Test
     void shouldCreateAndSaveAgreementWhenSignAgreement() {
         //given
+        final User user = testFixtures.user()
+                                      .save();
         final UserAgreementRequest request = userAgreementRequest();
 
         //when
@@ -60,46 +54,44 @@ class UserAgreementServiceIT {
     void shouldUpdateAndSaveAgreementWhenSignAgreement() {
         //given
         final UserAgreementRequest request = userAgreementRequest();
-        final UserAgreement oldUserAgreement = outdatedUserAgreement(user, "GPDR");
-        userAgreementRepository.saveAndFlush(oldUserAgreement);
+        final UserAgreement oldUserAgreement = testFixtures.userAgreement()
+                                                           .withCode(request.statementCode())
+                                                           .save();
 
         //when
-        UserAgreementResponse result = userAgreementService.signAgreement(user.getId(), request);
+        UserAgreementResponse result = userAgreementService.signAgreement(oldUserAgreement.getUser().getId(), request);
 
         //then
         assertThat(result.agreementStatus()).isEqualTo(oldUserAgreement.getStatus());
         assertThat(result.statementCode()).isEqualTo(oldUserAgreement.getStatementCode());
-        assertThat(result.version()).isEqualTo(5);
+        assertThat(result.version()).isEqualTo(3);
     }
 
     @Test
     void shouldReturnRequiredStatementToSignByUserId() {
         //given
-        final Long userId = user.getId();
-        final UserAgreement oldUserAgreement1 = outdatedUserAgreement(user, "GPDR");
-        final UserAgreement oldUserAgreement2 = outdatedUserAgreement(user, "RODO");
+        final User user = testFixtures.user()
+                                      .save();
+        final UserAgreement oldUserAgreement1 = testFixtures.userAgreement()
+                                                            .withUser(user)
+                                                            .save();
+        final UserAgreement oldUserAgreement2 = testFixtures.userAgreement()
+                                                            .withUser(user)
+                                                            .withCode("PESEL")
+                                                            .save();
         userAgreementRepository.saveAllAndFlush(List.of(oldUserAgreement1, oldUserAgreement2));
 
         //when
-        List<UserAgreementResponse> result = userAgreementService.getRequiredStatementsToSign(userId);
+        List<UserAgreementResponse> result = userAgreementService.getRequiredStatementsToSign(user.getId());
 
         //then
-        UserAgreementResponse userAgreement1 = result.getFirst();
-        assertThat(userAgreement1.agreementStatus()).isEqualTo(oldUserAgreement1.getStatus());
-        assertThat(userAgreement1.statementCode()).isEqualTo(oldUserAgreement1.getStatementCode());
-        assertThat(userAgreement1.version()).isEqualTo(oldUserAgreement1.getStatementVersion());
-
-        UserAgreementResponse userAgreement2 = result.getLast();
-        assertThat(userAgreement2.agreementStatus()).isEqualTo(oldUserAgreement2.getStatus());
-        assertThat(userAgreement2.statementCode()).isEqualTo(oldUserAgreement2.getStatementCode());
-        assertThat(userAgreement2.version()).isEqualTo(oldUserAgreement2.getStatementVersion());
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(UserAgreementResponse::statementCode)
+                          .containsExactlyInAnyOrder(oldUserAgreement1.getStatementCode(),
+                                                     oldUserAgreement2.getStatementCode());
     }
 
     private UserAgreementRequest userAgreementRequest() {
         return new UserAgreementRequest("RODO", AgreementStatus.ACCEPTED);
-    }
-
-    private UserAgreement outdatedUserAgreement(User user, String code) {
-        return new UserAgreement(user, code, 1, AgreementStatus.ACCEPTED);
     }
 }

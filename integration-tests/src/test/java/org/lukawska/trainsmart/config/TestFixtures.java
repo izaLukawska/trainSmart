@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.config;
 import lombok.RequiredArgsConstructor;
 import org.lukawska.trainsmart.exercisecatalog.domain.repositories.ExerciseRepository;
 import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
+import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
 import org.lukawska.trainsmart.testutils.builders.*;
 import org.lukawska.trainsmart.usermanagement.domain.repository.RefreshTokenRepository;
 import org.lukawska.trainsmart.usermanagement.domain.repository.UserRepository;
@@ -23,6 +24,8 @@ public class TestFixtures {
 
     private final MailRepository mailRepository;
 
+    private final UserAgreementRepository userAgreementRepository;
+
     public UserFixtureBuilder user() {
         return new UserFixtureBuilder(userRepository);
     }
@@ -41,5 +44,9 @@ public class TestFixtures {
 
     public MailingFixtureBuilder mail() {
         return new MailingFixtureBuilder(mailRepository);
+    }
+
+    public UserAgreementFixtureBuilder userAgreement() {
+        return new UserAgreementFixtureBuilder(userAgreementRepository, this);
     }
 }
