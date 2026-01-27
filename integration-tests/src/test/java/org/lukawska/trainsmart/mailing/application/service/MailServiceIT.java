@@ -25,7 +25,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailDetailsWithAttachments;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -52,7 +51,7 @@ class MailServiceIT {
     @Test
     void shouldSendAndSaveMailSuccess() throws MessagingException {
         //given
-        final MailDetails mailDetails = mailDetailsWithAttachments();
+        final MailDetails mailDetails = TestData.mailDetailsWithAttachments();
         doNothing().when(mailSender).sendEmail(mailDetails);
 
         //when
@@ -128,7 +127,7 @@ class MailServiceIT {
     @Test
     void shouldThrowExceptionWhenSendMailError() throws MessagingException {
         //given
-        final MailDetails mailDetails = mailDetailsWithAttachments();
+        final MailDetails mailDetails = TestData.mailDetailsWithAttachments();
         doThrow(new MessagingException("send error")).when(mailSender).sendEmail(mailDetails);
 
         //when && then

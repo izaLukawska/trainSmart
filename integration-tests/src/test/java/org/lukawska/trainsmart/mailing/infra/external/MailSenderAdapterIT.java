@@ -7,6 +7,7 @@ import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.MailSenderAdapter;
+import org.lukawska.trainsmart.testutils.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -26,7 +27,6 @@ import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.mailDetailsWithAttachments;
 
 @Testcontainers
 @SpringBootTest
@@ -61,7 +61,7 @@ class MailSenderAdapterIT {
     @Test
     void shouldSendMailSuccess() throws Exception {
         //given
-        final MailDetails mailDetails = mailDetailsWithAttachments();
+        final MailDetails mailDetails = TestData.mailDetailsWithAttachments();
 
         //when
         mailSenderAdapter.sendEmail(mailDetails);
@@ -94,7 +94,7 @@ class MailSenderAdapterIT {
         mailhog.stop();
 
         //when && then
-        assertThatThrownBy(() -> mailSenderAdapter.sendEmail(mailDetailsWithAttachments()))
+        assertThatThrownBy(() -> mailSenderAdapter.sendEmail(TestData.mailDetailsWithAttachments()))
                 .isInstanceOf(MailException.class);
     }
 
