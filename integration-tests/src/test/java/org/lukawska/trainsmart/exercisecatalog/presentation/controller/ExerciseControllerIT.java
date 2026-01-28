@@ -111,8 +111,8 @@ class ExerciseControllerIT {
     void shouldReturnBadRequestWhenNotFound() throws Exception {
         //given
         final String name = exerciseName();
-        when(exerciseService.getExerciseByName(name)).thenThrow(
-                new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
+        when(exerciseService.getExerciseByName(name))
+                .thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
         //when && then
         RequestBuilder request = get("/exercises/name").with(csrf())

@@ -130,7 +130,7 @@ class HealthSurveyServiceIT {
                                       .save();
         final HealthSurvey healthSurvey = testFixtures.healthSurvey()
                                                       .forUser(user)
-                                                      .save();
+                                                      .build();
         final Long userId = healthSurvey.getUser().getId();
         final Integer initialWeight = healthSurvey.getWeight();
         final Integer updatedWeight = 60;

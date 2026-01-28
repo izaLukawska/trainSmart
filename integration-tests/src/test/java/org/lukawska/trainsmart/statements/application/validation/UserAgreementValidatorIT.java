@@ -47,8 +47,7 @@ class UserAgreementValidatorIT {
     @Test
     void shouldReturnTrueWhenUserAgreementIsOutdated() {
         //given
-        final UserAgreement oldUserAgreement = testFixtures.userAgreement()
-                                                           .save();
+        final UserAgreement oldUserAgreement = testFixtures.userAgreement().save();
 
         //when
         boolean result = validator.outdatedUserAgreement(oldUserAgreement);

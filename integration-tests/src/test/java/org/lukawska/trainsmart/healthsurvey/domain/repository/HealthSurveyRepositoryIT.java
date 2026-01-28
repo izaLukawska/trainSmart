@@ -49,8 +49,7 @@ class HealthSurveyRepositoryIT {
     @Test
     void shouldThrowExceptionWhenConstraintViolation() {
         //given
-        final HealthSurvey healthSurvey = testFixtures.healthSurvey()
-                                                      .build();
+        final HealthSurvey healthSurvey = testFixtures.healthSurvey().build();
         final HealthSurvey duplicate = testFixtures.healthSurvey()
                                                    .forUser(healthSurvey.getUser())
                                                    .build();

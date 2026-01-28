@@ -19,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.lukawska.trainsmart.testutils.TestData.exerciseName;
 
 @SpringBootTest
 @Transactional
@@ -42,8 +42,7 @@ class ExerciseServiceIT {
     @Test
     void shouldCreateExerciseSuccess() {
         //given
-        final String name = UUID.randomUUID().toString();
-        final ExerciseRequest request = new ExerciseRequest(name, MuscleGroup.CHEST, ExerciseType.OTHER);
+        final ExerciseRequest request = new ExerciseRequest(exerciseName(), MuscleGroup.CHEST, ExerciseType.OTHER);
 
         //when
         ExerciseResponse result = exerciseService.createExercise(request);
@@ -75,10 +74,8 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesByMuscleGroup() {
         //given
-        final Exercise exercise1 = testFixtures.exercise()
-                                               .save();
-        final Exercise exercise2 = testFixtures.exercise()
-                                               .save();
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
         final Exercise exercise3 = testFixtures.exercise()
                                                .withMuscleGroup(MuscleGroup.HAMSTRINGS)
                                                .save();
@@ -97,12 +94,9 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnAllExercises() {
         //given
-        final Exercise exercise1 = testFixtures.exercise()
-                                               .save();
-        final Exercise exercise2 = testFixtures.exercise()
-                                               .save();
-        final Exercise exercise3 = testFixtures.exercise()
-                                               .save();
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
+        final Exercise exercise3 = testFixtures.exercise().save();
 
         //when
         List<Exercise> result = exerciseService.getAllExercises();
@@ -115,10 +109,8 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesByType() {
         //given
-        final Exercise exercise1 = testFixtures.exercise()
-                                               .save();
-        final Exercise exercise2 = testFixtures.exercise()
-                                               .save();
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
         final Exercise exercise3 = testFixtures.exercise()
                                                .withExerciseType(ExerciseType.OTHER)
                                                .save();
@@ -136,12 +128,9 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesCreatedAtGreaterOrEqual() {
         //given
-        final Exercise exercise1 = testFixtures.exercise()
-                                               .save();
-        final Exercise exercise2 = testFixtures.exercise()
-                                               .save();
-        final Exercise exercise3 = testFixtures.exercise()
-                                               .save();
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
+        final Exercise exercise3 = testFixtures.exercise().save();
 
         exerciseRepository.save(exercise1);
         exerciseRepository.saveAll(List.of(exercise2, exercise3));

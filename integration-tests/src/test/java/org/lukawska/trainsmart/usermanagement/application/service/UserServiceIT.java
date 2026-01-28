@@ -76,8 +76,7 @@ class UserServiceIT {
     @Test
     void shouldReturnUserProfileResponseAndActivateAccount() {
         //given
-        final VerificationToken verificationToken = testFixtures.verificationToken()
-                                                                .save();
+        final VerificationToken verificationToken = testFixtures.verificationToken().save();
         final String tokenValue = verificationToken.getToken();
 
         //when
@@ -92,8 +91,7 @@ class UserServiceIT {
     @WithMockUser(username = "active_user")
     void shouldChangeEmailWhenValidRequestCredentials() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
         final String oldEmail = user.getEmail();
         final String newEmail = email();
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(oldEmail, newEmail);
@@ -111,8 +109,7 @@ class UserServiceIT {
     @WithMockUser(username = "active_user")
     void shouldSkipUpdateWhenMailUnchanged() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
         final String oldEmail = user.getEmail();
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(oldEmail, oldEmail);
 
@@ -171,8 +168,7 @@ class UserServiceIT {
     @Test
     void shouldSendVerificationLink() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
         final TokenTypeEnum tokenTypeEnum = TokenTypeEnum.ACTIVATION;
         final SendVerificationLinkRequest request = new SendVerificationLinkRequest(user.getUsername(), tokenTypeEnum);
 
@@ -214,8 +210,7 @@ class UserServiceIT {
     @WithMockUser(username = "active_user")
     void shouldDeleteAccountSuccess() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
 
         //when
         userService.deleteAccount();
@@ -227,8 +222,7 @@ class UserServiceIT {
     @Test
     void shouldReturnUserByUsername() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
 
         //when
         User result = userService.getUserByUsername(user.getUsername());
@@ -241,8 +235,7 @@ class UserServiceIT {
     @WithMockUser(username = "active_user")
     void shouldThrowUserManagementExceptionWhenInvalidEmail() {
         //given
-        testFixtures.user()
-                    .save();
+        testFixtures.user().save();
         final String invalidEmail = email();
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(invalidEmail, invalidEmail);
 
@@ -256,8 +249,7 @@ class UserServiceIT {
     @WithMockUser(username = "active_user")
     void shouldThrowUserManagementExceptionWhenEmailTaken() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
         final User otherUser = testFixtures.user()
                                            .withUsername(username())
                                            .save();
@@ -273,8 +265,7 @@ class UserServiceIT {
     @WithMockUser(username = "active_user")
     void shouldThrowUserManagementExceptionWhenChangePasswordWithInvalidPassword() {
         //given
-        testFixtures.user()
-                    .save();
+        testFixtures.user().save();
         final String wrongPassword = rawPassword();
         final ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest(wrongPassword, wrongPassword);
 

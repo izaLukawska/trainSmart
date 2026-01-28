@@ -5,7 +5,6 @@ import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.config.TestFixtures;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.testutils.TestData;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
 import org.lukawska.trainsmart.usermanagement.domain.repository.RefreshTokenRepository;
 import org.lukawska.trainsmart.usermanagement.model.AuthResponse;
@@ -28,6 +27,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.lukawska.trainsmart.testutils.TestData.rawPassword;
 
 @SpringBootTest
 @Import({PostgresTestConfig.class, TestFixtures.class})
@@ -56,7 +56,7 @@ public class AuthenticationServiceIT {
     @Test
     void shouldReturnAuthResponseWhenLogin() {
         //given
-        final String rawPassword = TestData.rawPassword();
+        final String rawPassword = rawPassword();
         final User user = testFixtures.user()
                                       .withPassword(passwordEncoder.encode(rawPassword))
                                       .save();
@@ -78,9 +78,7 @@ public class AuthenticationServiceIT {
     @Test
     void shouldThrowDisabledExceptionWhenUserAccountInactive() {
         //given
-        final User user = testFixtures.user()
-                                      .inactive()
-                                      .save();
+        final User user = testFixtures.user().inactive().save();
         final LoginRequest loginRequest = new LoginRequest(user.getUsername(), user.getPassword());
 
         //when && then
@@ -90,9 +88,8 @@ public class AuthenticationServiceIT {
     @Test
     void shouldThrowBadCredentialsWhenUserInvalidPassword() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
-        final LoginRequest loginRequest = new LoginRequest(user.getUsername(), TestData.rawPassword());
+        final User user = testFixtures.user().save();
+        final LoginRequest loginRequest = new LoginRequest(user.getUsername(), rawPassword());
 
         //when && then
         assertThatThrownBy(() -> authenticationService.login(loginRequest)).isInstanceOf(BadCredentialsException.class);
@@ -101,8 +98,7 @@ public class AuthenticationServiceIT {
     @Test
     void shouldReturnAuthResponseWithNewTokensWhenRefreshToken() {
         //given
-        final RefreshToken refreshToken = testFixtures.refreshToken()
-                                                      .save();
+        final RefreshToken refreshToken = testFixtures.refreshToken().save();
         final RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(refreshToken.getToken());
 
         //when
@@ -119,8 +115,7 @@ public class AuthenticationServiceIT {
     @Test
     void shouldRevokeRefreshTokenWhenLogout() {
         //given
-        final RefreshToken refreshToken = testFixtures.refreshToken()
-                                                      .save();
+        final RefreshToken refreshToken = testFixtures.refreshToken().save();
         final LogoutRequest logoutRequest = new LogoutRequest(refreshToken.getToken());
 
         //when

@@ -72,8 +72,7 @@ class MailServiceIT {
     @Test
     void shouldReturnMailById() {
         //given
-        final MailEntity mailEntity = testFixtures.mail()
-                                                  .save();
+        final MailEntity mailEntity = testFixtures.mail().save();
         final List<AttachmentMeta> expectedAttachmentMeta = mapToAttachmentMetaList(mailEntity.getAttachments());
 
         //when
@@ -88,8 +87,7 @@ class MailServiceIT {
     @Test
     void shouldReturnAllMailsByRecipient() {
         //given
-        final MailEntity mail1 = testFixtures.mail()
-                                             .save();
+        final MailEntity mail1 = testFixtures.mail().save();
         final String recipient = TestData.email();
         final MailEntity mail2 = testFixtures.mail()
                                              .withRecipients(List.of(recipient))

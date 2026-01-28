@@ -38,8 +38,7 @@ class UserAgreementServiceIT {
     @Test
     void shouldCreateAndSaveAgreementWhenSignAgreement() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
         final UserAgreementRequest request = userAgreementRequest();
 
         //when
@@ -70,8 +69,7 @@ class UserAgreementServiceIT {
     @Test
     void shouldReturnRequiredStatementToSignByUserId() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
         final UserAgreement oldUserAgreement1 = testFixtures.userAgreement()
                                                             .withUser(user)
                                                             .save();

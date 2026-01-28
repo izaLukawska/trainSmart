@@ -15,11 +15,6 @@ public class UserAgreementResponseAssert {
         return new UserAgreementResponseAssert(userAgreementResponse);
     }
 
-    public UserAgreementResponseAssert hasPositiveId() {
-        assertThat(userAgreementResponse.id()).isPositive();
-        return this;
-    }
-
     public UserAgreementResponseAssert hasId(Long id) {
         assertThat(userAgreementResponse.id()).isEqualTo(id);
         return this;

@@ -41,8 +41,7 @@ class RefreshTokenServiceIT {
     @Test
     void shouldReturnRefreshTokenByTokenValue() {
         //given
-        final RefreshToken refreshToken = testFixtures.refreshToken()
-                                                      .save();
+        final RefreshToken refreshToken = testFixtures.refreshToken().save();
 
         //when
         RefreshToken result = refreshTokenService.getRefreshToken(refreshToken.getToken());
@@ -58,8 +57,7 @@ class RefreshTokenServiceIT {
     @Test
     void shouldReturnRefreshTokenWhenCreateRefreshToken() {
         //given
-        final RefreshToken refreshToken = testFixtures.refreshToken()
-                                                      .build();
+        final RefreshToken refreshToken = testFixtures.refreshToken().build();
         final Instant expectedExpiresAt = Instant.now().plusMillis(refreshTokenProperties.getExpirationMs());
 
         //when
@@ -76,8 +74,7 @@ class RefreshTokenServiceIT {
     @Test
     void shouldReturnRefreshTokenWhenRotateRefreshTokenByTokenValue() {
         //given
-        final RefreshToken refreshToken = testFixtures.refreshToken()
-                                                      .save();
+        final RefreshToken refreshToken = testFixtures.refreshToken().save();
         final Instant expectedExpiresAt = Instant.now().plusMillis(refreshTokenProperties.getExpirationMs());
 
         //when
@@ -110,8 +107,7 @@ class RefreshTokenServiceIT {
     @Test
     void shouldThrowUserManagementExceptionAndDeleteAllRefreshTokensWhenRotateInvalidRefreshTokenRevoked() {
         //given
-        final User user = testFixtures.user()
-                                      .save();
+        final User user = testFixtures.user().save();
         final RefreshToken revokedToken = testFixtures.refreshToken()
                                                       .forUser(user)
                                                       .isRevoked(true)
@@ -125,6 +121,7 @@ class RefreshTokenServiceIT {
         assertThatThrownBy(() -> refreshTokenService.rotateRefreshToken(revokedTokenValue))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.INVALID_TOKEN.getMessage());
+
         assertThat(refreshTokenRepository.findByToken(revokedTokenValue)).isNotPresent();
         assertThat(refreshTokenRepository.findByToken(validToken.getToken())).isNotPresent();
     }

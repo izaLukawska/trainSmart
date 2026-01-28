@@ -31,8 +31,7 @@ class VerificationTokenRepositoryIT {
     @Test
     void shouldDeleteTokenByUserAndTokenType() {
         //given
-        final VerificationToken verificationToken = testFixtures.verificationToken()
-                                                                .save();
+        final VerificationToken verificationToken = testFixtures.verificationToken().save();
         final TokenType tokenType = verificationToken.getTokenType();
         final User user = verificationToken.getUser();
 

@@ -37,9 +37,9 @@ public class HealthSurveyFixtureBuilder {
         User user = Optional.ofNullable(this.user).orElseGet(() -> testFixtures.user().save());
         return HealthSurvey.builder()
                            .user(user)
-                           .gender(Gender.MALE)
-                           .height(180)
-                           .weight(80)
+                           .gender(gender)
+                           .height(height)
+                           .weight(weight)
                            .injuries(injuries)
                            .build();
     }

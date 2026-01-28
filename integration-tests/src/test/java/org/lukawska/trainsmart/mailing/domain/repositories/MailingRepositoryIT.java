@@ -34,10 +34,8 @@ class MailingRepositoryIT {
     @Test
     void shouldReturnAllMailsForRecipient() {
         // given
-        final MailEntity mailEntity1 = testFixtures.mail()
-                                                   .save();
-        final MailEntity mailEntity2 = testFixtures.mail()
-                                                   .save();
+        final MailEntity mailEntity1 = testFixtures.mail().save();
+        final MailEntity mailEntity2 = testFixtures.mail().save();
         final MailEntity mailEntity3 = testFixtures.mail()
                                                    .withRecipients(List.of(TestData.email()))
                                                    .save();
