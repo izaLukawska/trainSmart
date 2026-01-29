@@ -49,7 +49,8 @@
         <spring-retry.version>2.0.12</spring-retry.version>
         <postgresql.version>42.7.8</postgresql.version>
         <jacoco.version>0.8.13</jacoco.version>
-        <logback.version>1.5.19</logback.version>
+        <assertj.version>3.27.7</assertj.version>
+        <logback.version>1.5.25</logback.version>
         <tomcat.version>11.0.15</tomcat.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <jjwt.version>0.13.0</jjwt.version>
@@ -158,6 +159,12 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

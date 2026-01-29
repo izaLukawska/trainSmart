@@ -3,7 +3,7 @@ package org.lukawska.trainsmart.usermanagement.presentation.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.usermanagement.api.UsersApi;
+import org.lukawska.trainsmart.usermanagement.api.UserApi;
 import org.lukawska.trainsmart.usermanagement.application.service.UserService;
 import org.lukawska.trainsmart.usermanagement.model.*;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-public class UserController implements UsersApi {
+public class UserController implements UserApi {
 
     private final UserService userService;
 

@@ -7,6 +7,7 @@ import org.lukawska.trainsmart.gymfinder.application.exception.GymSearchExceptio
 import org.lukawska.trainsmart.gymfinder.application.mapper.FindGymMapper;
 import org.lukawska.trainsmart.gymfinder.domain.util.GeoDistanceCalculator;
 import org.lukawska.trainsmart.gymfinder.domain.valueObject.GeoPoint;
+import org.lukawska.trainsmart.gymfinder.infra.config.RedisConfig;
 import org.lukawska.trainsmart.gymfinder.model.FindGymRequest;
 import org.lukawska.trainsmart.gymfinder.model.FindGymResponse;
 import org.springframework.cache.annotation.Cacheable;
@@ -41,7 +42,7 @@ public class GymLocationService {
             """;
 
     @Retryable(retryFor = {ResourceAccessException.class}, backoff = @Backoff(delay = 5000))
-    @Cacheable(value = "nearbyGyms",
+    @Cacheable(value = RedisConfig.NEARBY_GYMS_CACHE,
                key = "{#findGymRequest.userLatitude, #findGymRequest.userLongitude}",
                unless = "#result.isEmpty()")
     public List<FindGymResponse> getGymsNearby(FindGymRequest findGymRequest) {
@@ -76,6 +77,7 @@ public class GymLocationService {
     }
 
     private GymSearchResult searchForGyms(FindGymRequest findGymRequest) {
+        log.info("Calling gym provider");
         String query = String.format(Locale.US, SEARCH_QUERY, findGymRequest.getSearchRadiusMeters(),
                                      findGymRequest.getUserLatitude(), findGymRequest.getUserLongitude());
         try {
@@ -85,8 +87,7 @@ public class GymLocationService {
                                                           .build())
                              .retrieve()
                              .onStatus(HttpStatusCode::isError, (request, response) -> {
-                                 log.error("Overpass API error: {} {}",
-                                           response.getStatusCode(), response.getStatusText());
+                                 log.error("API call error: {} {}", response.getStatusCode(), response.getStatusText());
                                  throw new GymSearchException();
                              })
                              .body(GymSearchResult.class);
