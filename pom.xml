@@ -32,6 +32,7 @@
         <module>exercise-catalog</module>
         <module>integration-tests</module>
         <module>user-management</module>
+        <module>gym-finder</module>
     </modules>
     <scm>
         <connection/>
