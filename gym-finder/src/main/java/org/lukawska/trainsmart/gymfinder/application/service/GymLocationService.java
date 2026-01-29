@@ -1,68 +1,88 @@
 package org.lukawska.trainsmart.gymfinder.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.gymfinder.application.dto.GymContext;
-import org.springframework.core.ParameterizedTypeReference;
+import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.gymfinder.application.dto.FindGymRequest;
+import org.lukawska.trainsmart.gymfinder.application.dto.GymContextResponse;
+import org.lukawska.trainsmart.gymfinder.application.dto.OverpassResponse;
+import org.lukawska.trainsmart.gymfinder.domain.util.GeoDistanceCalculator;
+import org.lukawska.trainsmart.gymfinder.domain.valueObject.GeoPoint;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
+import static org.lukawska.trainsmart.gymfinder.application.mapper.GymContextMapper.mapToGymContextResponse;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GymLocationService {
 
     private final RestClient restClient;
 
-    public List<GymContext> getTop5Gyms(double userLat, double userLon) {
-        try {
-            String query = String.format(Locale.US,
-                                         "[out:json][timeout:10];node[\"leisure\"=\"fitness_centre\"](around:50000," +
-                                                 "%f," +
-                                                 "%f);out body;",
-                                         userLat, userLon);
+    private final static Integer GYM_COUNT_LIMIT = 5;
 
-            Map<String, Object> rawResponse = restClient.get()
-                                                        .uri(uriBuilder -> uriBuilder.path("/interpreter")
-                                                                                     .queryParam("data", query)
-                                                                                     .build())
-                                                        .retrieve()
-                                                        .body(new ParameterizedTypeReference<>() {});
+    private static final String OVERPASS_QUERY = """
+            [out:json][timeout:10];
+            node["leisure"="fitness_centre"]
+              (around:%d,%f,%f);
+            out body;
+            """;
 
-            if (rawResponse == null || !rawResponse.containsKey("elements")) {
-                return Collections.emptyList();
-            }
+    @Retryable(retryFor = {ResourceAccessException.class}, backoff = @Backoff(delay = 5000))
+    @Cacheable(value = "nearbyGyms",
+               key = "{#findGymRequest.userLatitude(), #findGymRequest.userLongitude()}",
+               unless = "#result.isEmpty()")
+    public List<GymContextResponse> getTop5Gyms(FindGymRequest findGymRequest) {
+        double userLatitude = findGymRequest.userLatitude();
+        double userLongitude = findGymRequest.userLongitude();
+        int radiusMeters = findGymRequest.searchRadiusMeters();
 
-            // Extract the list from the "elements" key
-            List<Map<String, Object>> elements = (List<Map<String, Object>>) rawResponse.get("elements");
+        String query = String.format(Locale.US, OVERPASS_QUERY, radiusMeters, userLatitude, userLongitude);
+        log.info("Looking for gyms around lat={}, lon={} with radius={}m", userLatitude, userLongitude, radiusMeters);
+        GeoPoint userGeo = new GeoPoint(userLatitude, userLongitude);
 
-            return elements.stream()
-                           .map(element -> {
-                               Map<String, String> tags = (Map<String, String>) element.get("tags");
-                               String name = (tags != null) ? tags.getOrDefault("name", "Unnamed Gym") : "Unnamed Gym";
-                               double lat = ((Number) element.get("lat")).doubleValue();
-                               double lon = ((Number) element.get("lon")).doubleValue();
+        OverpassResponse response = searchForGyms(query);
 
-                               return new GymContext(name, lat, lon, calculateDistance(userLat, userLon, lat, lon));
-                           })
-                           .sorted(Comparator.comparingDouble(GymContext::distance))
-                           .limit(5)
-                           .toList();
-
-        } catch (Exception e) {
-            System.err.println("Error fetching gyms: " + e.getMessage());
-            return Collections.emptyList();
+        if (CollectionUtils.isEmpty(response.elements())) {
+            log.info("No gyms found nearby.");
+            return List.of();
         }
+
+        return response.elements()
+                       .stream()
+                       .map(location -> {
+                           GeoPoint gymLocation = new GeoPoint(location.lat(), location.lon());
+                           double distanceKm = GeoDistanceCalculator.haversineDistanceKm(userGeo, gymLocation);
+                           return mapToGymContextResponse(location, distanceKm);
+                       })
+                       .sorted(Comparator.comparingDouble(GymContextResponse::distance))
+                       .limit(GYM_COUNT_LIMIT)
+                       .toList();
     }
 
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double earthRadius = 6371; // Kilometers
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return earthRadius * c;
+    @Recover
+    public List<GymContextResponse> recover(ResourceAccessException e, FindGymRequest findGymRequest) {
+        log.error("Failed to fetch gyms after retries: lat={}, lon={}",
+                  findGymRequest.userLatitude(), findGymRequest.userLongitude(), e);
+        return List.of();
+    }
+
+    private OverpassResponse searchForGyms(String query) {
+        return restClient.get()
+                         .uri(uriBuilder -> uriBuilder.path("/interpreter")
+                                                      .queryParam("data", query)
+                                                      .build())
+                         .retrieve()
+                         .body(OverpassResponse.class);
     }
 }
