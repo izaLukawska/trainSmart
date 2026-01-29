@@ -7,7 +7,7 @@ tags:
     description: Gym finder endpoint
 
 paths:
-  /gyms/nearby:
+  /gym/nearby:
     post:
       tags:
         - GymLocation
@@ -40,7 +40,7 @@ components:
         searchRadiusMeters:
           type: integer
           minimum: 100
-          maximum: 100_000
+          maximum: 15000
           nullable: false
         userLatitude:
           type: number

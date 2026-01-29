@@ -3,12 +3,14 @@ package org.lukawska.trainsmart.gymfinder.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.gymfinder.application.dto.GymSearchResult;
+import org.lukawska.trainsmart.gymfinder.application.exception.GymSearchException;
 import org.lukawska.trainsmart.gymfinder.application.mapper.FindGymMapper;
 import org.lukawska.trainsmart.gymfinder.domain.util.GeoDistanceCalculator;
 import org.lukawska.trainsmart.gymfinder.domain.valueObject.GeoPoint;
 import org.lukawska.trainsmart.gymfinder.model.FindGymRequest;
 import org.lukawska.trainsmart.gymfinder.model.FindGymResponse;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -39,7 +42,7 @@ public class GymLocationService {
 
     @Retryable(retryFor = {ResourceAccessException.class}, backoff = @Backoff(delay = 5000))
     @Cacheable(value = "nearbyGyms",
-               key = "{#findGymRequest.userLatitude(), #findGymRequest.userLongitude()}",
+               key = "{#findGymRequest.userLatitude, #findGymRequest.userLongitude}",
                unless = "#result.isEmpty()")
     public List<FindGymResponse> getGymsNearby(FindGymRequest findGymRequest) {
         GymSearchResult response = searchForGyms(findGymRequest);
@@ -66,7 +69,7 @@ public class GymLocationService {
 
     @SuppressWarnings("unused")
     @Recover
-    public List<FindGymResponse> recover(ResourceAccessException e, FindGymRequest findGymRequest) {
+    public List<FindGymResponse> recover(GymSearchException e, FindGymRequest findGymRequest) {
         log.error("Failed to fetch gyms after retries: lat: {}, lon: {}",
                   findGymRequest.getUserLatitude(), findGymRequest.getUserLongitude(), e);
         return List.of();
@@ -75,11 +78,20 @@ public class GymLocationService {
     private GymSearchResult searchForGyms(FindGymRequest findGymRequest) {
         String query = String.format(Locale.US, SEARCH_QUERY, findGymRequest.getSearchRadiusMeters(),
                                      findGymRequest.getUserLatitude(), findGymRequest.getUserLongitude());
-        return restClient.get()
-                         .uri(uriBuilder -> uriBuilder.path("/interpreter")
-                                                      .queryParam("data", query)
-                                                      .build())
-                         .retrieve()
-                         .body(GymSearchResult.class);
+        try {
+            return restClient.get()
+                             .uri(uriBuilder -> uriBuilder.path("/interpreter")
+                                                          .queryParam("data", query)
+                                                          .build())
+                             .retrieve()
+                             .onStatus(HttpStatusCode::isError, (request, response) -> {
+                                 log.error("Overpass API error: {} {}", response.getStatusCode(),
+                                           response.getStatusText());
+                                 throw new GymSearchException();
+                             })
+                             .body(GymSearchResult.class);
+        } catch (RestClientException e) {
+            throw new GymSearchException();
+        }
     }
 }
