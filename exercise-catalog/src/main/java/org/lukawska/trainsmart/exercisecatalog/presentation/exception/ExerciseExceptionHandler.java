@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExerciseExceptionHandler {
 
     @ExceptionHandler(ExerciseException.class)
-    public ProblemDetail handleHealthSurveyException(ExerciseException ex) {
+    public ProblemDetail handleExerciseException(ExerciseException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getExceptionType().getHttpStatus(),
                                                                        ex.getMessage());
         problemDetail.setTitle("Exercise exception");

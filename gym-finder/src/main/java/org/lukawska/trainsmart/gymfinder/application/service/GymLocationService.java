@@ -2,12 +2,12 @@ package org.lukawska.trainsmart.gymfinder.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.commons.redis.RedisConfig;
 import org.lukawska.trainsmart.gymfinder.application.dto.GymSearchResult;
 import org.lukawska.trainsmart.gymfinder.application.exception.GymSearchException;
 import org.lukawska.trainsmart.gymfinder.application.mapper.FindGymMapper;
 import org.lukawska.trainsmart.gymfinder.domain.util.GeoDistanceCalculator;
 import org.lukawska.trainsmart.gymfinder.domain.valueObject.GeoPoint;
-import org.lukawska.trainsmart.gymfinder.infra.config.RedisConfig;
 import org.lukawska.trainsmart.gymfinder.model.FindGymRequest;
 import org.lukawska.trainsmart.gymfinder.model.FindGymResponse;
 import org.springframework.cache.annotation.Cacheable;
