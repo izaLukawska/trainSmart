@@ -2,11 +2,12 @@ package org.lukawska.trainsmart.gymfinder.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.gymfinder.application.dto.FindGymRequest;
-import org.lukawska.trainsmart.gymfinder.application.dto.GymContextResponse;
-import org.lukawska.trainsmart.gymfinder.application.dto.OverpassResponse;
+import org.lukawska.trainsmart.gymfinder.application.dto.GymSearchResult;
+import org.lukawska.trainsmart.gymfinder.application.mapper.FindGymMapper;
 import org.lukawska.trainsmart.gymfinder.domain.util.GeoDistanceCalculator;
 import org.lukawska.trainsmart.gymfinder.domain.valueObject.GeoPoint;
+import org.lukawska.trainsmart.gymfinder.model.FindGymRequest;
+import org.lukawska.trainsmart.gymfinder.model.FindGymResponse;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
@@ -20,8 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import static org.lukawska.trainsmart.gymfinder.application.mapper.GymContextMapper.mapToGymContextResponse;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,7 +30,7 @@ public class GymLocationService {
 
     private final static Integer GYM_COUNT_LIMIT = 5;
 
-    private static final String OVERPASS_QUERY = """
+    private static final String SEARCH_QUERY = """
             [out:json][timeout:10];
             node["leisure"="fitness_centre"]
               (around:%d,%f,%f);
@@ -42,47 +41,45 @@ public class GymLocationService {
     @Cacheable(value = "nearbyGyms",
                key = "{#findGymRequest.userLatitude(), #findGymRequest.userLongitude()}",
                unless = "#result.isEmpty()")
-    public List<GymContextResponse> getTop5Gyms(FindGymRequest findGymRequest) {
-        double userLatitude = findGymRequest.userLatitude();
-        double userLongitude = findGymRequest.userLongitude();
-        int radiusMeters = findGymRequest.searchRadiusMeters();
-
-        String query = String.format(Locale.US, OVERPASS_QUERY, radiusMeters, userLatitude, userLongitude);
-        log.info("Looking for gyms around lat={}, lon={} with radius={}m", userLatitude, userLongitude, radiusMeters);
-        GeoPoint userGeo = new GeoPoint(userLatitude, userLongitude);
-
-        OverpassResponse response = searchForGyms(query);
+    public List<FindGymResponse> getGymsNearby(FindGymRequest findGymRequest) {
+        GymSearchResult response = searchForGyms(findGymRequest);
 
         if (CollectionUtils.isEmpty(response.elements())) {
             log.info("No gyms found nearby.");
             return List.of();
         }
 
+        log.info("Found {} gyms nearby.", response.elements().size());
+        GeoPoint userGeo = new GeoPoint(findGymRequest.getUserLatitude(), findGymRequest.getUserLongitude());
+
         return response.elements()
                        .stream()
                        .map(location -> {
                            GeoPoint gymLocation = new GeoPoint(location.lat(), location.lon());
                            double distanceKm = GeoDistanceCalculator.haversineDistanceKm(userGeo, gymLocation);
-                           return mapToGymContextResponse(location, distanceKm);
+                           return FindGymMapper.mapToFindGymResponse(location, distanceKm);
                        })
-                       .sorted(Comparator.comparingDouble(GymContextResponse::distance))
+                       .sorted(Comparator.comparingDouble(FindGymResponse::getDistance))
                        .limit(GYM_COUNT_LIMIT)
                        .toList();
     }
 
+    @SuppressWarnings("unused")
     @Recover
-    public List<GymContextResponse> recover(ResourceAccessException e, FindGymRequest findGymRequest) {
-        log.error("Failed to fetch gyms after retries: lat={}, lon={}",
-                  findGymRequest.userLatitude(), findGymRequest.userLongitude(), e);
+    public List<FindGymResponse> recover(ResourceAccessException e, FindGymRequest findGymRequest) {
+        log.error("Failed to fetch gyms after retries: lat: {}, lon: {}",
+                  findGymRequest.getUserLatitude(), findGymRequest.getUserLongitude(), e);
         return List.of();
     }
 
-    private OverpassResponse searchForGyms(String query) {
+    private GymSearchResult searchForGyms(FindGymRequest findGymRequest) {
+        String query = String.format(Locale.US, SEARCH_QUERY, findGymRequest.getSearchRadiusMeters(),
+                                     findGymRequest.getUserLatitude(), findGymRequest.getUserLongitude());
         return restClient.get()
                          .uri(uriBuilder -> uriBuilder.path("/interpreter")
                                                       .queryParam("data", query)
                                                       .build())
                          .retrieve()
-                         .body(OverpassResponse.class);
+                         .body(GymSearchResult.class);
     }
 }

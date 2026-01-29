@@ -252,6 +252,7 @@
                             <interfaceOnly>true</interfaceOnly>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <useTags>true</useTags>
 
                             <apiPackage>${openapi.packagePrefix}.${openapi.baseName}.api</apiPackage>
                             <modelPackage>${openapi.packagePrefix}.${openapi.baseName}.model</modelPackage>

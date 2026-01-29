@@ -11,12 +11,42 @@
 
     <artifactId>gym-finder</artifactId>
 
+    <properties>
+        <httpclient.version>5.3.1</httpclient.version>
+        <openapi.baseName>gymfinder</openapi.baseName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>5.3.1</version>
+            <version>${httpclient.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/${openapi.baseName}api.yml</inputSpec>
+                            <configOptions>
+                                <usePrimitiveTypes>true</usePrimitiveTypes>
+                                <generateConstructorWithAllArgs>true</generateConstructorWithAllArgs>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

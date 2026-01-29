@@ -1,4 +1,4 @@
-package org.lukawska.trainsmart.gymfinder.application;
+package org.lukawska.trainsmart.gymfinder.infra.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
