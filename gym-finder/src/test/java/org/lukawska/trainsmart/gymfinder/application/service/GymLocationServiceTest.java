@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,15 +43,18 @@ class GymLocationServiceTest {
     @Test
     void shouldReturnFindGymResponseListWhenGymsNearbyPresent() {
         //given
-        final FindGymRequest request = new FindGymRequest(5000, 52.2297, 21.0122);
+        final FindGymRequest request = findGymRequest();
+        final Random random = new Random();
+        final String gymA = "Gym" + random.nextInt();
+        final String gymB = "Gym" + random.nextInt();
         final String expectedResponse = """
                 {
-                    "elements": [
-                        {"lat": 52.2300, "lon": 21.0100, "tags": {"name": "Gym A"}},
-                        {"lat": 49.2300, "lon": 21.0100, "tags": {"name": "Gym B"}}
-                    ]
+                  "elements": [
+                    {"lat": 52.2300, "lon": 21.0100, "tags": {"name": "%s"}},
+                    {"lat": 49.2300, "lon": 21.0100, "tags": {"name": "%s"}}
+                  ]
                 }
-                """;
+                """.formatted(gymA, gymB);
 
         mockServer.expect(once(), requestTo(containsString("/interpreter")))
                   .andRespond(withSuccess(expectedResponse, MediaType.APPLICATION_JSON));
@@ -59,15 +63,14 @@ class GymLocationServiceTest {
         List<FindGymResponse> result = gymLocationService.getGymsNearby(request);
 
         //then
-        assertThat(result.getFirst().getName()).isEqualTo("Gym A");
-        assertThat(result.getLast().getName()).isEqualTo("Gym B");
+        assertThat(result).extracting(FindGymResponse::getName).containsExactlyInAnyOrder(gymA, gymB);
         mockServer.verify();
     }
 
     @Test
     void shouldReturnEmptyListWhenGymsNearbyFound() {
         //given
-        final FindGymRequest request = new FindGymRequest(5000, 52.2297, 21.0122);
+        final FindGymRequest request = findGymRequest();
         final String expectedResponse = """
                 {
                     "elements": []
@@ -89,7 +92,7 @@ class GymLocationServiceTest {
     void shouldReturnEmptyListWhenRecoveringFromException() {
         // given
         final GymSearchException exception = new GymSearchException();
-        final FindGymRequest request = new FindGymRequest(5000, 52.2, 21.0);
+        final FindGymRequest request = findGymRequest();
 
         // when
         List<FindGymResponse> result = gymLocationService.recover(exception, request);
@@ -102,7 +105,7 @@ class GymLocationServiceTest {
     @Test
     void shouldThrowGymSearchExceptionWhenGetGymsNearby() {
         //given
-        final FindGymRequest request = new FindGymRequest(5000, 52.2297, 21.0122);
+        final FindGymRequest request = findGymRequest();
         mockServer.expect(once(), requestTo(containsString("/interpreter")))
                   .andRespond(withException(new IOException("Connection reset")));
 
@@ -115,7 +118,7 @@ class GymLocationServiceTest {
     @Test
     void shouldCoverOnStatusBlockWhenApiReturns500() {
         //given
-        final FindGymRequest request = new FindGymRequest(5000, 52.2297, 21.0122);
+        final FindGymRequest request = findGymRequest();
         mockServer.expect(once(), requestTo(containsString("/interpreter")))
                   .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
@@ -124,5 +127,15 @@ class GymLocationServiceTest {
                 .isInstanceOf(GymSearchException.class);
 
         mockServer.verify();
+    }
+
+    private FindGymRequest findGymRequest() {
+        Random random = new Random();
+
+        int radius = random.nextInt(1, 5001);
+        double lat = random.nextDouble(-90.0, 90.0);
+        double lon = random.nextDouble(-180.0, 180.0);
+
+        return new FindGymRequest(radius, lat, lon);
     }
 }
