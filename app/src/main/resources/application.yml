@@ -52,6 +52,8 @@ spring:
           temperature: 0.0
 
 app:
+  gym-provider:
+    base-url: https://overpass-api.de/api
   security:
     jwt:
       secret: ${JWT_SECRET}
