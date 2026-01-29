@@ -69,7 +69,7 @@ public class GymLocationService {
 
     @SuppressWarnings("unused")
     @Recover
-    public List<FindGymResponse> recover(GymSearchException e, FindGymRequest findGymRequest) {
+    List<FindGymResponse> recover(GymSearchException e, FindGymRequest findGymRequest) {
         log.error("Failed to fetch gyms after retries: lat: {}, lon: {}",
                   findGymRequest.getUserLatitude(), findGymRequest.getUserLongitude(), e);
         return List.of();
@@ -85,8 +85,8 @@ public class GymLocationService {
                                                           .build())
                              .retrieve()
                              .onStatus(HttpStatusCode::isError, (request, response) -> {
-                                 log.error("Overpass API error: {} {}", response.getStatusCode(),
-                                           response.getStatusText());
+                                 log.error("Overpass API error: {} {}",
+                                           response.getStatusCode(), response.getStatusText());
                                  throw new GymSearchException();
                              })
                              .body(GymSearchResult.class);
