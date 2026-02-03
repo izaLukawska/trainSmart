@@ -192,6 +192,7 @@
                         <exclude>**/*Controller.class</exclude>
                         <exclude>**/*Controller$*.class</exclude>
                         <exclude>**/model/**/*.class</exclude>
+                        <exclude>**/model/**.class</exclude>
                         <exclude>**/api/**/*.class</exclude>
                         <exclude>**/invoker/**/*.class</exclude>
                         <exclude>**/Api*.class</exclude>
@@ -210,12 +211,6 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*Controller.class</exclude>
-                                <exclude>**/*Controller$*.class</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>check</id>
@@ -223,10 +218,6 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
-                            <excludes>
-                                <exclude>**/*Controller.class</exclude>
-                                <exclude>**/*Controller$*.class</exclude>
-                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>

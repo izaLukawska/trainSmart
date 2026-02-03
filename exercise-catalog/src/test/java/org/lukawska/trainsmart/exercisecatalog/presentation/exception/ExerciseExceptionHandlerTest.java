@@ -25,14 +25,4 @@ class ExerciseExceptionHandlerTest {
         assertThat(result.getStatus()).isEqualTo(exceptionType.getHttpStatus().value());
         assertThat(result.getDetail()).isEqualTo(exception.getMessage());
     }
-
-    private static ConstraintViolation<?> mockViolation(String message) {
-        Path path = mock(Path.class);
-        doReturn(UUID.randomUUID().toString()).when(path).toString();
-        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
-        when(violation.getPropertyPath()).thenReturn(path);
-        when(violation.getMessage()).thenReturn(message);
-
-        return violation;
-    }
 }

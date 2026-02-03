@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.application.preparation.validation;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanException;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;

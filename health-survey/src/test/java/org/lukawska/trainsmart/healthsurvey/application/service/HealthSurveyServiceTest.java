@@ -63,7 +63,10 @@ class HealthSurveyServiceTest {
     void shouldUpdateOnlyHealthSurveyWeight() {
         //given
         final Long userId = 1L;
-        final HealthSurveyUpdateRequest healthSurveyUpdateRequest = new HealthSurveyUpdateRequest(70);
+
+        final HealthSurveyUpdateRequest healthSurveyUpdateRequest = HealthSurveyUpdateRequest.builder()
+                                                                                             .weight(70)
+                                                                                             .build();
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(existingHealthSurvey));
 
@@ -73,7 +76,7 @@ class HealthSurveyServiceTest {
         //then
         assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
         assertThat(result.injuriesCount()).isEqualTo(existingHealthSurvey.getInjuries().size());
-        assertThat(result.weight()).isEqualTo(healthSurveyUpdateRequest.getWeight());
+        assertThat(result.weight()).isEqualTo(healthSurveyUpdateRequest.weight());
     }
 
     @Test
@@ -81,7 +84,9 @@ class HealthSurveyServiceTest {
         //given
         final Long userId = 1L;
         final HealthSurveyUpdateRequest healthSurveyUpdateRequest =
-                new HealthSurveyUpdateRequest(Set.of(randomInjury()));
+                HealthSurveyUpdateRequest.builder()
+                                         .injuries(Set.of(randomInjury()))
+                                         .build();
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(existingHealthSurvey));
 
@@ -90,7 +95,7 @@ class HealthSurveyServiceTest {
 
         //then
         assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
-        assertThat(result.injuriesCount()).isEqualTo(healthSurveyUpdateRequest.getInjuries().size());
+        assertThat(result.injuriesCount()).isEqualTo(healthSurveyUpdateRequest.injuries().size());
         assertThat(result.weight()).isEqualTo(existingHealthSurvey.getWeight());
     }
 
@@ -99,7 +104,7 @@ class HealthSurveyServiceTest {
         //given
         final HealthSurvey expectedHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(expectedHealthSurvey));
-        final HealthSurveyUpdateRequest updateHealthSurveyRequest = new HealthSurveyUpdateRequest();
+        final HealthSurveyUpdateRequest updateHealthSurveyRequest = HealthSurveyUpdateRequest.builder().build();
 
         //when
         HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(1L, updateHealthSurveyRequest);

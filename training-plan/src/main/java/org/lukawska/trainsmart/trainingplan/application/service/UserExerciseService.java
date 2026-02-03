@@ -4,9 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
-import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseFilterDto;
@@ -45,13 +45,13 @@ public class UserExerciseService {
 
     private final UserExerciseRepository userExerciseRepository;
 
-    private final UserService userService;
+    private final UserAccessService userAccessService;
 
     private final ExerciseService exerciseService;
 
     @Transactional
     public List<String> syncUserExercise(@NotNull Long userId) {
-        User user = userService.getUserById(userId);
+        User user = userAccessService.getUserById(userId);
         log.info("Syncing exercises for user: {}", userId);
         List<UserExercise> currentUserExercises = userExerciseRepository.findAllByUserId(userId);
         List<Exercise> exercises = getNewExercises(currentUserExercises);
@@ -77,7 +77,7 @@ public class UserExerciseService {
 
     @Transactional
     public void updateUserExerciseEnabledStatus(@NotNull Long userId, @NotNull List<String> disabledExerciseNames) {
-        User user = userService.getUserById(userId);
+        User user = userAccessService.getUserById(userId);
         if (disabledExerciseNames.isEmpty()) {
             log.info("Disabled exercises list is empty. Enabling all exercises for user: {}", userId);
             userExerciseRepository.enableAllByUserId(userId, Instant.now());

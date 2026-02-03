@@ -2,8 +2,8 @@ package org.lukawska.trainsmart.trainingplan.domain.specification;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.springframework.data.jpa.domain.Specification;
 

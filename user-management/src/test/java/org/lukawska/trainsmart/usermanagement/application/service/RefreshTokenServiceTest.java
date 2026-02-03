@@ -24,15 +24,20 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RefreshTokenServiceTest {
 
-    private static final String USERNAME = randomString();
-    private static final String REFRESH_TOKEN_VALUE = randomString();
-    private static final User USER = mock(User.class);
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
+
     @Mock
     private RefreshTokenProperties refreshTokenProperties;
+
     @InjectMocks
     private RefreshTokenService refreshTokenService;
+
+    private static final String USERNAME = randomString();
+
+    private static final String REFRESH_TOKEN_VALUE = randomString();
+
+    private static final User USER = mock(User.class);
 
     @Test
     void shouldReturnRefreshToken() {

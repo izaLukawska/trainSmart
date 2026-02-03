@@ -28,17 +28,22 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
 
-    private static final String accessTokenValue = UUID.randomUUID().toString();
     @Mock
     private AuthenticationManager authenticationManager;
+
     @Mock
     private JwtService jwtService;
+
     @Mock
     private RefreshTokenService refreshTokenService;
+
     @Mock
     private UserService userService;
+
     @InjectMocks
     private AuthenticationService authenticationService;
+
+    private static final String accessTokenValue = UUID.randomUUID().toString();
 
     @Test
     void shouldLoginUser() {

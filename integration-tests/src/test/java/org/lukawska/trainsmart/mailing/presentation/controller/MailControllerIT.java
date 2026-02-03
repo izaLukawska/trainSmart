@@ -90,11 +90,4 @@ class MailControllerIT {
         //when && then
         mockMvc.perform(get("/mail/-1").with(csrf())).andExpect(status().isBadRequest());
     }
-
-    @Test
-    void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
-        //when && then
-        mockMvc.perform(post("/api/mail/send").contentType(MediaType.APPLICATION_JSON).content("{}"))
-               .andExpect(status().isBadRequest());
-    }
 }

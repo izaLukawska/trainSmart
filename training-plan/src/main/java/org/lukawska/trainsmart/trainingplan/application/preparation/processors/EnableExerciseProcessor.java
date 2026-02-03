@@ -2,7 +2,7 @@ package org.lukawska.trainsmart.trainingplan.application.preparation.processors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.trainingplan.application.preparation.dto.EnableExerciseStrategyContext;

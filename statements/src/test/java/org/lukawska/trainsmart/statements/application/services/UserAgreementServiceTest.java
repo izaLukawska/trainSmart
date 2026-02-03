@@ -33,12 +33,12 @@ class UserAgreementServiceTest {
     @Mock
     private UserAgreementValidator userAgreementValidator;
 
-    private static final Long USER_ID = 1L;
-
-    @InjectMocks
-    private UserAgreementService userAgreementService;
     @Mock
     private UserAccessService userService;
+
+    private static final Long USER_ID = 1L;
+    @InjectMocks
+    private UserAgreementService userAgreementService;
 
     @Test
     void shouldCreateNewUserAgreementWhenSignAgreement() {

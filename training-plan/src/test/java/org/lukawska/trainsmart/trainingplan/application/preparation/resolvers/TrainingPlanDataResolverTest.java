@@ -2,7 +2,7 @@ package org.lukawska.trainsmart.trainingplan.application.preparation.resolvers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;

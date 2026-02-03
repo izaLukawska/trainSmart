@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDetails;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
@@ -44,7 +44,7 @@ public class TrainingPlanService {
 
     private final TrainingPlanRepository trainingPlanRepository;
 
-    private final UserService userService;
+    private final UserAccessService userAccessService;
 
     private final TrainingPlanGenerator trainingPlanGenerator;
 
@@ -53,7 +53,7 @@ public class TrainingPlanService {
     @Transactional
     public TrainingPlanDetails createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanDto request) {
         log.info("Creating plan for user: {}", userId);
-        User existingUser = userService.getUserById(userId);
+        User existingUser = userAccessService.getUserById(userId);
         TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
                 existingUser, request, getLastPlanCreationDate(userId));
         TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(generationData);

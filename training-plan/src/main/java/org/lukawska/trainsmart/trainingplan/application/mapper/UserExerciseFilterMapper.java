@@ -1,8 +1,8 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.trainingplan.application.dto.UserExerciseFilterDto;
 import org.lukawska.trainsmart.trainingplan.model.ExerciseTypeEnum;
 import org.lukawska.trainsmart.trainingplan.model.MuscleGroupEnum;

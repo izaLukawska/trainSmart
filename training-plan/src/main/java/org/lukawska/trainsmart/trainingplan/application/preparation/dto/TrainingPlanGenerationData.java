@@ -1,6 +1,6 @@
 package org.lukawska.trainsmart.trainingplan.application.preparation.dto;
 
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;

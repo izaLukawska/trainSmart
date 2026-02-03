@@ -24,6 +24,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final JwtAuthFilter jwtAuthFilter;
+
     private static final String[] WHITELIST = {
             "/users/register",
             "/users/activate",
@@ -37,7 +39,6 @@ public class SecurityConfig {
             "/v3/api-docs.yaml",
             "/webjars/**"
     };
-    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

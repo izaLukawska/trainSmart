@@ -1,7 +1,7 @@
 package org.lukawska.trainsmart.trainingplan.application.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
 import org.lukawska.trainsmart.trainingplan.domain.entities.BlockExercise;
 import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.IntensityLevel;

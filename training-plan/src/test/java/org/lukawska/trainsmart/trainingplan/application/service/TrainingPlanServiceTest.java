@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDetails;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
@@ -41,7 +41,7 @@ class TrainingPlanServiceTest {
     private TrainingPlanRepository trainingPlanRepository;
 
     @Mock
-    private UserService userService;
+    private UserAccessService userAccessService;
 
     @Mock
     private TrainingPlanGenerator trainingPlanGenerator;
@@ -73,7 +73,7 @@ class TrainingPlanServiceTest {
         final TrainingPlan generatedPlan = trainingPlan(user);
         final TrainingPlanGenerationData generationData = mock(TrainingPlanGenerationData.class);
 
-        when(userService.getUserById(USER_ID)).thenReturn(user);
+        when(userAccessService.getUserById(USER_ID)).thenReturn(user);
         when(trainingPlanDataResolver.getResolvedData(user, request, Optional.empty())).thenReturn(generationData);
         when(trainingPlanGenerator.generateTrainingPlan(generationData)).thenReturn(generatedPlan);
 

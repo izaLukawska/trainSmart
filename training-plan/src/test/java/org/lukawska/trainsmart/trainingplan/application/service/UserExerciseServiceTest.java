@@ -3,9 +3,9 @@ package org.lukawska.trainsmart.trainingplan.application.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
-import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.MuscleGroup;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.exception.ExceptionType;
 import org.lukawska.trainsmart.trainingplan.application.exception.UserExerciseException;
@@ -40,7 +40,7 @@ class UserExerciseServiceTest {
     private UserExerciseRepository userExerciseRepository;
 
     @Mock
-    private UserService userService;
+    private UserAccessService userAccessService;
 
     @Mock
     private ExerciseService exerciseService;
@@ -55,7 +55,7 @@ class UserExerciseServiceTest {
         // given
         final List<UserExercise> savedExercises = List.of(userExerciseWithMockedData());
 
-        when(userService.getUserById(USER_ID)).thenReturn(mock(User.class));
+        when(userAccessService.getUserById(USER_ID)).thenReturn(mock(User.class));
         when(userExerciseRepository.findAllByUserId(USER_ID)).thenReturn(List.of());
         when(exerciseService.getAllExercises()).thenReturn(List.of(mock(Exercise.class)));
         when(userExerciseRepository.saveAll(anyList())).thenReturn(savedExercises);
@@ -86,7 +86,7 @@ class UserExerciseServiceTest {
         //given
         final User user = mock(User.class);
         final List<String> disabledNames = List.of("front squat");
-        when(userService.getUserById(user.getId())).thenReturn(user);
+        when(userAccessService.getUserById(user.getId())).thenReturn(user);
 
         //when
         userExerciseService.updateUserExerciseEnabledStatus(user.getId(), disabledNames);

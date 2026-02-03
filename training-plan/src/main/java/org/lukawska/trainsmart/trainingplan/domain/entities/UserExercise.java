@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.lukawska.trainsmart.exercisecatalog.domain.entity.Exercise;
-import org.lukawska.trainsmart.exercisecatalog.domain.valueObject.ExerciseType;
+import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 
