@@ -1,0 +1,31 @@
+package org.lukawska.trainsmart.usermanagement.application.strategy;
+
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
+import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
+
+public interface MailContentProvider {
+
+    String getSubject();
+
+    String getBody(String link);
+
+    TokenType getSupportedType();
+
+    default String generateLink(String baseUrl, String token) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
+                                   .queryParam("token", token)
+                                   .toUriString();
+    }
+
+    default MailDetails createMailRequest(String email, String baseUrl, String token) {
+        String link = generateLink(baseUrl, token);
+        return MailDetails.builder()
+                          .recipients(List.of(email))
+                          .subject(getSubject())
+                          .text(getBody(link))
+                          .build();
+    }
+}

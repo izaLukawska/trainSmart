@@ -1,0 +1,73 @@
+package org.lukawska.trainsmart.usermanagement.application.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
+import org.lukawska.trainsmart.mailing.application.service.MailService;
+import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
+import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
+import org.lukawska.trainsmart.usermanagement.application.resolvers.MailContentProviderResolver;
+import org.lukawska.trainsmart.usermanagement.application.strategy.MailContentProvider;
+import org.lukawska.trainsmart.usermanagement.domain.entity.VerificationToken;
+import org.lukawska.trainsmart.usermanagement.domain.repository.VerificationTokenRepository;
+import org.lukawska.trainsmart.usermanagement.domain.valueObject.TokenType;
+import org.lukawska.trainsmart.usermanagement.infra.config.VerificationTokenProperties;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+class VerificationTokenService {
+
+    private final MailContentProviderResolver mailContentProviderResolver;
+
+    private final VerificationTokenRepository verificationTokenRepository;
+
+    private final MailService mailService;
+
+    private final MailingProperties mailingProperties;
+
+    private final VerificationTokenProperties verificationTokenProperties;
+
+    @Transactional
+    void sendVerificationMail(User user, TokenType tokenType) {
+        verificationTokenRepository.deleteByUserAndTokenType(user, tokenType);
+
+        log.info("Sending {} mail for user {}", tokenType.name(), user.getId());
+
+        String token = UUID.randomUUID().toString();
+        Instant expirationDate = Instant.now().plus(Duration.ofHours(verificationTokenProperties.getExpirationHours()));
+        VerificationToken verificationToken = new VerificationToken(token, user, expirationDate, tokenType);
+        verificationTokenRepository.save(verificationToken);
+
+        log.info("Created verification token {}", verificationToken.getId());
+
+        MailContentProvider provider = mailContentProviderResolver.getProvider(tokenType);
+        MailDetails mailDetails = provider.createMailRequest(user.getEmail(), mailingProperties.getBaseUrl(), token);
+
+        mailService.sendMail(mailDetails);
+    }
+
+    @Transactional
+    VerificationToken consumeActiveVerificationToken(String token) {
+        log.debug("Retrieving valid verification token {}", token);
+        VerificationToken verificationToken = getValidActivationToken(token);
+
+        verificationTokenRepository.delete(verificationToken);
+        log.info("Used verification token: {}", verificationToken.getId());
+
+        return verificationToken;
+    }
+
+    private VerificationToken getValidActivationToken(String token) {
+        return verificationTokenRepository.findByTokenAndExpiresAtAfter(token, Instant.now()).orElseThrow(
+                () -> new UserManagementException(ExceptionType.VERIFICATION_TOKEN_NOT_FOUND));
+    }
+}

@@ -3,7 +3,7 @@ package org.lukawska.trainsmart.statements.application.services;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
 import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
@@ -25,7 +25,7 @@ public class UserAgreementService {
 
     private final UserAgreementValidator userAgreementValidator;
 
-    private final UserService userService;
+    private final UserAccessService userService;
 
     @Transactional
     public UserAgreementResponse signAgreement(Long userId, UserAgreementRequest request) {

@@ -1,15 +1,13 @@
 package org.lukawska.trainsmart.mailing.presentation.controller;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,18 +15,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/mail")
+@RequestMapping("/mail")
 @Slf4j
 @Validated
+@PreAuthorize("hasRole('ADMIN')")
 public class MailController {
 
     private final MailService mailService;
-
-    @PostMapping("/send")
-    public ResponseEntity<MailResponse> sendMail(@Valid @RequestBody MailRequest mailRequest) {
-        log.info("Sending mail.");
-        return ResponseEntity.status(201).body(mailService.sendMail(mailRequest));
-    }
 
     @GetMapping("/{id}")
     public MailResponse getMailById(@PathVariable @Positive Long id) {

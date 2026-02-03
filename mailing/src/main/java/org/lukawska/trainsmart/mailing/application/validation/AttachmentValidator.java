@@ -1,6 +1,6 @@
 package org.lukawska.trainsmart.mailing.application.validation;
 
-import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 
 import java.io.IOException;
 import java.util.List;

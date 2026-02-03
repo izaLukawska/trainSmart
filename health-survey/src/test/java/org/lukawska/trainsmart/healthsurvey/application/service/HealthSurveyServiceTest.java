@@ -11,7 +11,7 @@ import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyEx
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
-import org.lukawska.trainsmart.sharedpersistence.application.service.UserService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -27,7 +27,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.lukawska.trainsmart.healthsurvey.testutil.HealthSurveyTestData.*;
 import static org.mockito.Mockito.*;
 
@@ -38,18 +37,18 @@ class HealthSurveyServiceTest {
     private HealthSurveyRepository healthSurveyRepository;
 
     @Mock
-    private UserService userService;
+    private UserAccessService userService;
 
     @InjectMocks
     private HealthSurveyService healthSurveyService;
 
-    private static final Long userId = 2L;
-
     @Test
     void shouldSubmitHealthSurveySuccess() {
         //given
+        final Long userId = 2L;
         final HealthSurveyCreateRequest healthSurveyCreateRequest = healthSurveyRequest();
         when(userService.getUserById(userId)).thenReturn(mock(User.class));
+        when(healthSurveyRepository.save(any())).thenReturn(healthSurveyEntity());
 
         //when
         HealthSurveyResponse result = healthSurveyService.submitHealthSurvey(userId, healthSurveyCreateRequest);
@@ -63,9 +62,8 @@ class HealthSurveyServiceTest {
     @Test
     void shouldUpdateOnlyHealthSurveyWeight() {
         //given
-        final HealthSurveyUpdateRequest healthSurveyUpdateRequest = HealthSurveyUpdateRequest.builder()
-                                                                                             .weight(70)
-                                                                                             .build();
+        final Long userId = 1L;
+        final HealthSurveyUpdateRequest healthSurveyUpdateRequest = new HealthSurveyUpdateRequest(70);
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(existingHealthSurvey));
 
@@ -75,16 +73,15 @@ class HealthSurveyServiceTest {
         //then
         assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
         assertThat(result.injuriesCount()).isEqualTo(existingHealthSurvey.getInjuries().size());
-        assertThat(result.weight()).isEqualTo(healthSurveyUpdateRequest.weight());
+        assertThat(result.weight()).isEqualTo(healthSurveyUpdateRequest.getWeight());
     }
 
     @Test
     void shouldUpdateOnlyHealthSurveyInjuries() {
         //given
+        final Long userId = 1L;
         final HealthSurveyUpdateRequest healthSurveyUpdateRequest =
-                HealthSurveyUpdateRequest.builder()
-                                         .injuries(Set.of("back pain"))
-                                         .build();
+                new HealthSurveyUpdateRequest(Set.of(randomInjury()));
         final HealthSurvey existingHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(existingHealthSurvey));
 
@@ -93,7 +90,7 @@ class HealthSurveyServiceTest {
 
         //then
         assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
-        assertThat(result.injuriesCount()).isEqualTo(healthSurveyUpdateRequest.injuries().size());
+        assertThat(result.injuriesCount()).isEqualTo(healthSurveyUpdateRequest.getInjuries().size());
         assertThat(result.weight()).isEqualTo(existingHealthSurvey.getWeight());
     }
 
@@ -102,7 +99,7 @@ class HealthSurveyServiceTest {
         //given
         final HealthSurvey expectedHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(1L)).thenReturn(Optional.of(expectedHealthSurvey));
-        final HealthSurveyUpdateRequest updateHealthSurveyRequest = HealthSurveyUpdateRequest.builder().build();
+        final HealthSurveyUpdateRequest updateHealthSurveyRequest = new HealthSurveyUpdateRequest();
 
         //when
         HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(1L, updateHealthSurveyRequest);
@@ -116,6 +113,7 @@ class HealthSurveyServiceTest {
     @Test
     void shouldReturnHealthSurveyByUserIdResponse() {
         //given
+        final Long userId = 1L;
         final HealthSurvey expectedHealthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(expectedHealthSurvey));
 
@@ -123,30 +121,31 @@ class HealthSurveyServiceTest {
         HealthSurveyResponse resultHealthSurvey = healthSurveyService.getHealthSurveyByUserIdResponse(userId);
 
         //then
-        assertAll(() -> assertThat(resultHealthSurvey.id()).isEqualTo(expectedHealthSurvey.getId()),
-                  () -> assertThat(resultHealthSurvey.injuriesCount())
-                          .isEqualTo(expectedHealthSurvey.getInjuries().size()),
-                  () -> assertThat(resultHealthSurvey.weight()).isEqualTo(expectedHealthSurvey.getWeight()),
-                  () -> assertThat(resultHealthSurvey.gender()).isEqualTo(expectedHealthSurvey.getGender()));
+        assertThat(resultHealthSurvey.id()).isEqualTo(expectedHealthSurvey.getId());
+        assertThat(resultHealthSurvey.injuriesCount()).isEqualTo(expectedHealthSurvey.getInjuries().size());
+        assertThat(resultHealthSurvey.weight()).isEqualTo(expectedHealthSurvey.getWeight());
+        assertThat(resultHealthSurvey.gender()).isEqualTo(expectedHealthSurvey.getGender());
     }
 
     @Test
     void shouldGetAllInjuriesByUserId() {
         //given
-        Set<String> expectedInjuries = defaultInjuries();
-        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(expectedInjuries));
+        final Long userId = 1L;
+        Set<String> injuries = defaultInjuries();
+        when(healthSurveyRepository.findAllInjuriesByUserId(userId)).thenReturn(Optional.of(injuries));
 
         //when
         Set<String> actualInjuries = healthSurveyService.getAllInjuriesByUserId(userId);
 
         //then
-        assertThat(actualInjuries).hasSize(3);
-        assertThat(actualInjuries).isEqualTo(expectedInjuries);
+        assertThat(actualInjuries).hasSize(injuries.size());
+        assertThat(actualInjuries).isEqualTo(injuries);
     }
 
     @Test
     void shouldGetWeightHistoryByUserId() {
         //given
+        final Long userId = 1L;
         HealthSurvey healthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(healthSurvey));
 
@@ -165,6 +164,7 @@ class HealthSurveyServiceTest {
     @Test
     void shouldDeleteHealthSurveyByUserIdSuccess() {
         //give
+        final Long userId = 1L;
         final HealthSurvey healthSurvey = healthSurveyEntity();
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.of(healthSurvey));
 
@@ -178,17 +178,18 @@ class HealthSurveyServiceTest {
     @Test
     void shouldThrowUserNotFoundExceptionWhenSubmitHealthSurvey() {
         //given
-        when(userService.getUserById(any())).thenThrow(new UserNotFoundException(2L));
+        when(userService.getUserById(any())).thenThrow(new UserNotFoundException());
 
         //when && then
         assertThatThrownBy(() -> healthSurveyService.submitHealthSurvey(2L, healthSurveyRequest()))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found for ID: %d", 2L);
+                .hasMessage("User not found");
     }
 
     @Test
     void shouldThrowHealthSurveyAlreadyExistsExceptionWhenSubmitHealthSurvey() {
         //given
+        final Long userId = 1L;
         HealthSurveyCreateRequest createHealthSurveyRequest = healthSurveyRequest();
         when(userService.getUserById(userId)).thenReturn(mock(User.class));
         when(healthSurveyRepository.save(any())).thenThrow(new DataIntegrityViolationException("Unique violation"));
@@ -201,6 +202,9 @@ class HealthSurveyServiceTest {
 
     @Test
     void shouldThrowHealthSurveyNotFoundExceptionWhenGetAllInjuriesByUserId() {
+        //given
+        final Long userId = 1L;
+
         //when && then
         assertThatThrownBy(() -> healthSurveyService.getAllInjuriesByUserId(userId))
                 .isInstanceOf(HealthSurveyException.class)
@@ -210,6 +214,7 @@ class HealthSurveyServiceTest {
     @Test
     void shouldThrowHealthSurveyNotFoundExceptionWhenDeleteHealthSurveyByUserId() {
         //given
+        final Long userId = 1L;
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         //when && then
@@ -221,6 +226,7 @@ class HealthSurveyServiceTest {
     @Test
     void shouldThrowHealthSurveyNotFoundExceptionWhenGetHealthSurveyByUserId() {
         //given
+        final Long userId = 1L;
         when(healthSurveyRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         //when && then

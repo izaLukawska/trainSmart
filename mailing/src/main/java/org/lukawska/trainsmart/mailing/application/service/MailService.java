@@ -2,19 +2,21 @@ package org.lukawska.trainsmart.mailing.application.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
-import org.lukawska.trainsmart.mailing.domain.repository.MailRepository;
+import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ import static org.lukawska.trainsmart.mailing.application.mapper.MailMapper.mapT
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class MailService {
 
     private final MailRepository mailRepository;
@@ -35,15 +38,15 @@ public class MailService {
     private final MailingProperties mailingProperties;
 
     @Transactional
-    public MailResponse sendMail(MailRequest mailRequest) {
-        if (!CollectionUtils.isEmpty(mailRequest.attachments())) {
-            log.info("Validating {} attachments.", mailRequest.attachments().size());
-            attachmentValidatorAdapter.validateAttachments(mailRequest.attachments());
+    public MailResponse sendMail(@Valid MailDetails mailDetails) {
+        if (!CollectionUtils.isEmpty(mailDetails.attachments())) {
+            log.info("Validating {} attachments.", mailDetails.attachments().size());
+            attachmentValidatorAdapter.validateAttachments(mailDetails.attachments());
         }
 
         try {
-            mailSender.sendEmail(mailRequest);
-            MailEntity mailEntity = mapToEntity(mailRequest);
+            mailSender.sendEmail(mailDetails);
+            MailEntity mailEntity = mapToEntity(mailDetails);
             mailRepository.save(mailEntity);
             log.info("Saved mail with ID: {}", mailEntity.getId());
             return mapToResponse(mailEntity, mailingProperties.getFrom(), mailingProperties.getReplyTo());

@@ -4,9 +4,9 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.mailing.application.dto.MailRequest;
+import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.service.MailSender;
-import org.lukawska.trainsmart.mailing.domain.valueObject.Attachment;
+import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailException;
@@ -15,6 +15,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -27,37 +30,46 @@ public class MailSenderAdapter implements MailSender {
 
     @Override
     @Retryable(retryFor = {MailException.class}, backoff = @Backoff(delay = 5000))
-    public void sendEmail(MailRequest mailRequest) throws MessagingException {
+    public void sendEmail(MailDetails mailDetails) throws MessagingException {
         log.debug("Attempting to send mail");
 
         MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper messageHelper = createMimeMessageHelper(mailRequest, message);
-        applyMailData(mailRequest, messageHelper);
+        MimeMessageHelper messageHelper = createMimeMessageHelper(mailDetails, message);
+        applyMailData(mailDetails, messageHelper);
 
         mailSender.send(message);
         log.info("Mail sent successfully.");
     }
 
-    private MimeMessageHelper createMimeMessageHelper(MailRequest mailRequest, MimeMessage message)
+    private MimeMessageHelper createMimeMessageHelper(MailDetails mailDetails, MimeMessage message)
             throws MessagingException {
-        boolean isMultipart = !mailRequest.attachments().isEmpty();
+        boolean isMultipart = !CollectionUtils.isEmpty(mailDetails.attachments());
         return new MimeMessageHelper(message, isMultipart, "UTF-8");
     }
 
-    private void applyMailData(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
-        helper.setTo(mailRequest.recipients().toArray(String[]::new));
-        helper.setSubject(mailRequest.subject());
-        helper.setText(mailRequest.text(), mailRequest.isHtml());
+    private void applyMailData(MailDetails mailDetails, MimeMessageHelper helper) throws MessagingException {
+        helper.setTo(mailDetails.recipients().toArray(String[]::new));
+        helper.setSubject(mailDetails.subject());
+        helper.setText(mailDetails.text(), mailDetails.isHtml());
         helper.setFrom(mailingProperties.getFrom());
         helper.setReplyTo(mailingProperties.getReplyTo());
-        helper.setCc(mailRequest.cc().toArray(String[]::new));
-        helper.setBcc(mailRequest.bcc().toArray(String[]::new));
+        addAttachments(mailDetails.attachments(), helper);
 
-        addAttachments(mailRequest, helper);
+        if (!CollectionUtils.isEmpty(mailDetails.cc())) {
+            helper.setCc(mailDetails.cc().toArray(String[]::new));
+        }
+
+        if (!CollectionUtils.isEmpty(mailDetails.bcc())) {
+            helper.setBcc(mailDetails.bcc().toArray(String[]::new));
+        }
     }
 
-    private void addAttachments(MailRequest mailRequest, MimeMessageHelper helper) throws MessagingException {
-        for (Attachment attachment : mailRequest.attachments()) {
+    private void addAttachments(List<Attachment> attachments, MimeMessageHelper helper) throws MessagingException {
+        if (CollectionUtils.isEmpty(attachments)) {
+            return;
+        }
+
+        for (Attachment attachment : attachments) {
             ByteArrayResource resource = new ByteArrayResource(attachment.getContent());
             helper.addAttachment(attachment.getFileName(), resource);
         }

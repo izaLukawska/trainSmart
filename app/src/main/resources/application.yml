@@ -12,8 +12,6 @@ spring:
   mvc:
     problemdetails:
       enabled: true
-    servlet:
-      path: /api/v1
   config:
     import: optional:classpath:statements.yml
   jpa:
@@ -27,9 +25,9 @@ spring:
     properties:
       mail:
         smtp:
-          auth: false
+          auth: true
           starttls:
-            enable: false
+            enable: true
             connectiontimeout: 5000
             timeout: 5000
             writetimeout: 5000
@@ -51,18 +49,31 @@ spring:
           max-tokens: 500
           temperature: 0.0
 
-mailing:
-  from: no-reply@trainsmart.com
-  reply-to: support@trainsmart.com
-  validMimeTypes:
-    pdf:
-      - application/pdf
-      - application/x-pdf
-    xls:
-      - application/vnd.ms-excel
-    xlsx:
-      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-  maxSizeBytes: 10485760
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      access-expiration-ms: 900000
+    refresh-token:
+      expiration-ms: 2592000000
+    verification-token:
+      expiration-hours: 24
+  mailing:
+    base-url: http://localhost:8080
+    from: no-reply@trainsmart.com
+    reply-to: support@trainsmart.com
+    validMimeTypes:
+      pdf:
+        - application/pdf
+        - application/x-pdf
+      xls:
+        - application/vnd.ms-excel
+      xlsx:
+        - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    maxSizeBytes: 10485760
+server:
+  servlet:
+    context-path: /api/v1
 
 management:
   health:

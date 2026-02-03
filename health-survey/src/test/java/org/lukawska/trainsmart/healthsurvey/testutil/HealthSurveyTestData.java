@@ -14,11 +14,11 @@ import static org.mockito.Mockito.mock;
 @UtilityClass
 public class HealthSurveyTestData {
 
-    public static HealthSurveyCreateRequest healthSurveyRequest() {
-        return new HealthSurveyCreateRequest(Gender.FEMALE, 180, 60, defaultInjuries());
+    public HealthSurveyCreateRequest healthSurveyRequest() {
+        return new HealthSurveyCreateRequest(Gender.MALE, 180, 80, defaultInjuries());
     }
 
-    public static HealthSurvey healthSurveyEntity() {
+    public HealthSurvey healthSurveyEntity() {
         return HealthSurvey.builder()
                            .user(mock(User.class))
                            .gender(Gender.MALE)
@@ -29,10 +29,10 @@ public class HealthSurveyTestData {
     }
 
     public Set<String> defaultInjuries() {
-        return Set.of(randomString(), randomString(), randomString());
+        return Set.of(randomInjury(), randomInjury(), randomInjury());
     }
 
-    private String randomString() {
+    public String randomInjury() {
         return UUID.randomUUID().toString();
     }
 }

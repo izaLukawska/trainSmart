@@ -10,6 +10,7 @@ import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRe
 import org.lukawska.trainsmart.healthsurvey.application.dto.WeightHistoryResponse;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,7 @@ public class HealthSurveyController {
         return healthSurveyService.getWeightHistoryByUserId(userId);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<HealthSurveyResponse> submitHealthSurvey(
             @PathVariable @Positive Long userId,
@@ -51,6 +53,7 @@ public class HealthSurveyController {
         return ResponseEntity.status(201).body(healthSurveyService.submitHealthSurvey(userId, surveyRequest));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping
     public ResponseEntity<HealthSurveyResponse> updateHealthSurvey(
             @PathVariable @Positive Long userId,
