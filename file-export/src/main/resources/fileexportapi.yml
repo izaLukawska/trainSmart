@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: File Export API
+  version: 1.0.0
+tags:
+  - name: FileExport
+    description: File export endpoint
+
+paths:
+  /file/download:
+    post:
+      tags:
+        - File Export
+      operationId: downloadTrainingPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportTrainingPlanRequest'
+      responses:
+        '200':
+          description: File downloaded successfully
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename="plan.pdf"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+            application/vnd.ms-excel:
+              schema:
+                type: string
+                format: binary
+
+components:
+  schemas:
+    ExportFormatEnum:
+      type: string
+      enum:
+        - pdf
+        - xlsx
+      x-enumNames:
+        - PDF
+        - EXCEL
+      x-enum-varnames:
+        - PDF
+        - EXCEL
+      example: "pdf"
+    ExportTrainingPlanRequest:
+      type: object
+      required:
+        - planId
+        - userId
+        - exportFormat
+      properties:
+        planId:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 1
+        userId:
+          type: integer
+          format: int64
+          example: 2
+          minimum: 1
+        exportFormat:
+          $ref: '#/components/schemas/ExportFormatEnum'
