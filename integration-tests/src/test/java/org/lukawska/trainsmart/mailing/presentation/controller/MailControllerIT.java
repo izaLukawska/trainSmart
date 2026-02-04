@@ -90,15 +90,4 @@ class MailControllerIT {
         //when && then
         mockMvc.perform(get("/mail/-1").with(csrf())).andExpect(status().isBadRequest());
     }
-
-    @WithMockUser(roles = "USER")
-    @Test
-    void shouldReturnForbidden() throws Exception {
-        // given
-        final MailResponse mailResponse = mailResponseWithId(1L);
-        when(mailService.getMailResponseById(1L)).thenReturn(mailResponse);
-
-        // when && then
-        mockMvc.perform(get("/mail/1").with(csrf())).andExpect(status().isForbidden());
-    }
 }

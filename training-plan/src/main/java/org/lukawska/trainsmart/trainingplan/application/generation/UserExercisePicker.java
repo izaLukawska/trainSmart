@@ -1,0 +1,43 @@
+package org.lukawska.trainsmart.trainingplan.application.generation;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.trainingplan.domain.entities.UserExercise;
+
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+
+@Slf4j
+@UtilityClass
+class UserExercisePicker {
+
+    static UserExercise pickExercise(List<UserExercise> exercises, Set<UserExercise> usedExercises) {
+        List<UserExercise> notUsedInPlanExercises = exercises.stream()
+                                                             .filter(userExercise -> !usedExercises.contains(
+                                                                     userExercise))
+                                                             .toList();
+        if (notUsedInPlanExercises.isEmpty()) {
+            log.debug("All exercises performed at least once in this plan. Choosing random exercise.");
+            return getRandomUserExercise(exercises);
+        }
+
+        return notUsedInPlanExercises.stream()
+                                     .filter(userExercise -> userExercise.getLastUsedAt() == null)
+                                     .findAny()
+                                     .map(userExercise -> {
+                                         log.debug("Choosing never performed exercise: {}", userExercise.getId());
+                                         return userExercise;
+                                     })
+                                     .orElseGet(() -> {
+                                         log.debug("Choosing exercise not used in plan.");
+                                         return getRandomUserExercise(notUsedInPlanExercises);
+                                     });
+    }
+
+    private UserExercise getRandomUserExercise(List<UserExercise> userExercises) {
+        UserExercise pickedExercise = userExercises.get(ThreadLocalRandom.current().nextInt(userExercises.size()));
+        log.debug("Picked exercise: {}", pickedExercise.getId());
+        return pickedExercise;
+    }
+}

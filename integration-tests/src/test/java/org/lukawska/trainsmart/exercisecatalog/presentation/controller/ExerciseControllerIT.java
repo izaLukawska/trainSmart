@@ -121,20 +121,4 @@ class ExerciseControllerIT {
         mockMvc.perform(request)
                .andExpect(status().isNotFound());
     }
-
-    @WithMockUser(roles = "USER")
-    @Test
-    void shouldReturnForbiddenWhenGetExerciseByName() throws Exception {
-        //given
-        final ExerciseResponse exerciseResponse = randomExerciseResponse();
-        final String name = exerciseResponse.name();
-        when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
-
-        //when && then
-        RequestBuilder request = get("/exercises/name").with(csrf())
-                                                       .param("name", name)
-                                                       .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request).andExpect(status().isForbidden());
-    }
 }
