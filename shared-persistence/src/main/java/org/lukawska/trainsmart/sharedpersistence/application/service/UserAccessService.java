@@ -18,4 +18,9 @@ public class UserAccessService {
         log.info("Retrieving user for ID: {}", userId);
         return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
+
+    public User getUserByUsername(String username) {
+        log.info("Retrieving user with username: {}", username);
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
 }

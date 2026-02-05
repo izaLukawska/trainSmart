@@ -35,6 +35,7 @@
         <module>user-management</module>
         <module>gym-finder</module>
         <module>file-export</module>
+        <module>purchase</module>
     </modules>
     <scm>
         <connection/>

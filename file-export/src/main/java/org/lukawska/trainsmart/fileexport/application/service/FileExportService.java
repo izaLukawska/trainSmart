@@ -2,9 +2,10 @@ package org.lukawska.trainsmart.fileexport.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.fileexport.application.dto.EmailExcelExportCommand;
 import org.lukawska.trainsmart.fileexport.application.dto.ExportTrainingPlanCommand;
-import org.lukawska.trainsmart.fileexport.application.dto.ExportTrainingPlanViaEmailCommand;
 import org.lukawska.trainsmart.fileexport.application.dto.ExportedFile;
+import org.lukawska.trainsmart.fileexport.application.dto.ExportedFileResponse;
 import org.lukawska.trainsmart.fileexport.application.mapper.FileExportMapper;
 import org.lukawska.trainsmart.fileexport.application.resolver.DocumentGeneratorResolver;
 import org.lukawska.trainsmart.fileexport.domain.export.DocumentGenerator;
@@ -17,8 +18,6 @@ import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDetails;
 import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanService;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,15 +33,16 @@ public class FileExportService {
 
     private final MailService mailService;
 
-    public Resource downloadFile(ExportTrainingPlanRequest request) {
+    private static final ExportFormat DEFAULT_EXPORT_FORMAT = ExportFormat.EXCEL;
+
+    public ExportedFileResponse downloadFile(ExportTrainingPlanRequest request) {
         ExportTrainingPlanCommand command = FileExportMapper.mapToDto(request);
-        ExportedFile exportedFile = exportFile(command);
-        return new ByteArrayResource(exportedFile.content());
+        return FileExportMapper.mapToResponse(exportFile(command));
     }
 
-    public void sendExcelTrainingPlanToEmail(ExportTrainingPlanViaEmailCommand emailCommand) {
-        ExportTrainingPlanCommand command = new ExportTrainingPlanCommand(emailCommand.planId(),
-                                                                          emailCommand.userId(), ExportFormat.EXCEL);
+    public void sendExcelTrainingPlanToEmail(EmailExcelExportCommand emailCommand) {
+        ExportTrainingPlanCommand command = new ExportTrainingPlanCommand(
+                emailCommand.planId(), emailCommand.userId(), DEFAULT_EXPORT_FORMAT);
 
         ExportedFile exportedFile = exportFile(command);
         Attachment attachment = FileExportMapper.mapToAttachment(exportedFile);

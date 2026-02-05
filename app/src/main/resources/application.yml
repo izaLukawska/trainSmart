@@ -52,6 +52,12 @@ spring:
           temperature: 0.0
 
 app:
+  pricing:
+    base-rate: 4.23
+    duration-multipliers:
+      FOUR_WEEKS: 1.0
+      EIGHT_WEEKS: 0.9
+      TWELVE_WEEKS: 0.8
   gym-provider:
     base-url: https://overpass-api.de/api
   security:

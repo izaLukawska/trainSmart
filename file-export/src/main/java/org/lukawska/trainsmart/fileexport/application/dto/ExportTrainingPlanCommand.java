@@ -6,5 +6,4 @@ import org.lukawska.trainsmart.fileexport.domain.export.ExportFormat;
 
 public record ExportTrainingPlanCommand(@NotNull @Positive Long planId,
                                         @NotNull @Positive Long userId,
-                                        @NotNull ExportFormat exportFormat) {
-}
+                                        @NotNull ExportFormat exportFormat) {}

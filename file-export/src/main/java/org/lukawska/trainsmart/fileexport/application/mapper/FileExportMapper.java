@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.fileexport.application.mapper;
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.fileexport.application.dto.ExportTrainingPlanCommand;
 import org.lukawska.trainsmart.fileexport.application.dto.ExportedFile;
+import org.lukawska.trainsmart.fileexport.application.dto.ExportedFileResponse;
 import org.lukawska.trainsmart.fileexport.domain.export.ExportFormat;
 import org.lukawska.trainsmart.fileexport.model.ExportTrainingPlanRequest;
 import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
@@ -19,4 +20,7 @@ public class FileExportMapper {
         return new Attachment(exportedFile.fileName(), exportedFile.content());
     }
 
+    public static ExportedFileResponse mapToResponse(ExportedFile exportedFile) {
+        return new ExportedFileResponse(exportedFile.fileName(), exportedFile.content());
+    }
 }
