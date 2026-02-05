@@ -1,0 +1,513 @@
+openapi: 3.0.3
+info:
+  title: Training Plan API
+  version: 1.0.0
+tags:
+  - name: UserExercise
+    description: User exercise endpoints
+  - name: TrainingPlan
+    description: Training plan endpoints
+
+paths:
+  /users/{userId}/exercises:
+    get:
+      tags:
+        - UserExercise
+      operationId: getUserExerciseByUserIdAndExerciseName
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: name
+          in: query
+          required: true
+          description: Exercise name to look up
+          schema:
+            type: string
+            example: "back squat"
+      responses:
+        '200':
+          description: Found exercise for user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExerciseResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+        '404':
+          description: Exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
+  /users/{userId}/exercises/all:
+    get:
+      tags:
+        - UserExercise
+      operationId: getAllUserExercisesByUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: pagingRequest
+          in: query
+          explode: true
+          schema:
+            $ref: '#/components/schemas/PagingRequest'
+        - name: userExerciseFilterRequest
+          in: query
+          explode: true
+          schema:
+            $ref: '#/components/schemas/UserExerciseFilterRequest'
+      responses:
+        '200':
+          description: Paged slice of user exercises
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SliceUserExerciseResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+  /users/user/{userId}/training-plans/{planId}:
+    get:
+      tags:
+        - TrainingPlan
+      operationId: getTrainingPlanByIdAndUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Training plan data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingPlanResponse'
+        '400':
+          description: Invalid id provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+        '404':
+          description: Training plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
+    delete:
+      tags:
+        - TrainingPlan
+      operationId: deleteTrainingPlanByIdAndUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '204':
+          description: Training plan deleted
+        '400':
+          description: Invalid id provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+        '404':
+          description: Training plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundProblem'
+  /users/user/{userId}/training-plans/all:
+    get:
+      tags:
+        - TrainingPlan
+      operationId: getAllTrainingPlansByUserId
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: pagingRequest
+          in: query
+          explode: true
+          schema:
+            $ref: '#/components/schemas/PagingRequest'
+        - name: trainingPlanFilterRequest
+          in: query
+          explode: true
+          schema:
+            $ref: '#/components/schemas/TrainingPlanFilterRequest'
+      responses:
+        '200':
+          description: Paged slice of trainingPlans
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SliceTrainingPlanSummaryResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestProblem'
+
+components:
+  schemas:
+    AssignedDayEnum:
+      type: string
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
+    IntensityLevelEnum:
+      type: string
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+      example: MEDIUM
+    TrainingTypeEnum:
+      type: string
+      enum:
+        - STRENGTH
+        - HYPERTROPHY
+        - ENDURANCE
+    PlanDurationEnum:
+      type: string
+      enum:
+        - FOUR_WEEKS
+        - EIGHT_WEEKS
+        - TWELVE_WEEKS
+    MuscleGroupEnum:
+      type: string
+      enum:
+        - CHEST
+        - HAMSTRINGS
+        - QUADS
+        - SHOULDERS
+        - ABS
+        - BACK
+    ExerciseTypeEnum:
+      type: string
+      enum:
+        - BARBELL
+        - BODYWEIGHT
+        - DUMBBELL
+        - KETTLEBELL
+        - OTHER
+    TrainingPlanResponse:
+      type: object
+      required:
+        - planId
+        - trainingType
+        - planDuration
+        - trainingWeeks
+      properties:
+        planId:
+          type: integer
+          format: int64
+          example: 10
+        trainingType:
+          $ref: '#/components/schemas/TrainingTypeEnum'
+        planDuration:
+          $ref: '#/components/schemas/PlanDurationEnum'
+        trainingWeeks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingWeekResponse'
+    TrainingWeekResponse:
+      type: object
+      required:
+        - weekId
+        - weekIndex
+        - trainingBlocks
+      properties:
+        weekId:
+          type: integer
+          format: int64
+          example: 1
+        weekIndex:
+          type: integer
+          example: 4
+        trainingBlocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingBlockResponse'
+    TrainingBlockResponse:
+      type: object
+      required:
+        - blockId
+        - assignedDay
+        - blockExercises
+      properties:
+        blockId:
+          type: integer
+          format: int64
+          example: 12
+        assignedDay:
+          $ref: '#/components/schemas/AssignedDayEnum'
+        blockExercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockExerciseResponse'
+    BlockExerciseResponse:
+      type: object
+      required:
+        - exerciseName
+        - reps
+        - sets
+        - intensityLevel
+        - loadPercent
+      properties:
+        exerciseName:
+          type: string
+          example: "back squat"
+        reps:
+          type: integer
+          example: 5
+        sets:
+          type: integer
+          example: 2
+        intensityLevel:
+          $ref: '#/components/schemas/IntensityLevelEnum'
+        loadPercent:
+          type: number
+          format: double
+          x-field-extra-annotation: |
+            @com.fasterxml.jackson.databind.annotation.JsonSerialize(
+            using = org.lukawska.trainsmart.trainingplan.application.serializer.LoadPercentageSerializer.class)
+          example: 0.67
+    TrainingPlanSummaryResponse:
+      type: object
+      required:
+        - id
+        - trainingType
+        - planDuration
+        - daysPerWeek
+        - createdAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        trainingType:
+          $ref: '#/components/schemas/TrainingTypeEnum'
+        planDuration:
+          $ref: '#/components/schemas/PlanDurationEnum'
+        daysPerWeek:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+          x-java-type: java.time.Instant
+          example: "2025-01-01T12:00:00Z"
+    SliceTrainingPlanSummaryResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingPlanSummaryResponse'
+        pageNumber:
+          type: integer
+          example: 0
+        pageSize:
+          type: integer
+          example: 20
+        hasNext:
+          type: boolean
+          description: "True if there is another page of data available."
+        isFirst:
+          type: boolean
+        last:
+          type: boolean
+          description: "True if this is the last available page."
+    TrainingPlanFilterRequest:
+      type: object
+      properties:
+        trainingType:
+          allOf:
+            - $ref: '#/components/schemas/TrainingTypeEnum'
+          nullable: true
+        planDuration:
+          allOf:
+            - $ref: '#/components/schemas/PlanDurationEnum'
+          nullable: true
+    PagingRequest:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          default: 0
+          minimum: 0
+        pageSize:
+          type: integer
+          default: 20
+          minimum: 5
+        sortBy:
+          type: string
+          enum:
+            - id
+            - name
+            - lastUsedAt
+          x-enum-varnames:
+            - ID
+            - NAME
+            - LAST_USED_AT
+        direction:
+          type: string
+          enum:
+            - ASC
+            - DESC
+          default: ASC
+    UserExerciseFilterRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          nullable: true
+        muscleGroup:
+          allOf:
+            - $ref: '#/components/schemas/MuscleGroupEnum'
+          nullable: true
+        exerciseType:
+          allOf:
+            - $ref: '#/components/schemas/ExerciseTypeEnum'
+          nullable: true
+    SliceUserExerciseResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserExerciseResponse'
+        pageNumber:
+          type: integer
+          example: 0
+        pageSize:
+          type: integer
+          example: 20
+        hasNext:
+          type: boolean
+          description: "True if there is another page of data available."
+        isFirst:
+          type: boolean
+        last:
+          type: boolean
+          description: "True if this is the last available page."
+    UserExerciseResponse:
+      type: object
+      required:
+        - id
+        - exerciseName
+        - enabled
+        - lastUsedAt
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 123
+        exerciseName:
+          type: string
+          example: "back squat"
+        enabled:
+          type: boolean
+          example: true
+        lastUsedAt:
+          type: string
+          format: date-time
+          x-java-type: java.time.Instant
+          example: "2025-01-01T12:00:00Z"
+    BadRequestProblem:
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - instance
+      properties:
+        type:
+          type: string
+          example: "about:blank"
+        title:
+          type: string
+          example: "Training plan exception"
+        status:
+          type: integer
+          example: 400
+        instance:
+          type: string
+          format: uri
+          example: "/api/v1/users/-1/training-plans"
+      additionalProperties:
+        type: string
+    NotFoundProblem:
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - instance
+      properties:
+        type:
+          type: string
+          example: "about:blank"
+        title:
+          type: string
+          example: "Training plan exception"
+        status:
+          type: integer
+          example: 404
+        details:
+          type: string
+          example: "Plan not found"
+        instance:
+          type: string
+          format: uri
+          example: "/api/v1/users/1/training-plans/1"

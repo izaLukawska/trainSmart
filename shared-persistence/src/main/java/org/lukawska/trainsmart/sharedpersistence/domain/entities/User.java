@@ -6,7 +6,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.lukawska.trainsmart.sharedpersistence.domain.valueObjects.Role;
 import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +18,8 @@ import java.time.LocalDate;
 @Table(name = "users")
 @Entity
 @Getter
-@SoftDelete
+@SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class User extends AuditableEntity {
 
     @Id
@@ -40,6 +42,8 @@ public class User extends AuditableEntity {
     private boolean disabled = true;
 
     private LocalDate birthDate;
+
+    private boolean isDeleted = false;
 
     @Builder
     private User(String username, String password, String email, Role role, LocalDate birthDate) {

@@ -1,0 +1,54 @@
+package org.lukawska.trainsmart.trainingplan.domain.entities;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SoftDelete;
+import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
+import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Table(name = "training_plan")
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@SoftDelete
+public class TrainingPlan extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TrainingType trainingType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PlanDuration planDuration;
+
+    private int daysPerWeek;
+
+    @OneToMany(mappedBy = "trainingPlan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TrainingWeek> weeks = new ArrayList<>();
+
+    public TrainingPlan(User user, TrainingType trainingType, PlanDuration planDuration, int daysPerWeek) {
+        this.user = user;
+        this.trainingType = trainingType;
+        this.planDuration = planDuration;
+        this.daysPerWeek = daysPerWeek;
+    }
+
+    public void addTrainingWeek(TrainingWeek trainingWeek) {
+        weeks.add(trainingWeek);
+    }
+}

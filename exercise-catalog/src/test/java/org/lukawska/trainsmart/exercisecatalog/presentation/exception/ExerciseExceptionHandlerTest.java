@@ -18,7 +18,7 @@ class ExerciseExceptionHandlerTest {
         final ExerciseException exception = new ExerciseException(exceptionType);
 
         //when
-        ProblemDetail result = exceptionHandler.handleHealthSurveyException(exception);
+        ProblemDetail result = exceptionHandler.handleExerciseException(exception);
 
         //then
         assertThat(result.getTitle()).isEqualTo("Exercise exception");

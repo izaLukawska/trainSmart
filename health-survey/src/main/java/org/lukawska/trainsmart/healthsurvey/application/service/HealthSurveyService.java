@@ -40,9 +40,9 @@ public class HealthSurveyService {
         HealthSurvey healthSurvey = mapToEntity(surveyRequest, user);
 
         try {
-            HealthSurvey savedHealthSurvey = healthSurveyRepository.save(healthSurvey);
-            log.info("Saved health survey: {}", savedHealthSurvey.getId());
-            return mapToHealthSurveyResponse(savedHealthSurvey);
+            healthSurveyRepository.save(healthSurvey);
+            log.info("Saved health survey: {}", healthSurvey.getId());
+            return mapToHealthSurveyResponse(healthSurvey);
         } catch (DataIntegrityViolationException e) {
             log.warn("Failed to create health survey for user {}: {}", userId, e.getMessage());
             throw new HealthSurveyException(ExceptionType.HEALTH_SURVEY_ALREADY_EXISTS);
@@ -71,7 +71,10 @@ public class HealthSurveyService {
     }
 
     public HealthSurveyResponse getHealthSurveyByUserIdResponse(Long userId) {
-        return mapToHealthSurveyResponse(getExistingHealthSurvey(userId));
+        HealthSurvey healthSurvey = getExistingHealthSurvey(userId);
+        log.info("Found health survey: {}", healthSurvey.getId());
+
+        return mapToHealthSurveyResponse(healthSurvey);
     }
 
     public Set<String> getAllInjuriesByUserId(Long userId) {
@@ -105,7 +108,7 @@ public class HealthSurveyService {
     }
 
     private void updateWeight(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {
-        Optional.ofNullable(updateRequest.getWeight())
+        Optional.ofNullable(updateRequest.weight())
                 .ifPresentOrElse(newWeight -> {
                     healthSurvey.updateWeight(newWeight);
                     log.info("Updated weight: {} for health survey: {}", newWeight, healthSurvey.getId());
@@ -113,7 +116,7 @@ public class HealthSurveyService {
     }
 
     private void updateInjuries(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {
-        Optional.ofNullable(updateRequest.getInjuries())
+        Optional.ofNullable(updateRequest.injuries())
                 .ifPresentOrElse(newInjuries -> {
                     healthSurvey.updateInjuries(newInjuries);
                     log.info("Updated {} injuries for health survey {}", newInjuries.size(), healthSurvey.getId());

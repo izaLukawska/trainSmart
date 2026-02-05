@@ -23,6 +23,11 @@
         </dependency>
         <dependency>
             <groupId>org.lukawska</groupId>
+            <artifactId>gym-finder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
             <artifactId>mailing</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -51,7 +56,13 @@
             <artifactId>commons</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>training-plan</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

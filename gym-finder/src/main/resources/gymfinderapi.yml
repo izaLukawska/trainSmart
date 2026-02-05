@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: Gym Finder API
+  version: 1.0.0
+tags:
+  - name: GymLocation
+    description: Gym finder endpoint
+
+paths:
+  /gym/nearby:
+    post:
+      tags:
+        - GymLocation
+      operationId: getGymsNearby
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindGymRequest'
+      responses:
+        '200':
+          description: Found gyms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FindGymResponse'
+
+components:
+  schemas:
+    FindGymRequest:
+      type: object
+      required:
+        - searchRadiusMeters
+        - userLatitude
+        - userLongitude
+      properties:
+        searchRadiusMeters:
+          type: integer
+          minimum: 100
+          maximum: 15000
+          nullable: false
+        userLatitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          nullable: false
+        userLongitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          nullable: false
+    FindGymResponse:
+      type: object
+      required:
+        - name
+        - latitude
+        - longitude
+        - distance
+      properties:
+        name:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        distance:
+          type: number
+          format: double
