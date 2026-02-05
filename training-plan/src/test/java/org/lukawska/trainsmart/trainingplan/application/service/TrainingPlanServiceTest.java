@@ -76,6 +76,7 @@ class TrainingPlanServiceTest {
         when(userAccessService.getUserById(USER_ID)).thenReturn(user);
         when(trainingPlanDataResolver.getResolvedData(user, request, Optional.empty())).thenReturn(generationData);
         when(trainingPlanGenerator.generateTrainingPlan(generationData)).thenReturn(generatedPlan);
+        when(trainingPlanRepository.save(any())).thenReturn(generatedPlan);
 
         //when
         TrainingPlan actualResult = trainingPlanService.createTrainingPlan(USER_ID, request);
