@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
@@ -27,13 +28,13 @@ public class AuthenticationService {
 
     private final RefreshTokenService refreshTokenService;
 
-    private final UserService userService;
+    private final UserAccessService userAccessService;
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
         String username = request.getUsername();
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, request.getPassword()));
-        User user = userService.getUserByUsername(username);
+        User user = userAccessService.getUserByUsername(username);
 
         log.info("Generating access token and refresh token for user {}", user.getId());
         String accessToken = jwtService.generateAccessToken(user.getUsername());

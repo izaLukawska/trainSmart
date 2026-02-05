@@ -1,0 +1,133 @@
+openapi: 3.0.3
+info:
+  title: Purchase API
+  version: 1.0.0
+tags:
+  - name: Purchase
+    description: Purchase endpoints
+
+paths:
+  /purchase/checkout:
+    post:
+      tags:
+        - Purchase
+      operationId: checkoutPurchase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        '202':
+          description: Purchase checkout success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '403':
+          description: User access only
+  /purchase/complete:
+    get:
+      tags:
+        - Purchase
+      operationId: completePurchase
+      parameters:
+        - name: paymentCode
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '201':
+          description: Purchase completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResponse'
+        '403':
+          description: User access only
+
+components:
+  schemas:
+    OrderStatusEnum:
+      type: string
+      enum:
+        - PENDING
+        - COMPLETED
+        - FAILED
+    WeekDaysEnum:
+      type: string
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
+    TrainingTypeEnum:
+      type: string
+      enum:
+        - STRENGTH
+        - HYPERTROPHY
+        - ENDURANCE
+    PlanDurationEnum:
+      type: string
+      enum:
+        - FOUR_WEEKS
+        - EIGHT_WEEKS
+        - TWELVE_WEEKS
+    PurchaseRequest:
+      type: object
+      required:
+        - trainingType
+        - planDuration
+        - daysPerWeek
+      properties:
+        trainingType:
+          $ref: '#/components/schemas/TrainingTypeEnum'
+        planDuration:
+          $ref: '#/components/schemas/PlanDurationEnum'
+        daysPerWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+        preferredDays:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeekDaysEnum'
+    PurchaseResponse:
+      type: object
+      required:
+        - purchaseId
+        - orderStatus
+        - finalPrice
+      properties:
+        purchaseId:
+          type: integer
+          format: int64
+          minimum: 1
+        orderStatus:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        finalPrice:
+          type: number
+    CheckoutResponse:
+      type: object
+      required:
+        - purchaseId
+        - orderStatus
+        - finalPrice
+        - paymentCode
+      properties:
+        purchaseId:
+          type: integer
+          format: int64
+          minimum: 1
+        orderStatus:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        finalPrice:
+          type: number
+        paymentCode:
+          type: string

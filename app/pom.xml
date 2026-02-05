@@ -61,6 +61,11 @@
             <artifactId>training-plan</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.lukawska</groupId>
+            <artifactId>purchase</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

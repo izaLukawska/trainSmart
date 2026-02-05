@@ -51,17 +51,17 @@ public class TrainingPlanService {
     private final TrainingPlanDataResolver trainingPlanDataResolver;
 
     @Transactional
-    public TrainingPlanDetails createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanDto request) {
+    public TrainingPlan createTrainingPlan(@NotNull Long userId, @Valid TrainingPlanDto request) {
         log.info("Creating plan for user: {}", userId);
         User existingUser = userAccessService.getUserById(userId);
         TrainingPlanGenerationData generationData = trainingPlanDataResolver.getResolvedData(
                 existingUser, request, getLastPlanCreationDate(userId));
-        TrainingPlan generatedPlan = trainingPlanGenerator.generateTrainingPlan(generationData);
 
         try {
-            trainingPlanRepository.save(generatedPlan);
-            log.info("Successfully generated plan with ID {}", generatedPlan.getId());
-            return mapToTrainingPlanDetails(generatedPlan);
+            TrainingPlan savedPlan = trainingPlanRepository.save(
+                    trainingPlanGenerator.generateTrainingPlan(generationData));
+            log.info("Successfully generated plan with ID {}", savedPlan.getId());
+            return savedPlan;
 
         } catch (DataIntegrityViolationException e) {
             throw new TrainingPlanException(ExceptionType.INVALID_TRAINING_PLAN_DATA);

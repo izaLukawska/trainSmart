@@ -76,14 +76,15 @@ class TrainingPlanServiceTest {
         when(userAccessService.getUserById(USER_ID)).thenReturn(user);
         when(trainingPlanDataResolver.getResolvedData(user, request, Optional.empty())).thenReturn(generationData);
         when(trainingPlanGenerator.generateTrainingPlan(generationData)).thenReturn(generatedPlan);
+        when(trainingPlanRepository.save(any())).thenReturn(generatedPlan);
 
         //when
-        TrainingPlanDetails actualResult = trainingPlanService.createTrainingPlan(USER_ID, request);
+        TrainingPlan actualResult = trainingPlanService.createTrainingPlan(USER_ID, request);
 
         //then
-        assertThat(actualResult.planDuration()).isEqualTo(generatedPlan.getPlanDuration());
-        assertThat(actualResult.trainingType()).isEqualTo(generatedPlan.getTrainingType());
-        assertThat(actualResult.trainingWeeks().size()).isEqualTo(generatedPlan.getWeeks().size());
+        assertThat(actualResult.getPlanDuration()).isEqualTo(generatedPlan.getPlanDuration());
+        assertThat(actualResult.getTrainingType()).isEqualTo(generatedPlan.getTrainingType());
+        assertThat(actualResult.getWeeks().size()).isEqualTo(generatedPlan.getWeeks().size());
     }
 
     @ParameterizedTest
