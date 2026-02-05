@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @Table(name = "users")
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE id = ?")
 @SQLRestriction("is_deleted = false")
 public class User extends AuditableEntity {
 
