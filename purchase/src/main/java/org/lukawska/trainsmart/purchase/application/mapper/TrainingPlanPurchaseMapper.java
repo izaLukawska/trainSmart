@@ -27,6 +27,7 @@ public class TrainingPlanPurchaseMapper {
         return TrainingPlanPurchase.builder()
                                    .user(user)
                                    .paymentCode(paymentCode)
+                                   .daysPerWeek(purchaseRequest.getDaysPerWeek())
                                    .planDuration(PlanDuration.valueOf(purchaseRequest.getPlanDuration().name()))
                                    .trainingType(TrainingType.valueOf(purchaseRequest.getTrainingType().name()))
                                    .preferredDays(mapToWeekDays(purchaseRequest.getPreferredDays()))

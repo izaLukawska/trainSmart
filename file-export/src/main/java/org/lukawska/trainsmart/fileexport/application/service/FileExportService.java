@@ -19,6 +19,7 @@ import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanServ
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class FileExportService {
         return FileExportMapper.mapToResponse(exportFile(command));
     }
 
+    @Transactional
     public void sendExcelTrainingPlanToEmail(EmailExcelExportCommand emailCommand) {
         ExportTrainingPlanCommand command = new ExportTrainingPlanCommand(
                 emailCommand.planId(), emailCommand.userId(), DEFAULT_EXPORT_FORMAT);

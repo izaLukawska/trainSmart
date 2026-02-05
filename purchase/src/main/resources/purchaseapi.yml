@@ -27,6 +27,25 @@ paths:
                 $ref: '#/components/schemas/PurchaseResponse'
         '403':
           description: User access only
+  /purchase/complete:
+    get:
+      tags:
+        - Purchase
+      operationId: completePurchase
+      parameters:
+        - name: paymentCode
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '201':
+          description: Purchase completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResponse'
 
 components:
   schemas:
