@@ -24,7 +24,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PurchaseResponse'
+                $ref: '#/components/schemas/CheckoutResponse'
         '403':
           description: User access only
   /purchase/complete:
@@ -46,6 +46,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PurchaseResponse'
+        '403':
+          description: User access only
 
 components:
   schemas:
@@ -111,3 +113,21 @@ components:
           $ref: '#/components/schemas/OrderStatusEnum'
         finalPrice:
           type: number
+    CheckoutResponse:
+      type: object
+      required:
+        - purchaseId
+        - orderStatus
+        - finalPrice
+        - paymentCode
+      properties:
+        purchaseId:
+          type: integer
+          format: int64
+          minimum: 1
+        orderStatus:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        finalPrice:
+          type: number
+        paymentCode:
+          type: string

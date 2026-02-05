@@ -2,13 +2,16 @@ package org.lukawska.trainsmart.purchase.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.lukawska.trainsmart.fileexport.application.dto.EmailExcelExportCommand;
+import org.lukawska.trainsmart.fileexport.application.service.FileExportService;
+import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.purchase.application.exception.PurchaseException;
 import org.lukawska.trainsmart.purchase.application.exception.PurchaseExceptionType;
 import org.lukawska.trainsmart.purchase.domain.entity.TrainingPlanPurchase;
 import org.lukawska.trainsmart.purchase.domain.repository.TrainingPlanPurchaseRepository;
 import org.lukawska.trainsmart.purchase.domain.service.PricingCalculator;
 import org.lukawska.trainsmart.purchase.domain.valueObject.PurchaseStatus;
-import org.lukawska.trainsmart.purchase.infrastructure.event.PurchaseCompletedEvent;
+import org.lukawska.trainsmart.purchase.model.CheckoutResponse;
 import org.lukawska.trainsmart.purchase.model.PurchaseRequest;
 import org.lukawska.trainsmart.purchase.model.PurchaseResponse;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
@@ -17,7 +20,6 @@ import org.lukawska.trainsmart.trainingplan.application.exception.TrainingPlanEx
 import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanService;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -41,10 +43,10 @@ public class TrainingPlanPurchaseService {
 
     private final PricingCalculator pricingCalculator;
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final FileExportService fileExportService;
 
     @Transactional
-    public PurchaseResponse purchaseCheckout(PurchaseRequest purchaseRequest) {
+    public CheckoutResponse purchaseCheckout(PurchaseRequest purchaseRequest) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userAccessService.getUserByUsername(username);
         String paymentCode = UUID.randomUUID().toString();
@@ -56,13 +58,13 @@ public class TrainingPlanPurchaseService {
             TrainingPlanPurchase savedPurchase = purchaseRepository.save(trainingPlanPurchase);
 
             log.info("Successful create purchase {}", savedPurchase.getId());
-            return mapToResponse(savedPurchase);
+            return mapToCheckoutResponse(savedPurchase);
         } catch (DataIntegrityViolationException e) {
             throw new PurchaseException(PurchaseExceptionType.PURCHASE_ERROR);
         }
     }
 
-    @Transactional(noRollbackFor = TrainingPlanException.class)
+    @Transactional(noRollbackFor = {TrainingPlanException.class, MailingException.class})
     public PurchaseResponse completePurchase(String paymentCode) {
         log.info("Validating training plan purchase for payment code {}", paymentCode);
         TrainingPlanPurchase trainingPlanPurchase = validatePurchaseData(paymentCode);
@@ -75,10 +77,12 @@ public class TrainingPlanPurchaseService {
 
             trainingPlanPurchase.attachTrainingPlan(trainingPlan);
             trainingPlanPurchase.markAsCompleted();
-            eventPublisher.publishEvent(new PurchaseCompletedEvent(trainingPlan.getId(), userId, user.getEmail()));
+            EmailExcelExportCommand command = new EmailExcelExportCommand(trainingPlanPurchase.getId(), userId,
+                                                                          user.getEmail());
+            fileExportService.sendExcelTrainingPlanToEmail(command);
 
             log.info("Purchase completed.");
-            return mapToResponse(trainingPlanPurchase);
+            return mapToPurchaseResponse(trainingPlanPurchase);
         } catch (TrainingPlanException e) {
             trainingPlanPurchase.markAsFailed();
             purchaseRepository.save(trainingPlanPurchase);

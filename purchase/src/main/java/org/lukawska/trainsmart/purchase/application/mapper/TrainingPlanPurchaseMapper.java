@@ -2,10 +2,7 @@ package org.lukawska.trainsmart.purchase.application.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.lukawska.trainsmart.purchase.domain.entity.TrainingPlanPurchase;
-import org.lukawska.trainsmart.purchase.model.OrderStatusEnum;
-import org.lukawska.trainsmart.purchase.model.PurchaseRequest;
-import org.lukawska.trainsmart.purchase.model.PurchaseResponse;
-import org.lukawska.trainsmart.purchase.model.WeekDaysEnum;
+import org.lukawska.trainsmart.purchase.model.*;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDto;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
@@ -34,11 +31,20 @@ public class TrainingPlanPurchaseMapper {
                                    .build();
     }
 
-    public static PurchaseResponse mapToResponse(TrainingPlanPurchase trainingPlanPurchase) {
+    public static PurchaseResponse mapToPurchaseResponse(TrainingPlanPurchase trainingPlanPurchase) {
         return PurchaseResponse.builder()
                                .purchaseId(trainingPlanPurchase.getId())
                                .orderStatus(OrderStatusEnum.valueOf(trainingPlanPurchase.getPurchaseStatus().name()))
                                .finalPrice(trainingPlanPurchase.getTotalPrice())
+                               .build();
+    }
+
+    public static CheckoutResponse mapToCheckoutResponse(TrainingPlanPurchase trainingPlanPurchase) {
+        return CheckoutResponse.builder()
+                               .purchaseId(trainingPlanPurchase.getId())
+                               .orderStatus(OrderStatusEnum.valueOf(trainingPlanPurchase.getPurchaseStatus().name()))
+                               .finalPrice(trainingPlanPurchase.getTotalPrice())
+                               .paymentCode(trainingPlanPurchase.getPaymentCode())
                                .build();
     }
 

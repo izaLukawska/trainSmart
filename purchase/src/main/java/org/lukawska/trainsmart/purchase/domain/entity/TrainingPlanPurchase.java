@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.lukawska.trainsmart.purchase.domain.valueObject.PurchaseStatus;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
+import org.lukawska.trainsmart.sharedpersistence.infrastructure.audit.AuditableEntity;
 import org.lukawska.trainsmart.trainingplan.domain.entities.TrainingPlan;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
@@ -19,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "training_plan_purchases")
-public class TrainingPlanPurchase {
+public class TrainingPlanPurchase extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

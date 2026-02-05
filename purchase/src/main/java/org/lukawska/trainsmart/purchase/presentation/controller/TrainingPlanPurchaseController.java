@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.purchase.api.PurchaseApi;
 import org.lukawska.trainsmart.purchase.application.service.TrainingPlanPurchaseService;
+import org.lukawska.trainsmart.purchase.model.CheckoutResponse;
 import org.lukawska.trainsmart.purchase.model.PurchaseRequest;
 import org.lukawska.trainsmart.purchase.model.PurchaseResponse;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class TrainingPlanPurchaseController implements PurchaseApi {
     private final TrainingPlanPurchaseService purchaseService;
 
     @Override
-    public ResponseEntity<PurchaseResponse> checkoutPurchase(PurchaseRequest purchaseRequest) {
+    public ResponseEntity<CheckoutResponse> checkoutPurchase(PurchaseRequest purchaseRequest) {
         log.info("Received checkout purchase request");
         return ResponseEntity.ok(purchaseService.purchaseCheckout(purchaseRequest));
     }
