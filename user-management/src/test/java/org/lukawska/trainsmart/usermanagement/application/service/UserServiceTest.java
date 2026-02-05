@@ -2,7 +2,6 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.usermanagement.application.exception.ExceptionType;
 import org.lukawska.trainsmart.usermanagement.application.exception.UserManagementException;
@@ -175,24 +174,6 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldReturnUserByUsername() {
-        //given
-        final User user = user();
-        final String username = user.getUsername();
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-
-        //when
-        User result = userService.getUserByUsername(username);
-
-        //then
-        assertThat(result.getUsername()).isEqualTo(user.getUsername());
-        assertThat(result.getPassword()).isEqualTo(user.getPassword());
-        assertThat(result.getEmail()).isEqualTo(user.getEmail());
-        assertThat(result.getRole()).isEqualTo(user.getRole());
-        assertThat(result.getBirthDate()).isEqualTo(user.getBirthDate());
-    }
-
-    @Test
     void shouldThrowInvalidEmailExceptionWhenChangeEmail() {
         //given
         final User user = user();
@@ -238,16 +219,6 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.changePassword(changePasswordRequest))
                 .isInstanceOf(UserManagementException.class)
                 .hasMessage(ExceptionType.INVALID_PASSWORD.getMessage());
-    }
-
-    @Test
-    void shouldThrowUserNotFoundExceptionWhenGetUserByUsername() {
-        //given
-        final String username = randomString();
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when && then
-        assertThatThrownBy(() -> userService.getUserByUsername(username)).isInstanceOf(UserNotFoundException.class);
     }
 
     @Test

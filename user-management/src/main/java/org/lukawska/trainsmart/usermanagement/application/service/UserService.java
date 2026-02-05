@@ -115,7 +115,7 @@ public class UserService {
         log.info("Account deleted for user: {}", username);
     }
 
-    User getUserByUsername(String username) {
+    private User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 

@@ -3,6 +3,7 @@ package org.lukawska.trainsmart.usermanagement.application.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
+import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.usermanagement.domain.entity.RefreshToken;
 import org.lukawska.trainsmart.usermanagement.model.AuthResponse;
@@ -38,7 +39,7 @@ class AuthenticationServiceTest {
     private RefreshTokenService refreshTokenService;
 
     @Mock
-    private UserService userService;
+    private UserAccessService userAccessService;
 
     @InjectMocks
     private AuthenticationService authenticationService;
@@ -54,7 +55,7 @@ class AuthenticationServiceTest {
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(mock(Authentication.class));
-        when(userService.getUserByUsername(user.getUsername())).thenReturn(user);
+        when(userAccessService.getUserByUsername(user.getUsername())).thenReturn(user);
         when(jwtService.generateAccessToken(user.getUsername())).thenReturn(accessTokenValue);
         when(refreshTokenService.createRefreshToken(user)).thenReturn(refreshToken);
 
