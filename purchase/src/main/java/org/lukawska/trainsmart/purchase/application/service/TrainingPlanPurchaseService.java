@@ -57,7 +57,7 @@ public class TrainingPlanPurchaseService {
             assignPurchasePrices(trainingPlanPurchase, purchaseRequest.getDaysPerWeek());
             TrainingPlanPurchase savedPurchase = purchaseRepository.save(trainingPlanPurchase);
 
-            log.info("Successful create purchase {}", savedPurchase.getId());
+            log.info("Successful created purchase");
             return mapToCheckoutResponse(savedPurchase);
         } catch (DataIntegrityViolationException e) {
             throw new PurchaseException(PurchaseExceptionType.PURCHASE_ERROR);

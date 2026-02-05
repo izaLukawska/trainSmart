@@ -4,24 +4,30 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lukawska.trainsmart.fileexport.application.dto.EmailExcelExportCommand;
 import org.lukawska.trainsmart.fileexport.application.dto.ExportTrainingPlanCommand;
-import org.lukawska.trainsmart.fileexport.application.dto.ExportedFile;
+import org.lukawska.trainsmart.fileexport.application.dto.ExportedFileDto;
 import org.lukawska.trainsmart.fileexport.application.dto.ExportedFileResponse;
+import org.lukawska.trainsmart.fileexport.application.exception.ExceptionType;
+import org.lukawska.trainsmart.fileexport.application.exception.FileExportException;
 import org.lukawska.trainsmart.fileexport.application.mapper.FileExportMapper;
 import org.lukawska.trainsmart.fileexport.application.resolver.DocumentGeneratorResolver;
 import org.lukawska.trainsmart.fileexport.domain.export.DocumentGenerator;
 import org.lukawska.trainsmart.fileexport.domain.export.ExportFormat;
+import org.lukawska.trainsmart.fileexport.model.ExportFormatEnum;
 import org.lukawska.trainsmart.fileexport.model.ExportTrainingPlanRequest;
 import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
+import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDetails;
 import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanService;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.PlanDuration;
 import org.lukawska.trainsmart.trainingplan.domain.valueObjects.TrainingType;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -34,11 +40,13 @@ public class FileExportService {
 
     private final MailService mailService;
 
+    private final MailingProperties mailingProperties;
+
     private static final ExportFormat DEFAULT_EXPORT_FORMAT = ExportFormat.EXCEL;
 
     public ExportedFileResponse downloadFile(ExportTrainingPlanRequest request) {
         ExportTrainingPlanCommand command = FileExportMapper.mapToDto(request);
-        return FileExportMapper.mapToResponse(exportFile(command));
+        return FileExportMapper.mapToResponse(exportFile(command), resolveMediaType(request.getExportFormat()));
     }
 
     @Transactional
@@ -46,7 +54,7 @@ public class FileExportService {
         ExportTrainingPlanCommand command = new ExportTrainingPlanCommand(
                 emailCommand.planId(), emailCommand.userId(), DEFAULT_EXPORT_FORMAT);
 
-        ExportedFile exportedFile = exportFile(command);
+        ExportedFileDto exportedFile = exportFile(command);
         Attachment attachment = FileExportMapper.mapToAttachment(exportedFile);
 
         MailDetails mailDetails = MailDetails.builder()
@@ -60,7 +68,7 @@ public class FileExportService {
         mailService.sendMail(mailDetails);
     }
 
-    private ExportedFile exportFile(ExportTrainingPlanCommand command) {
+    private ExportedFileDto exportFile(ExportTrainingPlanCommand command) {
         TrainingPlanDetails trainingPlanDetails = trainingPlanService.getTrainingPlanDetailsByIdAndUserId(
                 command.planId(), command.userId());
         log.info("Generating file for training plan");
@@ -72,10 +80,18 @@ public class FileExportService {
                                            exportFormat);
         log.info("File generated {}", fileName);
 
-        return new ExportedFile(fileName, content);
+        return new ExportedFileDto(fileName, content);
     }
 
     private String generateFileName(TrainingType trainingType, PlanDuration planDuration, ExportFormat exportFormat) {
         return trainingType.name().toLowerCase() + planDuration.getWeeksCount() + "." + exportFormat.getExtension();
+    }
+
+    private MediaType resolveMediaType(ExportFormatEnum exportFormatEnum) {
+        return MediaType.parseMediaType(
+                Optional.ofNullable(mailingProperties.getValidMimeTypes().get(exportFormatEnum.name().toLowerCase()))
+                        .filter(type -> !type.isEmpty())
+                        .map(List::getFirst)
+                        .orElseThrow(() -> new FileExportException(ExceptionType.INVALID_MEDIA_TYPE)));
     }
 }

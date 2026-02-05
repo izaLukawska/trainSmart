@@ -9,11 +9,13 @@ import org.lukawska.trainsmart.purchase.model.PurchaseRequest;
 import org.lukawska.trainsmart.purchase.model.PurchaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('USER')")
 public class TrainingPlanPurchaseController implements PurchaseApi {
 
     private final TrainingPlanPurchaseService purchaseService;

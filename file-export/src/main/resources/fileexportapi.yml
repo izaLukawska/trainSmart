@@ -45,15 +45,14 @@ components:
     ExportFormatEnum:
       type: string
       enum:
-        - pdf
-        - xlsx
+        - PDF
+        - XLSX
       x-enumNames:
         - PDF
         - EXCEL
       x-enum-varnames:
         - PDF
         - EXCEL
-      example: "pdf"
     ExportTrainingPlanRequest:
       type: object
       required:

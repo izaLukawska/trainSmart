@@ -10,6 +10,7 @@ import org.lukawska.trainsmart.fileexport.domain.export.ExportFormat;
 import org.lukawska.trainsmart.fileexport.model.ExportFormatEnum;
 import org.lukawska.trainsmart.fileexport.model.ExportTrainingPlanRequest;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
+import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingPlanDetails;
 import org.lukawska.trainsmart.trainingplan.application.dto.TrainingWeekDetails;
 import org.lukawska.trainsmart.trainingplan.application.service.TrainingPlanService;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,17 +45,22 @@ class FileExportServiceTest {
     @Mock
     private DocumentGeneratorResolver documentGeneratorResolver;
 
+    @Mock
+    private MailingProperties mailingProperties;
+
     @InjectMocks
     private FileExportService fileExportService;
 
     @Test
-    void shouldReturnResourceWhenDownloadFile() {
+    void shouldReturnExportedFileResponseWhenDownloadFile() {
         //given
-        final ExportFormat exportFormat = ExportFormat.EXCEL;
+        final ExportFormat exportFormat = ExportFormat.PDF;
         final DocumentGenerator documentGenerator = mock(DocumentGenerator.class);
         final ExportTrainingPlanRequest request = new ExportTrainingPlanRequest(PLAN_ID, USER_ID,
-                                                                                ExportFormatEnum.EXCEL);
+                                                                                ExportFormatEnum.PDF);
         final TrainingPlanDetails trainingPlanDetails = trainingPlanDetails();
+        when(mailingProperties.getValidMimeTypes()).thenReturn(
+                Map.of("pdf", List.of("application/pdf")));
         when(trainingPlanService.getTrainingPlanDetailsByIdAndUserId(PLAN_ID, USER_ID))
                 .thenReturn(trainingPlanDetails);
         when(documentGeneratorResolver.chooseStrategy(exportFormat)).thenReturn(documentGenerator);
