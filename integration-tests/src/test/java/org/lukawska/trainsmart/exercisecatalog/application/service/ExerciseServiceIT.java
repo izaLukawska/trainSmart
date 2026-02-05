@@ -2,6 +2,7 @@ package org.lukawska.trainsmart.exercisecatalog.application.service;
 
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
+import org.lukawska.trainsmart.config.TestFixtures;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
 import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
@@ -21,12 +22,12 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.exercisecatalog.testutil.ExerciseTestData.*;
+import static org.lukawska.trainsmart.testutils.TestData.exerciseName;
 
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-@Import(PostgresTestConfig.class)
+@Import({PostgresTestConfig.class, TestFixtures.class})
 class ExerciseServiceIT {
 
     @Autowired
@@ -35,10 +36,13 @@ class ExerciseServiceIT {
     @Autowired
     private ExerciseService exerciseService;
 
+    @Autowired
+    private TestFixtures testFixtures;
+
     @Test
     void shouldCreateExerciseSuccess() {
         //given
-        final ExerciseRequest request = randomQuadsDumbbellExerciseRequest();
+        final ExerciseRequest request = new ExerciseRequest(exerciseName(), MuscleGroup.CHEST, ExerciseType.OTHER);
 
         //when
         ExerciseResponse result = exerciseService.createExercise(request);
@@ -57,8 +61,7 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExerciseByName() {
         //given
-        final Exercise exercise = randomQuadsDumbbellExercise();
-        exerciseRepository.save(exercise);
+        final Exercise exercise = testFixtures.exercise().save();
 
         //when
         ExerciseResponse result = exerciseService.getExerciseByName(exercise.getName());
@@ -71,11 +74,12 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesByMuscleGroup() {
         //given
-        final Exercise exercise1 = randomQuadsDumbbellExercise();
-        final Exercise exercise2 = randomQuadsDumbbellExercise();
-        final Exercise exercise3 = new Exercise(randomExerciseName(), MuscleGroup.ABS, ExerciseType.DUMBBELL);
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
+        final Exercise exercise3 = testFixtures.exercise()
+                                               .withMuscleGroup(MuscleGroup.HAMSTRINGS)
+                                               .save();
         final MuscleGroup muscleGroup = exercise1.getMuscleGroup();
-        exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
         List<ExerciseResponse> result = exerciseService.getExercisesByMuscleGroup(muscleGroup);
@@ -90,10 +94,9 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnAllExercises() {
         //given
-        final Exercise exercise1 = randomQuadsDumbbellExercise();
-        final Exercise exercise2 = randomQuadsDumbbellExercise();
-        final Exercise exercise3 = new Exercise(randomExerciseName(), MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
-        exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
+        final Exercise exercise3 = testFixtures.exercise().save();
 
         //when
         List<Exercise> result = exerciseService.getAllExercises();
@@ -106,11 +109,12 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesByType() {
         //given
-        final Exercise exercise1 = randomQuadsDumbbellExercise();
-        final Exercise exercise2 = randomQuadsDumbbellExercise();
-        final Exercise exercise3 = new Exercise(randomExerciseName(), MuscleGroup.SHOULDERS, ExerciseType.BARBELL);
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
+        final Exercise exercise3 = testFixtures.exercise()
+                                               .withExerciseType(ExerciseType.OTHER)
+                                               .save();
         final ExerciseType exerciseType = exercise1.getExerciseType();
-        exerciseRepository.saveAll(List.of(exercise1, exercise2, exercise3));
 
         //when
         List<Exercise> result = exerciseService.getExercisesByType(exerciseType);
@@ -124,9 +128,9 @@ class ExerciseServiceIT {
     @Test
     void shouldReturnExercisesCreatedAtGreaterOrEqual() {
         //given
-        final Exercise exercise1 = randomQuadsDumbbellExercise();
-        final Exercise exercise2 = randomQuadsDumbbellExercise();
-        final Exercise exercise3 = randomQuadsDumbbellExercise();
+        final Exercise exercise1 = testFixtures.exercise().save();
+        final Exercise exercise2 = testFixtures.exercise().save();
+        final Exercise exercise3 = testFixtures.exercise().save();
 
         exerciseRepository.save(exercise1);
         exerciseRepository.saveAll(List.of(exercise2, exercise3));
@@ -143,9 +147,9 @@ class ExerciseServiceIT {
     @Test
     void shouldThrowDataIntegrityViolationExceptionWhenCreateExerciseAlreadyExists() {
         //given
-        final ExerciseRequest request = randomQuadsDumbbellExerciseRequest();
-        final Exercise exercise = new Exercise(request.name(), request.muscleGroup(), request.exerciseType());
-        exerciseRepository.save(exercise);
+        final Exercise exercise = testFixtures.exercise().save();
+        final ExerciseRequest request = new ExerciseRequest(
+                exercise.getName(), exercise.getMuscleGroup(), exercise.getExerciseType());
 
         //when && then
         assertThatThrownBy(() -> exerciseService.createExercise(request))

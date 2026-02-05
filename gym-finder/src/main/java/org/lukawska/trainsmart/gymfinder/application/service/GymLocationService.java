@@ -30,16 +30,14 @@ import java.util.Locale;
 @Slf4j
 public class GymLocationService {
 
-    private final RestClient restClient;
-
     private final static Integer GYM_COUNT_LIMIT = 5;
-
     private static final String SEARCH_QUERY = """
             [out:json][timeout:10];
             node["leisure"="fitness_centre"]
               (around:%d,%f,%f);
             out body;
             """;
+    private final RestClient restClient;
 
     @Retryable(retryFor = {ResourceAccessException.class}, backoff = @Backoff(delay = 5000))
     @Cacheable(value = RedisConfig.NEARBY_GYMS_CACHE,

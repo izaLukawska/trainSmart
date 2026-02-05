@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
+import org.lukawska.trainsmart.config.TestFixtures;
 import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
 import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
 import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
@@ -13,6 +14,7 @@ import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
 import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
+import org.lukawska.trainsmart.testutils.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -20,17 +22,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.lukawska.trainsmart.mailing.testutil.MailingTestData.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-@Import(PostgresTestConfig.class)
+@Import({PostgresTestConfig.class, TestFixtures.class})
 class MailServiceIT {
 
     @MockitoBean
@@ -45,10 +45,13 @@ class MailServiceIT {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private TestFixtures testFixtures;
+
     @Test
     void shouldSendAndSaveMailSuccess() throws MessagingException {
         //given
-        final MailDetails mailDetails = mailDetailsWithAttachments();
+        final MailDetails mailDetails = TestData.mailDetailsWithAttachments();
         doNothing().when(mailSender).sendEmail(mailDetails);
 
         //when
@@ -69,9 +72,8 @@ class MailServiceIT {
     @Test
     void shouldReturnMailById() {
         //given
-        final MailEntity mailEntity = mailEntityWithAttachments();
+        final MailEntity mailEntity = testFixtures.mail().save();
         final List<AttachmentMeta> expectedAttachmentMeta = mapToAttachmentMetaList(mailEntity.getAttachments());
-        mailRepository.save(mailEntity);
 
         //when
         MailResponse result = mailService.getMailResponseById(mailEntity.getId());
@@ -85,8 +87,11 @@ class MailServiceIT {
     @Test
     void shouldReturnAllMailsByRecipient() {
         //given
-        final String recipient = randomEmail();
-        mailRepository.saveAll(List.of(mailWithRecipient(recipient), mailWithRecipient(randomEmail())));
+        final MailEntity mail1 = testFixtures.mail().save();
+        final String recipient = TestData.email();
+        final MailEntity mail2 = testFixtures.mail()
+                                             .withRecipients(List.of(recipient))
+                                             .save();
 
         //when
         List<MailResponse> mailResponses = mailService.getAllMailsByRecipient(recipient);
@@ -94,15 +99,18 @@ class MailServiceIT {
         //then
         List<MailEntity> mailsByRecipient = mailRepository.findAllByRecipient(recipient);
         assertThat(mailResponses.size()).isEqualTo(mailsByRecipient.size());
-        assertThat(mailResponses).extracting(MailResponse::recipients)
-                                 .allMatch(response -> response.contains(recipient));
+        assertThat(mailResponses.getFirst().recipients()).isEqualTo(mail2.getRecipients());
+        assertThat(mailResponses.getFirst().recipients()).isNotEqualTo(mail1.getRecipients());
     }
 
     @Test
     void shouldReturnAllMailsBySubjectContaining() {
         //given
-        final String keyword = UUID.randomUUID().toString();
-        mailRepository.saveAll(List.of(mailWithSubject(keyword + "subject"), mailWithSubject("different subject")));
+        final MailEntity mail1 = testFixtures.mail().save();
+        final String keyword = TestData.text();
+        final MailEntity mail2 = testFixtures.mail()
+                                             .withSubject(keyword + "text")
+                                             .save();
 
         //when
         List<MailResponse> mailResponses = mailService.getAllMailsBySubjectContaining(keyword);
@@ -110,13 +118,14 @@ class MailServiceIT {
         //then
         List<MailEntity> mailsWithKeyword = mailRepository.findAllBySubjectContaining(keyword);
         assertThat(mailResponses.size()).isEqualTo(mailsWithKeyword.size());
-        assertThat(mailResponses).extracting(MailResponse::subject).allMatch(r -> r.contains(keyword));
+        assertThat(mailResponses.getFirst().subject()).isEqualTo(mail2.getSubject());
+        assertThat(mailResponses).extracting(MailResponse::subject).doesNotContain(mail1.getSubject());
     }
 
     @Test
     void shouldThrowExceptionWhenSendMailError() throws MessagingException {
         //given
-        final MailDetails mailDetails = mailDetailsWithAttachments();
+        final MailDetails mailDetails = TestData.mailDetailsWithAttachments();
         doThrow(new MessagingException("send error")).when(mailSender).sendEmail(mailDetails);
 
         //when && then
@@ -130,7 +139,13 @@ class MailServiceIT {
     @Test
     void shouldThrowInvalidAttachmentExtensionWhenSendMail() {
         //given
-        final MailDetails mailDetails = mailDetailsWithInvalidAttachment();
+        final MailDetails mailDetails = MailDetails.builder()
+                                                   .recipients(List.of(TestData.email()))
+                                                   .text(TestData.text())
+                                                   .subject(TestData.text())
+                                                   .isHtml(false)
+                                                   .attachments(List.of(new Attachment("file.txt", new byte[]{1, 2})))
+                                                   .build();
 
         //when && then
         assertThatThrownBy(() -> mailService.sendMail(mailDetails))

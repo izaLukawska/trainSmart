@@ -20,16 +20,13 @@ import java.util.Set;
 @Slf4j
 public class UserExerciseFilter {
 
-    private final UserExerciseService userExerciseService;
-
-    private final OpenAiAdapter openAiAdapter;
-
     private static final String SYSTEM_PROMPT = "You are an expert in safe workout and exercise selection.";
-
     private static final String USER_PROMPT_TEMPLATE = ("""
             Given the following injuries: %s, return only the exercises from this list that CANNOT be safely
             performed: %s. Return the names in lower case and as a comma-separated list.
             """).replace("\n", " ").trim();
+    private final UserExerciseService userExerciseService;
+    private final OpenAiAdapter openAiAdapter;
 
     public void updateUnsafeExercises(@NotNull Long userId,
                                       @NotNull @NotEmpty Set<String> injuries,

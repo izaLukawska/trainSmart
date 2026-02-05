@@ -37,24 +37,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TrainingPlanServiceTest {
 
+    private static final Long USER_ID = 2L;
+    private static final Long PLAN_ID = 1L;
     @Mock
     private TrainingPlanRepository trainingPlanRepository;
-
     @Mock
     private UserAccessService userAccessService;
-
     @Mock
     private TrainingPlanGenerator trainingPlanGenerator;
-
     @Mock
     private TrainingPlanDataResolver trainingPlanDataResolver;
-
     @InjectMocks
     private TrainingPlanService trainingPlanService;
-
-    private static final Long USER_ID = 2L;
-
-    private static final Long PLAN_ID = 1L;
 
     @Test
     void shouldDeleteTrainingPlan() {

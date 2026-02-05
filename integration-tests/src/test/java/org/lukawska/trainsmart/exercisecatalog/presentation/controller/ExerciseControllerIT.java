@@ -8,6 +8,7 @@ import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
 import org.lukawska.trainsmart.exercisecatalog.application.service.ExerciseService;
+import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
 import org.lukawska.trainsmart.security.config.SecurityConfig;
@@ -22,8 +23,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.util.List;
+import java.util.Random;
 
-import static org.lukawska.trainsmart.exercisecatalog.testutil.ExerciseTestData.*;
+import static org.lukawska.trainsmart.testutils.TestData.exerciseName;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,21 +54,21 @@ class ExerciseControllerIT {
     @Test
     void shouldCreateExercise() throws Exception {
         //given
-        final ExerciseRequest exerciseRequest = randomQuadsDumbbellExerciseRequest();
+        final ExerciseRequest exerciseRequest = new ExerciseRequest(exerciseName(), MuscleGroup.CHEST,
+                                                                    ExerciseType.OTHER);
         final ObjectMapper objectMapper = new ObjectMapper();
 
         //when && then
         RequestBuilder request = post("/exercises").contentType(MediaType.APPLICATION_JSON)
                                                    .with(csrf())
                                                    .content(objectMapper.writeValueAsString(exerciseRequest));
-        mockMvc.perform(request)
-               .andExpect(status().isCreated());
+        mockMvc.perform(request).andExpect(status().isCreated());
     }
 
     @Test
     void shouldReturnExerciseByName() throws Exception {
         //given
-        final ExerciseResponse exerciseResponse = randomExerciseResponse();
+        final ExerciseResponse exerciseResponse = exerciseResponse();
         final String name = exerciseResponse.name();
         when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
 
@@ -75,17 +77,15 @@ class ExerciseControllerIT {
                                                        .param("name", name)
                                                        .contentType(MediaType.APPLICATION_JSON);
 
-        mockMvc.perform(request)
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.name").value(name));
+        mockMvc.perform(request).andExpect(status().isOk()).andExpect(jsonPath("$.name").value(name));
     }
 
     @Test
     void shouldReturnExercisesByMuscleGroup() throws Exception {
         //given
         final MuscleGroup muscleGroup = MuscleGroup.QUADS;
-        final ExerciseResponse exerciseResponse1 = randomExerciseResponse();
-        final ExerciseResponse exerciseResponse2 = randomExerciseResponse();
+        final ExerciseResponse exerciseResponse1 = exerciseResponse();
+        final ExerciseResponse exerciseResponse2 = exerciseResponse();
         final List<ExerciseResponse> expectedResponse = List.of(exerciseResponse1, exerciseResponse2);
         when(exerciseService.getExercisesByMuscleGroup(muscleGroup)).thenReturn(expectedResponse);
 
@@ -110,7 +110,7 @@ class ExerciseControllerIT {
     @Test
     void shouldReturnBadRequestWhenNotFound() throws Exception {
         //given
-        final String name = randomExerciseName();
+        final String name = exerciseName();
         when(exerciseService.getExerciseByName(name))
                 .thenThrow(new ExerciseException(ExceptionType.EXERCISE_NOT_FOUND));
 
@@ -118,7 +118,27 @@ class ExerciseControllerIT {
         RequestBuilder request = get("/exercises/name").with(csrf())
                                                        .contentType(MediaType.APPLICATION_JSON)
                                                        .param("name", name);
-        mockMvc.perform(request)
-               .andExpect(status().isNotFound());
+
+        mockMvc.perform(request).andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(roles = "USER")
+    @Test
+    void shouldReturnForbiddenWhenGetExerciseByName() throws Exception {
+        //given
+        final ExerciseResponse exerciseResponse = exerciseResponse();
+        final String name = exerciseResponse.name();
+        when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
+
+        //when && then
+        RequestBuilder request = get("/exercises/name").with(csrf())
+                                                       .param("name", name)
+                                                       .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    private ExerciseResponse exerciseResponse() {
+        return new ExerciseResponse(new Random().nextLong(), exerciseName());
     }
 }

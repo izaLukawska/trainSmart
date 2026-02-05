@@ -25,19 +25,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class EnableExerciseProcessorTest {
 
+    private static final Long userId = 1L;
     @Mock
     private HealthSurveyService healthSurveyService;
-
     @Mock
     private UserExerciseService userExerciseService;
-
     @Mock
     private EnableExerciseStrategyResolver strategyResolver;
-
     @InjectMocks
     private EnableExerciseProcessor enableExerciseProcessor;
-
-    private static final Long userId = 1L;
 
     @Test
     void shouldReturnUserExercisesByMuscleGroupWhenStrategyNotPresent() {

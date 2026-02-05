@@ -36,19 +36,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserExerciseServiceTest {
 
+    private static final Long USER_ID = 1L;
     @Mock
     private UserExerciseRepository userExerciseRepository;
-
     @Mock
     private UserAccessService userAccessService;
-
     @Mock
     private ExerciseService exerciseService;
-
     @InjectMocks
     private UserExerciseService userExerciseService;
 
-    private static final Long USER_ID = 1L;
+    private static UserExercise userExerciseWithMockedData() {
+        return new UserExercise(mock(User.class), mock(Exercise.class));
+    }
 
     @Test
     void shouldReturnNewUserExercisesNamesWhenSyncUserExercise() {
@@ -210,9 +210,5 @@ class UserExerciseServiceTest {
         assertThatThrownBy(() -> userExerciseService.syncUserExercise(USER_ID))
                 .isInstanceOf(UserExerciseException.class)
                 .hasMessage(ExceptionType.USER_EXERCISE_ALREADY_EXISTS.getMessage());
-    }
-
-    private static UserExercise userExerciseWithMockedData() {
-        return new UserExercise(mock(User.class), mock(Exercise.class));
     }
 }

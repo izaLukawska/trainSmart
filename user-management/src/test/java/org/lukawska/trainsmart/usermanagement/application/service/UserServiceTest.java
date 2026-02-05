@@ -196,7 +196,7 @@ class UserServiceTest {
         final ChangeEmailRequest changeEmailRequest = new ChangeEmailRequest(user.getEmail(), randomEmail());
         mockAuthenticatedUser(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException("violation"));
+        when(userRepository.saveAndFlush(any())).thenThrow(new DataIntegrityViolationException("violation"));
 
         //when && then
         assertThatThrownBy(() -> userService.changeEmail(changeEmailRequest))

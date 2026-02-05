@@ -27,6 +27,16 @@ class TrainingExceptionHandlerTest {
 
     private final TrainingExceptionHandler exceptionHandler = new TrainingExceptionHandler();
 
+    private static ConstraintViolation<?> mockViolation(String message) {
+        Path path = mock(Path.class);
+        doReturn(UUID.randomUUID().toString()).when(path).toString();
+        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+        when(violation.getPropertyPath()).thenReturn(path);
+        when(violation.getMessage()).thenReturn(message);
+
+        return violation;
+    }
+
     @Test
     void shouldReturn404WithProblemDetailWhenHandleTrainingException() {
         //given
@@ -101,15 +111,5 @@ class TrainingExceptionHandlerTest {
                            .hasTitle("Constraint violation")
                            .hasConstraintViolation(violation1)
                            .hasConstraintViolation(violation2);
-    }
-
-    private static ConstraintViolation<?> mockViolation(String message) {
-        Path path = mock(Path.class);
-        doReturn(UUID.randomUUID().toString()).when(path).toString();
-        ConstraintViolation<?> violation = mock(ConstraintViolation.class);
-        when(violation.getPropertyPath()).thenReturn(path);
-        when(violation.getMessage()).thenReturn(message);
-
-        return violation;
     }
 }
