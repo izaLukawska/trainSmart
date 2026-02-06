@@ -33,11 +33,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser
 public class UserAgreementControllerIT {
 
-    private final static String BASE_URL = "/users/{userId}/agreements";
+    private final static String BASE_URL = "/users/{userId}/agreements/";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Long userId = 1L;
+    private static final Long USER_ID = 1L;
 
     @MockitoBean
     private UserAgreementService userAgreementService;
@@ -57,10 +57,10 @@ public class UserAgreementControllerIT {
         final UserAgreementResponse response = userAgreementResponse("RODO");
         final UserAgreementRequest request = new UserAgreementRequest(
                 response.getStatementCode(), response.getAgreementStatus());
-        when(userAgreementService.signAgreement(userId, request)).thenReturn(response);
+        when(userAgreementService.signAgreement(USER_ID, request)).thenReturn(response);
 
         //when && then
-        RequestBuilder requestBuilder = put(BASE_URL.concat("/sign"), userId)
+        RequestBuilder requestBuilder = put(BASE_URL.concat("/sign"), USER_ID)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request));
@@ -73,13 +73,13 @@ public class UserAgreementControllerIT {
         //given
         final UserAgreementResponse response1 = userAgreementResponse("PESEL");
         final UserAgreementResponse response2 = userAgreementResponse("RODO");
-        when(userAgreementService.getRequiredStatementsToSign(userId)).thenReturn(List.of(response1, response2));
+        when(userAgreementService.getRequiredStatementsToSign(USER_ID)).thenReturn(List.of(response1, response2));
 
-        when(userAgreementService.getRequiredStatementsToSign(userId))
+        when(userAgreementService.getRequiredStatementsToSign(USER_ID))
                 .thenReturn(List.of(response1, response2));
 
         //when
-        String content = mockMvc.perform(get(BASE_URL, userId).with(csrf()))
+        String content = mockMvc.perform(get(BASE_URL, USER_ID).with(csrf()))
                                 .andReturn().getResponse().getContentAsString();
 
         //then
