@@ -3,14 +3,16 @@ package org.lukawska.trainsmart.exercisecatalog.application.service;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.config.TestFixtures;
-import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
-import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
 import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
 import org.lukawska.trainsmart.exercisecatalog.domain.repositories.ExerciseRepository;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.model.ExerciseRequest;
+import org.lukawska.trainsmart.exercisecatalog.model.ExerciseResponse;
+import org.lukawska.trainsmart.exercisecatalog.model.ExerciseTypeEnum;
+import org.lukawska.trainsmart.exercisecatalog.model.MuscleGroupEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -42,18 +44,19 @@ class ExerciseServiceIT {
     @Test
     void shouldCreateExerciseSuccess() {
         //given
-        final ExerciseRequest request = new ExerciseRequest(exerciseName(), MuscleGroup.CHEST, ExerciseType.OTHER);
+        final ExerciseRequest request = new ExerciseRequest(exerciseName(), MuscleGroupEnum.CHEST,
+                                                            ExerciseTypeEnum.OTHER);
 
         //when
         ExerciseResponse result = exerciseService.createExercise(request);
 
         //then
-        Optional<Exercise> savedExercise = exerciseRepository.findById(result.id());
+        Optional<Exercise> savedExercise = exerciseRepository.findById(result.getId());
         assertThat(savedExercise).isPresent();
         Exercise exercise = savedExercise.get();
-        assertThat(exercise.getName()).isEqualTo(result.name());
-        assertThat(exercise.getExerciseType()).isEqualTo(request.exerciseType());
-        assertThat(exercise.getMuscleGroup()).isEqualTo(request.muscleGroup());
+        assertThat(exercise.getName()).isEqualTo(result.getName());
+        assertThat(exercise.getExerciseType().name()).isEqualTo(request.getExerciseType().name());
+        assertThat(exercise.getMuscleGroup().name()).isEqualTo(request.getMuscleGroup().name());
         assertThat(exercise.getCreatedAt()).isNotNull();
         assertThat(exercise.getModifiedAt()).isNotNull();
     }
@@ -67,8 +70,8 @@ class ExerciseServiceIT {
         ExerciseResponse result = exerciseService.getExerciseByName(exercise.getName());
 
         //then
-        assertThat(result.name()).isEqualTo(exercise.getName());
-        assertThat(result.id()).isEqualTo(exercise.getId());
+        assertThat(result.getName()).isEqualTo(exercise.getName());
+        assertThat(result.getId()).isEqualTo(exercise.getId());
     }
 
     @Test
@@ -80,13 +83,14 @@ class ExerciseServiceIT {
                                                .withMuscleGroup(MuscleGroup.HAMSTRINGS)
                                                .save();
         final MuscleGroup muscleGroup = exercise1.getMuscleGroup();
+        final MuscleGroupEnum muscleGroupEnum = MuscleGroupEnum.valueOf(muscleGroup.name());
 
         //when
-        List<ExerciseResponse> result = exerciseService.getExercisesByMuscleGroup(muscleGroup);
+        List<ExerciseResponse> result = exerciseService.getExercisesByMuscleGroup(muscleGroupEnum);
 
         //then
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(ExerciseResponse::name)
+        assertThat(result).extracting(ExerciseResponse::getName)
                           .containsExactlyInAnyOrder(exercise2.getName(), exercise1.getName())
                           .doesNotContain(exercise3.getName());
     }
@@ -149,7 +153,8 @@ class ExerciseServiceIT {
         //given
         final Exercise exercise = testFixtures.exercise().save();
         final ExerciseRequest request = new ExerciseRequest(
-                exercise.getName(), exercise.getMuscleGroup(), exercise.getExerciseType());
+                exercise.getName(), MuscleGroupEnum.valueOf(exercise.getMuscleGroup().name()),
+                ExerciseTypeEnum.valueOf(exercise.getExerciseType().name()));
 
         //when && then
         assertThatThrownBy(() -> exerciseService.createExercise(request))
