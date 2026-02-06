@@ -1,0 +1,230 @@
+openapi: 3.0.3
+info:
+  title: Health Survey API
+  version: 1.0.0
+tags:
+  - name: HealthSurvey
+    description: Health survey endpoints
+
+paths:
+  /users/{userId}/health-survey:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      tags:
+        - HealthSurvey
+      operationId: getHealthSurvey
+      responses:
+        '200':
+          description: Health survey retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthSurveyResponse'
+        '400':
+          description: Invalid userId
+        '404':
+          description: Survey not found
+    post:
+      tags:
+        - HealthSurvey
+      operationId: submitHealthSurvey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthSurveyCreateRequest'
+      responses:
+        '201':
+          description: Health survey created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthSurveyResponse'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (insufficient role)
+    put:
+      tags:
+        - HealthSurvey
+      operationId: updateHealthSurvey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthSurveyUpdateRequest'
+      responses:
+        '200':
+          description: Health survey updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthSurveyResponse'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (insufficient role)
+        '404':
+          description: Survey not found
+    delete:
+      tags:
+        - HealthSurvey
+      operationId: deleteHealthSurvey
+      responses:
+        '204':
+          description: Deleted successfully (no content)
+        '400':
+          description: Invalid userId
+        '404':
+          description: Survey not found
+
+  /users/{userId}/health-survey/injuries:
+    get:
+      tags:
+        - HealthSurvey
+      operationId: getAllInjuries
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        "200":
+          description: List of injuries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  minLength: 1
+                uniqueItems: true
+        "400":
+          description: Invalid userId
+        "404":
+          description: Survey not found
+
+  /users/{userId}/health-survey/weight-history:
+    get:
+      tags:
+        - HealthSurvey
+      operationId: getWeightHistory
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        "200":
+          description: Weight history list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WeightHistoryResponse'
+        "400":
+          description: Invalid userId
+        "404":
+          description: Survey or history not found
+
+components:
+  schemas:
+    GenderEnum:
+      type: string
+      description: Gender enumeration
+      enum:
+        - MALE
+        - FEMALE
+        - OTHER
+    HealthSurveyCreateRequest:
+      type: object
+      required:
+        - gender
+        - height
+        - weight
+        - injuries
+      properties:
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        height:
+          type: integer
+          minimum: 1
+          description: Height in centimeters
+        weight:
+          type: integer
+          minimum: 1
+          description: Weight in kilograms
+        injuries:
+          type: array
+          description: Set of injury descriptions (max 5)
+          items:
+            type: string
+            minLength: 1
+          maxItems: 5
+          uniqueItems: true
+    HealthSurveyUpdateRequest:
+      type: object
+      properties:
+        weight:
+          type: integer
+          minimum: 1
+          description: New weight in kilograms (optional)
+        injuries:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          maxItems: 5
+          uniqueItems: true
+          description: Replace injuries set (optional)
+    HealthSurveyResponse:
+      type: object
+      required:
+        - id
+        - gender
+        - height
+        - weight
+        - injuriesCount
+      properties:
+        id:
+          type: integer
+          format: int64
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        height:
+          type: integer
+        weight:
+          type: integer
+        injuriesCount:
+          type: integer
+    WeightHistoryResponse:
+      type: object
+      required:
+        - weight
+        - instant
+      properties:
+        weight:
+          type: integer
+        instant:
+          type: string
+          format: date-time

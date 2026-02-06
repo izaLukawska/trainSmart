@@ -13,6 +13,7 @@
 
     <properties>
         <spring-data-envers.version>4.0.0-M6</spring-data-envers.version>
+        <openapi.baseName>healthsurvey</openapi.baseName>
     </properties>
 
     <dependencies>
@@ -27,5 +28,29 @@
             <version>${spring-data-envers.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/${openapi.baseName}api.yml</inputSpec>
+                            <configOptions>
+                                <generateBuilders>true</generateBuilders>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

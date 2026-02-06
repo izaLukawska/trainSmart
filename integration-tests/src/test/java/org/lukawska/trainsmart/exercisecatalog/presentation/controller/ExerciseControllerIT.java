@@ -73,7 +73,7 @@ class ExerciseControllerIT {
     void shouldReturnExerciseByName() throws Exception {
         //given
         final ExerciseResponse exerciseResponse = exerciseResponse();
-        final String name = exerciseResponse.name();
+        final String name = exerciseResponse.getName();
         when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
 
         //when && then
@@ -107,7 +107,9 @@ class ExerciseControllerIT {
     @Test
     void shouldReturnBadRequestWhenInvalidRequestBody() throws Exception {
         //when && then
-        mockMvc.perform(post("/exercises").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
+        mockMvc.perform(post("/exercises").with(csrf())
+                                          .contentType(MediaType.APPLICATION_JSON)
+                                          .content("{}"))
                .andExpect(status().isBadRequest());
     }
 

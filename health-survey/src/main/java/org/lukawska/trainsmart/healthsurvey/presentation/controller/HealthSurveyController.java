@@ -1,18 +1,18 @@
 package org.lukawska.trainsmart.healthsurvey.presentation.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
-import org.lukawska.trainsmart.healthsurvey.application.dto.WeightHistoryResponse;
+import org.lukawska.trainsmart.healthsurvey.api.HealthSurveyApi;
 import org.lukawska.trainsmart.healthsurvey.application.service.HealthSurveyService;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyCreateRequest;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyResponse;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyUpdateRequest;
+import org.lukawska.trainsmart.healthsurvey.model.WeightHistoryResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Set;
@@ -22,50 +22,46 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Validated
 @Slf4j
-public class HealthSurveyController {
+public class HealthSurveyController implements HealthSurveyApi {
 
     private final HealthSurveyService healthSurveyService;
 
-    @GetMapping
-    public HealthSurveyResponse getHealthSurvey(@PathVariable @Positive Long userId) {
-        log.info("Getting health survey for user: {}", userId);
-        return healthSurveyService.getHealthSurveyByUserIdResponse(userId);
-    }
-
-    @GetMapping("/injuries")
-    public Set<String> getAllInjuries(@PathVariable @Positive Long userId) {
-        log.info("Getting injuries for user: {}", userId);
-        return healthSurveyService.getAllInjuriesByUserId(userId);
-    }
-
-    @GetMapping("/weight-history")
-    public List<WeightHistoryResponse> getWeightHistory(@PathVariable @Positive Long userId) {
-        log.info("Getting weight history for user: {}", userId);
-        return healthSurveyService.getWeightHistoryByUserId(userId);
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping
-    public ResponseEntity<HealthSurveyResponse> submitHealthSurvey(
-            @PathVariable @Positive Long userId,
-            @Valid @RequestBody HealthSurveyCreateRequest surveyRequest) {
-        log.info("Submitting health survey for user: {}", userId);
-        return ResponseEntity.status(201).body(healthSurveyService.submitHealthSurvey(userId, surveyRequest));
-    }
-
-    @PreAuthorize("hasRole('USER')")
-    @PutMapping
-    public ResponseEntity<HealthSurveyResponse> updateHealthSurvey(
-            @PathVariable @Positive Long userId,
-            @Valid @RequestBody HealthSurveyUpdateRequest surveyRequest) {
-        log.info("Updating health survey for user: {}", userId);
-        return ResponseEntity.ok(healthSurveyService.updateHealthSurvey(userId, surveyRequest));
-    }
-
-    @DeleteMapping
-    public ResponseEntity<Void> deleteHealthSurvey(@PathVariable @Positive Long userId) {
-        log.info("Deleting health survey for user: {}", userId);
+    @Override
+    public ResponseEntity<Void> deleteHealthSurvey(Long userId) {
+        log.info("Received delete health survey request for user: {}", userId);
         healthSurveyService.deleteHealthSurveyByUserId(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Set<String>> getAllInjuries(Long userId) {
+        log.info("Received get all injuries request for user {}", userId);
+        return ResponseEntity.ok(healthSurveyService.getAllInjuriesByUserId(userId));
+    }
+
+    @Override
+    public ResponseEntity<HealthSurveyResponse> getHealthSurvey(Long userId) {
+        log.info("Received get health survey request for user {},", userId);
+        return ResponseEntity.ok(healthSurveyService.getHealthSurveyByUserIdResponse(userId));
+    }
+
+    @Override
+    public ResponseEntity<List<WeightHistoryResponse>> getWeightHistory(Long userId) {
+        log.info("Received get weight history request for user: {}", userId);
+        return ResponseEntity.ok(healthSurveyService.getWeightHistoryByUserId(userId));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @Override
+    public ResponseEntity<HealthSurveyResponse> submitHealthSurvey(Long userId, HealthSurveyCreateRequest request) {
+        log.info("Received submit health survey request for user: {}", userId);
+        return ResponseEntity.status(201).body(healthSurveyService.submitHealthSurvey(userId, request));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @Override
+    public ResponseEntity<HealthSurveyResponse> updateHealthSurvey(Long userId, HealthSurveyUpdateRequest request) {
+        log.info("Received update health survey request for user: {}", userId);
+        return ResponseEntity.ok(healthSurveyService.updateHealthSurvey(userId, request));
     }
 }
