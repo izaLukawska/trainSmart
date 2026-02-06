@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
@@ -17,17 +18,22 @@ import java.time.Instant;
 @Getter
 public class UserExercise extends AuditableEntity {
 
-    public boolean enabled = true;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
+
     private Instant lastUsedAt;
+
+    @Setter
+    private boolean enabled = true;
 
     public UserExercise(User user, Exercise exercise) {
         this.user = user;
