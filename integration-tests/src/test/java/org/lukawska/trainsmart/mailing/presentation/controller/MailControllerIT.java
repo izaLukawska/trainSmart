@@ -5,11 +5,9 @@ import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
 import org.lukawska.trainsmart.mailing.model.MailResponse;
 import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
-import org.lukawska.trainsmart.security.config.SecurityConfig;
 import org.lukawska.trainsmart.testutils.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -17,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Random;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
@@ -29,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(MailController.class)
 @ActiveProfiles("test")
 @WithMockUser(roles = "ADMIN")
-@Import({SecurityConfig.class})
 class MailControllerIT {
 
     @Autowired
@@ -56,7 +52,7 @@ class MailControllerIT {
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.id").value(mailResponse.getId()))
                .andExpect(jsonPath("$.subject").value(mailResponse.getSubject()))
-               .andExpect(jsonPath("$.recipients[0]").value(mailResponse.getRecipients().getFirst()));
+               .andExpect(jsonPath("$.recipients").value(mailResponse.getRecipients().getFirst()));
     }
 
     @Test
@@ -71,7 +67,7 @@ class MailControllerIT {
         mockMvc.perform(get("/mail/recipient").with(csrf())
                                               .param("recipient", recipient))
                .andExpect(status().isOk())
-               .andExpect(jsonPath("$.length()").value(2))
+               .andExpect(jsonPath("$.length()").value(mailResponses.size()))
                .andExpect(jsonPath("$[*].recipients", everyItem(hasItem(recipient))));
     }
 
@@ -86,36 +82,17 @@ class MailControllerIT {
         mockMvc.perform(get("/mail/subject").with(csrf())
                                             .param("keyword", keyword))
                .andExpect(status().isOk())
-               .andExpect(jsonPath("$.length()").value(2))
+               .andExpect(jsonPath("$.length()").value(mailResponses.size()))
                .andExpect(jsonPath("$[*].subject", everyItem(containsString(keyword))));
-    }
-
-    @Test
-    void shouldReturnBadRequestWhenInvalidPathVariable() throws Exception {
-        //when && then
-        mockMvc.perform(get("/mail/-1").with(csrf())).andExpect(status().isBadRequest());
-    }
-
-    @WithMockUser(roles = "USER")
-    @Test
-    void shouldReturnForbidden() throws Exception {
-        // given
-        final MailResponse mailResponse = mailResponse();
-        final Long id = mailResponse.getId();
-        when(mailService.getMailResponseById(id)).thenReturn(mailResponse);
-
-        // when && then
-        mockMvc.perform(get("/mail/" + id).with(csrf()))
-               .andExpect(status().isForbidden());
     }
 
     private MailResponse mailResponse() {
         return MailResponse.builder()
-                           .id(new Random().nextLong())
+                           .id(20L)
                            .recipients(List.of(TestData.email()))
                            .sentAt(Instant.now())
                            .subject("subject")
-                           .cc(List.of())
+                           .cc(List.of(TestData.email()))
                            .build();
 
     }

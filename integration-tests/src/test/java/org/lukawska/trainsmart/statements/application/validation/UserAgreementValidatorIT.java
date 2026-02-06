@@ -3,7 +3,7 @@ package org.lukawska.trainsmart.statements.application.validation;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.config.TestFixtures;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
+import org.lukawska.trainsmart.statements.application.dto.UserAgreementCommand;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
 import org.lukawska.trainsmart.statements.infra.config.Statement;
@@ -34,10 +34,10 @@ class UserAgreementValidatorIT {
     @Test
     void shouldReturnStatementFromYamlWhenRequestIsValid() {
         //given
-        final UserAgreementRequest request = new UserAgreementRequest("RODO", AgreementStatus.ACCEPTED);
+        final UserAgreementCommand command = new UserAgreementCommand("RODO", AgreementStatus.ACCEPTED);
 
         //when
-        Statement statement = validator.validateUserAgreement(request);
+        Statement statement = validator.validateUserAgreement(command);
 
         //then
         assertThat(statement.version()).isEqualTo(3);

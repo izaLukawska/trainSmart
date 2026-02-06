@@ -97,9 +97,9 @@ public class HealthSurveyControllerIT {
                .andExpect(jsonPath("$.[0].weight").value(response1.getWeight()))
                .andExpect(jsonPath("$.[1].weight").value(response2.getWeight()))
                .andExpect(jsonPath("$.[2].weight").value(response3.getWeight()))
-               .andExpect(jsonPath("$.[0].updateDate").value(response1.getInstant().toString()))
-               .andExpect(jsonPath("$.[1].updateDate").value(response2.getInstant().toString()))
-               .andExpect(jsonPath("$.[2].updateDate").value(response3.getInstant().toString()));
+               .andExpect(jsonPath("$.[0].updateDate").value(response1.getUpdateDate().toString()))
+               .andExpect(jsonPath("$.[1].updateDate").value(response2.getUpdateDate().toString()))
+               .andExpect(jsonPath("$.[2].updateDate").value(response3.getUpdateDate().toString()));
     }
 
     @Test

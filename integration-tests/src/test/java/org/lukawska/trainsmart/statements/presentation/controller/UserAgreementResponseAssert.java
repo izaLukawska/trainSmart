@@ -1,8 +1,8 @@
 package org.lukawska.trainsmart.statements.presentation.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
-import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
+import org.lukawska.trainsmart.statements.model.AgreementStatusEnum;
+import org.lukawska.trainsmart.statements.model.UserAgreementResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,22 +16,22 @@ public class UserAgreementResponseAssert {
     }
 
     public UserAgreementResponseAssert hasId(Long id) {
-        assertThat(userAgreementResponse.id()).isEqualTo(id);
+        assertThat(userAgreementResponse.getId()).isEqualTo(id);
         return this;
     }
 
     public UserAgreementResponseAssert hasStatementCode(String statementCode) {
-        assertThat(userAgreementResponse.statementCode()).isEqualTo(statementCode);
+        assertThat(userAgreementResponse.getStatementCode()).isEqualTo(statementCode);
         return this;
     }
 
-    public UserAgreementResponseAssert hasStatus(AgreementStatus agreementStatus) {
-        assertThat(userAgreementResponse.agreementStatus()).isEqualTo(agreementStatus);
+    public UserAgreementResponseAssert hasStatus(AgreementStatusEnum agreementStatus) {
+        assertThat(userAgreementResponse.getAgreementStatus()).isEqualTo(agreementStatus);
         return this;
     }
 
     public UserAgreementResponseAssert hasVersion(int version) {
-        assertThat(userAgreementResponse.version()).isEqualTo(version);
+        assertThat(userAgreementResponse.getVersion()).isEqualTo(version);
         return this;
     }
 }

@@ -10,17 +10,13 @@ import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyUpdateRequest;
 import org.lukawska.trainsmart.healthsurvey.model.WeightHistoryResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/users/{userId}/health-survey")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class HealthSurveyController implements HealthSurveyApi {
 

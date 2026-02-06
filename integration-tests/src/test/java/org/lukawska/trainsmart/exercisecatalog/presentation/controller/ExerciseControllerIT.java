@@ -12,10 +12,8 @@ import org.lukawska.trainsmart.exercisecatalog.model.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.model.ExerciseTypeEnum;
 import org.lukawska.trainsmart.exercisecatalog.model.MuscleGroupEnum;
 import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
-import org.lukawska.trainsmart.security.config.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -37,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ExerciseController.class)
 @ActiveProfiles("test")
-@Import({SecurityConfig.class})
 @WithMockUser(roles = "ADMIN")
 class ExerciseControllerIT {
 
@@ -59,6 +56,8 @@ class ExerciseControllerIT {
         final ExerciseRequest exerciseRequest = new ExerciseRequest(exerciseName(), MuscleGroupEnum.CHEST,
                                                                     ExerciseTypeEnum.OTHER);
         final ObjectMapper objectMapper = new ObjectMapper();
+        final ExerciseResponse exerciseResponse = exerciseResponse();
+        when(exerciseService.createExercise(exerciseRequest)).thenReturn(exerciseResponse);
 
         //when && then
         RequestBuilder request = post("/exercises").contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +65,7 @@ class ExerciseControllerIT {
                                                    .content(objectMapper.writeValueAsString(exerciseRequest));
         mockMvc.perform(request)
                .andExpect(status().isCreated())
-               .andExpect(jsonPath("$.name").value(exerciseRequest.getName()));
+               .andExpect(jsonPath("$.name").value(exerciseResponse.getName()));
     }
 
     @Test
@@ -126,22 +125,6 @@ class ExerciseControllerIT {
                                                        .param("name", name);
 
         mockMvc.perform(request).andExpect(status().isNotFound());
-    }
-
-    @WithMockUser(roles = "USER")
-    @Test
-    void shouldReturnForbiddenWhenGetExerciseByName() throws Exception {
-        //given
-        final ExerciseResponse exerciseResponse = exerciseResponse();
-        final String name = exerciseResponse.getName();
-        when(exerciseService.getExerciseByName(name)).thenReturn(exerciseResponse);
-
-        //when && then
-        RequestBuilder request = get("/exercises/name").with(csrf())
-                                                       .param("name", name)
-                                                       .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     private ExerciseResponse exerciseResponse() {

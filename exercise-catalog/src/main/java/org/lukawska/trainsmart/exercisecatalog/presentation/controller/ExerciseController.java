@@ -23,15 +23,13 @@ public class ExerciseController implements ExerciseApi {
     private final ExerciseService exerciseService;
 
     @Override
-    public ResponseEntity<ExerciseResponse> createExercise(
-            ExerciseRequest exerciseRequest) {
+    public ResponseEntity<ExerciseResponse> createExercise(ExerciseRequest exerciseRequest) {
         log.info("Received create exercise request for name: {}", exerciseRequest.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(exerciseService.createExercise(exerciseRequest));
     }
 
     @Override
-    public ResponseEntity<ExerciseResponse> getExerciseByName(
-            String name) {
+    public ResponseEntity<ExerciseResponse> getExerciseByName(String name) {
         log.info("Received get exercise request for name: {}", name);
         return ResponseEntity.ok(exerciseService.getExerciseByName(name));
     }

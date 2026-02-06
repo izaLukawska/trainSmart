@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
 import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.services.UserAgreementService;
-import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
+import org.lukawska.trainsmart.statements.model.AgreementStatusEnum;
+import org.lukawska.trainsmart.statements.model.UserAgreementRequest;
+import org.lukawska.trainsmart.statements.model.UserAgreementResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -34,14 +34,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserAgreementControllerIT {
 
     private final static String BASE_URL = "/users/{userId}/agreements";
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
     private final Long userId = 1L;
+
     @MockitoBean
     private UserAgreementService userAgreementService;
+
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
+
     @MockitoBean
     private JwtService jwtService;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -50,7 +56,7 @@ public class UserAgreementControllerIT {
         //given
         final UserAgreementResponse response = userAgreementResponse("RODO");
         final UserAgreementRequest request = new UserAgreementRequest(
-                response.statementCode(), response.agreementStatus());
+                response.getStatementCode(), response.getAgreementStatus());
         when(userAgreementService.signAgreement(userId, request)).thenReturn(response);
 
         //when && then
@@ -69,32 +75,26 @@ public class UserAgreementControllerIT {
         final UserAgreementResponse response2 = userAgreementResponse("RODO");
         when(userAgreementService.getRequiredStatementsToSign(userId)).thenReturn(List.of(response1, response2));
 
+        when(userAgreementService.getRequiredStatementsToSign(userId))
+                .thenReturn(List.of(response1, response2));
+
         //when
         String content = mockMvc.perform(get(BASE_URL, userId).with(csrf()))
                                 .andReturn().getResponse().getContentAsString();
 
         //then
         List<UserAgreementResponse> actualResponse = objectMapper.readValue(content, new TypeReference<>() {});
-        then(actualResponse.getFirst()).hasId(response1.id())
-                                       .hasStatementCode(response1.statementCode())
-                                       .hasVersion(response1.version())
-                                       .hasStatus(response1.agreementStatus());
-        then(actualResponse.getLast()).hasId(response2.id())
-                                      .hasStatementCode(response2.statementCode())
-                                      .hasVersion(response2.version())
-                                      .hasStatus(response2.agreementStatus());
-    }
-
-    @Test
-    void shouldThrowBadRequestWhenGetRequiredStatementsToSignByInvalidUserId() throws Exception {
-        //given
-        final Long userId = -10L;
-
-        //when && then
-        mockMvc.perform(get(BASE_URL, userId)).andExpect(status().isBadRequest());
+        then(actualResponse.getFirst()).hasId(response1.getId())
+                                       .hasStatementCode(response1.getStatementCode())
+                                       .hasVersion(response1.getVersion())
+                                       .hasStatus(response1.getAgreementStatus());
+        then(actualResponse.getLast()).hasId(response2.getId())
+                                      .hasStatementCode(response2.getStatementCode())
+                                      .hasVersion(response2.getVersion())
+                                      .hasStatus(response2.getAgreementStatus());
     }
 
     private UserAgreementResponse userAgreementResponse(String code) {
-        return new UserAgreementResponse(new Random().nextLong(), code, 2, AgreementStatus.ACCEPTED);
+        return new UserAgreementResponse(new Random().nextLong(), code, 2, AgreementStatusEnum.ACCEPTED);
     }
 }

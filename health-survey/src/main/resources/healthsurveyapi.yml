@@ -221,10 +221,10 @@ components:
       type: object
       required:
         - weight
-        - instant
+        - updateDate
       properties:
         weight:
           type: integer
-        instant:
+        updateDate:
           type: string
           format: date-time

@@ -16,7 +16,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Random;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -62,12 +61,6 @@ class GymLocationControllerIT {
     }
 
     private FindGymRequest findGymRequest() {
-        Random random = new Random();
-
-        int radius = random.nextInt(1, 5001);
-        double lat = random.nextDouble(-90.0, 90.0);
-        double lon = random.nextDouble(-180.0, 180.0);
-
-        return new FindGymRequest(radius, lat, lon);
+        return new FindGymRequest(2340, 30.00, 70.00);
     }
 }
