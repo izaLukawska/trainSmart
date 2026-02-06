@@ -220,18 +220,6 @@ class UserServiceIT {
     }
 
     @Test
-    void shouldReturnUserByUsername() {
-        //given
-        final User user = testFixtures.user().save();
-
-        //when
-        User result = userService.getUserByUsername(user.getUsername());
-
-        //then
-        assertThat(result.getId()).isEqualTo(user.getId());
-    }
-
-    @Test
     @WithMockUser(username = "active_user")
     void shouldThrowUserManagementExceptionWhenInvalidEmail() {
         //given

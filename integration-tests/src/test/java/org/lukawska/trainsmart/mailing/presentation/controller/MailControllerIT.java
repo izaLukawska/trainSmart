@@ -2,8 +2,8 @@ package org.lukawska.trainsmart.mailing.presentation.controller;
 
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.commons.jwt.JwtService;
-import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
+import org.lukawska.trainsmart.mailing.model.MailResponse;
 import org.lukawska.trainsmart.security.auth.UserDetailsServiceImpl;
 import org.lukawska.trainsmart.security.config.SecurityConfig;
 import org.lukawska.trainsmart.testutils.TestData;
@@ -48,15 +48,15 @@ class MailControllerIT {
     void shouldReturnMailById() throws Exception {
         // given
         final MailResponse mailResponse = mailResponse();
-        final Long id = mailResponse.id();
+        final Long id = mailResponse.getId();
         when(mailService.getMailResponseById(id)).thenReturn(mailResponse);
 
         // when && then
         mockMvc.perform(get("/mail/" + id).with(csrf()))
                .andExpect(status().isOk())
-               .andExpect(jsonPath("$.id").value(mailResponse.id()))
-               .andExpect(jsonPath("$.subject").value(mailResponse.subject()))
-               .andExpect(jsonPath("$.recipients[0]").value(mailResponse.recipients().getFirst()));
+               .andExpect(jsonPath("$.id").value(mailResponse.getId()))
+               .andExpect(jsonPath("$.subject").value(mailResponse.getSubject()))
+               .andExpect(jsonPath("$.recipients[0]").value(mailResponse.getRecipients().getFirst()));
     }
 
     @Test
@@ -64,11 +64,12 @@ class MailControllerIT {
         // given
         final MailResponse mailResponse = mailResponse();
         final List<MailResponse> mailResponses = List.of(mailResponse, mailResponse);
-        final String recipient = mailResponses.getFirst().recipients().getFirst();
+        final String recipient = mailResponses.getFirst().getRecipients().getFirst();
         when(mailService.getAllMailsByRecipient(recipient)).thenReturn(mailResponses);
 
         // when && then
-        mockMvc.perform(get("/mail/recipient").with(csrf()).param("recipient", recipient))
+        mockMvc.perform(get("/mail/recipient").with(csrf())
+                                              .param("recipient", recipient))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].recipients", everyItem(hasItem(recipient))));
@@ -78,11 +79,12 @@ class MailControllerIT {
     void shouldReturnAllMailsBySubject() throws Exception {
         // given
         final List<MailResponse> mailResponses = List.of(mailResponse(), mailResponse());
-        final String keyword = mailResponses.getFirst().subject().substring(3);
+        final String keyword = mailResponses.getFirst().getSubject().substring(3);
         when(mailService.getAllMailsBySubjectContaining(keyword)).thenReturn(mailResponses);
 
         // when && then
-        mockMvc.perform(get("/mail/subject").with(csrf()).param("keyword", keyword))
+        mockMvc.perform(get("/mail/subject").with(csrf())
+                                            .param("keyword", keyword))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.length()").value(2))
                .andExpect(jsonPath("$[*].subject", everyItem(containsString(keyword))));
@@ -99,21 +101,22 @@ class MailControllerIT {
     void shouldReturnForbidden() throws Exception {
         // given
         final MailResponse mailResponse = mailResponse();
-        final Long id = mailResponse.id();
+        final Long id = mailResponse.getId();
         when(mailService.getMailResponseById(id)).thenReturn(mailResponse);
 
         // when && then
-        mockMvc.perform(get("/mail/" + id).with(csrf())).andExpect(status().isForbidden());
+        mockMvc.perform(get("/mail/" + id).with(csrf()))
+               .andExpect(status().isForbidden());
     }
 
     private MailResponse mailResponse() {
-        return new MailResponse(new Random().nextLong(100),
-                                List.of(TestData.email()),
-                                List.of(TestData.email()),
-                                "subject",
-                                TestData.email(),
-                                TestData.email(),
-                                List.of(),
-                                Instant.now());
+        return MailResponse.builder()
+                           .id(new Random().nextLong())
+                           .recipients(List.of(TestData.email()))
+                           .sentAt(Instant.now())
+                           .subject("subject")
+                           .cc(List.of())
+                           .build();
+
     }
 }

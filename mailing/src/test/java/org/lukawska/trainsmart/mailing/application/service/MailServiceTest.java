@@ -4,13 +4,13 @@ import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
-import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
 import org.lukawska.trainsmart.mailing.infrastructure.external.AttachmentValidatorAdapter;
+import org.lukawska.trainsmart.mailing.model.MailResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,8 +52,8 @@ class MailServiceTest {
         MailResponse result = mailService.sendMail(mailRequest);
 
         //then
-        assertThat(result.recipients()).isEqualTo(mailRequest.recipients());
-        assertThat(result.attachments().size()).isEqualTo(mailRequest.attachments().size());
+        assertThat(result.getRecipients()).isEqualTo(mailRequest.recipients());
+        assertThat(result.getAttachments().size()).isEqualTo(mailRequest.attachments().size());
         verify(mailingProperties).getFrom();
         verify(mailingProperties).getReplyTo();
         verify(attachmentValidatorAdapter).validateAttachments(mailRequest.attachments());
@@ -69,8 +69,8 @@ class MailServiceTest {
         MailResponse result = mailService.sendMail(mailRequest);
 
         //then
-        assertThat(result.recipients()).isEqualTo(mailRequest.recipients());
-        assertThat(result.attachments()).isEmpty();
+        assertThat(result.getRecipients()).isEqualTo(mailRequest.recipients());
+        assertThat(result.getAttachments()).isEmpty();
         verify(mailingProperties).getFrom();
         verify(mailingProperties).getReplyTo();
         verify(attachmentValidatorAdapter, never()).validateAttachments(mailRequest.attachments());
@@ -89,7 +89,7 @@ class MailServiceTest {
         List<MailResponse> result = mailService.getAllMailsBySubjectContaining(keyword);
 
         //then
-        assertThat(result).extracting(MailResponse::subject).containsExactly(expectedSubject);
+        assertThat(result).extracting(MailResponse::getSubject).containsExactly(expectedSubject);
     }
 
     @Test
@@ -103,7 +103,7 @@ class MailServiceTest {
         List<MailResponse> result = mailService.getAllMailsByRecipient(recipientMail);
 
         //then
-        assertThat(result).extracting(MailResponse::recipients).containsExactly(randomMail.getRecipients());
+        assertThat(result).extracting(MailResponse::getRecipients).containsExactly(randomMail.getRecipients());
     }
 
     @Test
@@ -117,8 +117,8 @@ class MailServiceTest {
         MailResponse result = mailService.getMailResponseById(id);
 
         //then
-        assertThat(result.recipients()).contains(randomMail.getRecipients().toArray(String[]::new));
-        assertThat(result.subject()).isEqualTo(randomMail.getSubject());
+        assertThat(result.getRecipients()).contains(randomMail.getRecipients().toArray(String[]::new));
+        assertThat(result.getSubject()).isEqualTo(randomMail.getSubject());
     }
 
     @Test
