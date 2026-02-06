@@ -35,8 +35,6 @@ public class UserAgreementControllerIT {
 
     private final static String BASE_URL = "/users/{userId}/agreements/";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     private static final Long USER_ID = 1L;
 
     @MockitoBean
@@ -50,6 +48,8 @@ public class UserAgreementControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     void shouldSignAgreementAndReturnOkStatus() throws Exception {

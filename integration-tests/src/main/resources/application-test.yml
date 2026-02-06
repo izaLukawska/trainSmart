@@ -22,7 +22,7 @@ app:
   mailing:
     from: test-from@example.com
     reply-to: test-replyto@example.com
-    validMimeTypes:
+    valid-mime-types:
       pdf:
         - application/pdf
     maxSizeBytes: 10485760
