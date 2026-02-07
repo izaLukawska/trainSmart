@@ -5,6 +5,7 @@ import org.lukawska.trainsmart.exercisecatalog.domain.repositories.ExerciseRepos
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
 import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
+import org.lukawska.trainsmart.purchase.domain.repository.TrainingPlanPurchaseRepository;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
 import org.lukawska.trainsmart.testutils.builders.*;
@@ -41,6 +42,8 @@ public class TestFixtures {
 
     private final UserExerciseRepository userExerciseRepository;
 
+    private final TrainingPlanPurchaseRepository trainingPlanPurchaseRepository;
+
     public UserFixtureBuilder user() {
         return new UserFixtureBuilder(userRepository);
     }
@@ -75,6 +78,10 @@ public class TestFixtures {
 
     public UserExerciseFixtureBuilder userExercise() {
         return new UserExerciseFixtureBuilder(userExerciseRepository, this);
+    }
+
+    public TrainingPlanPurchaseFixturesBuilder trainingPlanPurchase() {
+        return new TrainingPlanPurchaseFixturesBuilder(trainingPlanPurchaseRepository, this);
     }
 
     public List<UserExercise> setUpUserExercises(User user) {
