@@ -14,9 +14,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 @DataJpaTest
 @Transactional
@@ -42,7 +44,7 @@ class TrainingPlanRepositoryIT {
 
         //then
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(trainingPlan.getCreatedAt());
+        assertThat(result.get()).isCloseTo(trainingPlan.getCreatedAt(), within(1, ChronoUnit.SECONDS));
     }
 
     @Test

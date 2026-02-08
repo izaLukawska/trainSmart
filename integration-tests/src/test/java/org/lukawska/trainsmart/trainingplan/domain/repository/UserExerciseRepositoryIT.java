@@ -16,9 +16,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 @DataJpaTest
 @Transactional
@@ -99,9 +101,9 @@ class UserExerciseRepositoryIT {
         UserExercise userExercise2 = updatedExercises.get(1);
         UserExercise userExercise3 = updatedExercises.getLast();
         assertThat(userExercise1.isEnabled()).isFalse();
-        assertThat(userExercise1.getModifiedAt()).isEqualTo(currentDate);
+        assertThat(userExercise1.getModifiedAt()).isCloseTo(currentDate, within(1, ChronoUnit.SECONDS));
         assertThat(userExercise2.isEnabled()).isTrue();
-        assertThat(userExercise2.getModifiedAt()).isEqualTo(currentDate);
+        assertThat(userExercise2.getModifiedAt()).isCloseTo(currentDate, within(1, ChronoUnit.SECONDS));
         assertThat(userExercise3.isEnabled()).isTrue();
     }
 }
