@@ -99,6 +99,7 @@ class UserExerciseServiceIT {
         //given
         final List<String> disabledNames = List.of();
         final Long userId = user.getId();
+
         //when
         userExerciseService.updateUserExerciseEnabledStatus(userId, disabledNames);
 
@@ -185,6 +186,5 @@ class UserExerciseServiceIT {
         MuscleGroup muscleGroup3 = updatedUserExercises.get(1).getExercise().getMuscleGroup();
 
         assertThat(result.keySet()).containsAll(List.of(muscleGroup1, muscleGroup2, muscleGroup3));
-
     }
 }
