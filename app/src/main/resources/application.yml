@@ -72,7 +72,7 @@ app:
     base-url: http://localhost:8080
     from: no-reply@trainsmart.com
     reply-to: support@trainsmart.com
-    validMimeTypes:
+    valid-mime-types:
       pdf:
         - application/pdf
         - application/x-pdf

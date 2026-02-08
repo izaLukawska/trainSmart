@@ -1,37 +1,34 @@
 package org.lukawska.trainsmart.statements.presentation.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
+import org.lukawska.trainsmart.statements.api.UserAgreementApi;
 import org.lukawska.trainsmart.statements.application.services.UserAgreementService;
+import org.lukawska.trainsmart.statements.model.UserAgreementRequest;
+import org.lukawska.trainsmart.statements.model.UserAgreementResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users/{userId}/agreements")
 @RequiredArgsConstructor
 @Slf4j
-@Validated
-public class UserAgreementController {
+public class UserAgreementController implements UserAgreementApi {
 
     private final UserAgreementService service;
 
-    @PutMapping("/sign")
-    public ResponseEntity<UserAgreementResponse> signAgreement(@PathVariable @Positive Long userId,
-                                                               @Valid @RequestBody UserAgreementRequest request) {
-        log.debug("Signing statement for user with ID: {} and statement code: {}", userId, request.statementCode());
-        return ResponseEntity.ok(service.signAgreement(userId, request));
+    @Override
+    public ResponseEntity<List<UserAgreementResponse>> getRequiredStatementsToSign(
+            Long userId) {
+        log.debug("Received get required statements request for user with ID: {}", userId);
+        return ResponseEntity.ok(service.getRequiredStatementsToSign(userId));
     }
 
-    @GetMapping
-    public List<UserAgreementResponse> getRequiredStatementsToSign(@PathVariable @Positive Long userId) {
-        log.debug("Retrieving required statements for user with ID: {}", userId);
-        return service.getRequiredStatementsToSign(userId);
+    @Override
+    public ResponseEntity<UserAgreementResponse> signAgreement(Long userId, UserAgreementRequest request) {
+        log.info("Received sign statement request for user {} and statement code {}",
+                 userId, request.getStatementCode());
+        return ResponseEntity.ok(service.signAgreement(userId, request));
     }
 }

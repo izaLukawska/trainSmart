@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.config.TestFixtures;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.services.UserAgreementService;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
-import org.lukawska.trainsmart.statements.domain.valueObjects.AgreementStatus;
+import org.lukawska.trainsmart.statements.model.AgreementStatusEnum;
+import org.lukawska.trainsmart.statements.model.UserAgreementRequest;
+import org.lukawska.trainsmart.statements.model.UserAgreementResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -45,8 +45,8 @@ class UserAgreementServiceIT {
         UserAgreementResponse result = userAgreementService.signAgreement(user.getId(), request);
 
         //then
-        assertThat(result.statementCode()).isEqualTo(request.statementCode());
-        assertThat(result.agreementStatus()).isEqualTo(request.agreementStatus());
+        assertThat(result.getStatementCode()).isEqualTo(request.getStatementCode());
+        assertThat(result.getAgreementStatus()).isEqualTo(request.getAgreementStatus());
     }
 
     @Test
@@ -54,16 +54,16 @@ class UserAgreementServiceIT {
         //given
         final UserAgreementRequest request = userAgreementRequest();
         final UserAgreement oldUserAgreement = testFixtures.userAgreement()
-                                                           .withCode(request.statementCode())
+                                                           .withCode(request.getStatementCode())
                                                            .save();
 
         //when
         UserAgreementResponse result = userAgreementService.signAgreement(oldUserAgreement.getUser().getId(), request);
 
         //then
-        assertThat(result.agreementStatus()).isEqualTo(oldUserAgreement.getStatus());
-        assertThat(result.statementCode()).isEqualTo(oldUserAgreement.getStatementCode());
-        assertThat(result.version()).isEqualTo(3);
+        assertThat(result.getAgreementStatus().name()).isEqualTo(oldUserAgreement.getStatus().name());
+        assertThat(result.getStatementCode()).isEqualTo(oldUserAgreement.getStatementCode());
+        assertThat(result.getVersion()).isEqualTo(3);
     }
 
     @Test
@@ -84,12 +84,12 @@ class UserAgreementServiceIT {
 
         //then
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(UserAgreementResponse::statementCode)
+        assertThat(result).extracting(UserAgreementResponse::getStatementCode)
                           .containsExactlyInAnyOrder(oldUserAgreement1.getStatementCode(),
                                                      oldUserAgreement2.getStatementCode());
     }
 
     private UserAgreementRequest userAgreementRequest() {
-        return new UserAgreementRequest("RODO", AgreementStatus.ACCEPTED);
+        return new UserAgreementRequest("RODO", AgreementStatusEnum.ACCEPTED);
     }
 }

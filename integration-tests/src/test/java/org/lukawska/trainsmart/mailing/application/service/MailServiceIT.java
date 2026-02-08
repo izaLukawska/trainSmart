@@ -5,15 +5,15 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.lukawska.trainsmart.config.PostgresTestConfig;
 import org.lukawska.trainsmart.config.TestFixtures;
-import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
 import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
-import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.application.exception.ExceptionType;
 import org.lukawska.trainsmart.mailing.application.exception.MailingException;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.repositories.MailRepository;
 import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
 import org.lukawska.trainsmart.mailing.infrastructure.config.MailingProperties;
+import org.lukawska.trainsmart.mailing.model.AttachmentMeta;
+import org.lukawska.trainsmart.mailing.model.MailResponse;
 import org.lukawska.trainsmart.testutils.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,14 +59,14 @@ class MailServiceIT {
 
         //then
         verify(mailSender, times(1)).sendEmail(mailDetails);
-        MailEntity savedMail = mailRepository.findById(mailResponse.id())
+        MailEntity savedMail = mailRepository.findById(mailResponse.getId())
                                              .orElseThrow(() -> new AssertionError("Mail not saved"));
 
-        assertThat(mailResponse.id()).isEqualTo(savedMail.getId());
-        assertThat(mailResponse.recipients()).isEqualTo(savedMail.getRecipients());
-        assertThat(mailResponse.subject()).isEqualTo(savedMail.getSubject());
-        assertThat(mailResponse.from()).isEqualTo(mailingProperties.getFrom());
-        assertThat(mailResponse.replyTo()).isEqualTo(mailingProperties.getReplyTo());
+        assertThat(mailResponse.getId()).isEqualTo(savedMail.getId());
+        assertThat(mailResponse.getRecipients()).isEqualTo(savedMail.getRecipients());
+        assertThat(mailResponse.getSubject()).isEqualTo(savedMail.getSubject());
+        assertThat(mailResponse.getFrom()).isEqualTo(mailingProperties.getFrom());
+        assertThat(mailResponse.getReplyTo()).isEqualTo(mailingProperties.getReplyTo());
     }
 
     @Test
@@ -79,9 +79,9 @@ class MailServiceIT {
         MailResponse result = mailService.getMailResponseById(mailEntity.getId());
 
         //then
-        assertThat(result.id()).isEqualTo(mailEntity.getId());
-        assertThat(result.recipients()).isEqualTo(mailEntity.getRecipients());
-        assertThat(result.attachments()).isEqualTo(expectedAttachmentMeta);
+        assertThat(result.getId()).isEqualTo(mailEntity.getId());
+        assertThat(result.getRecipients()).isEqualTo(mailEntity.getRecipients());
+        assertThat(result.getAttachments()).isEqualTo(expectedAttachmentMeta);
     }
 
     @Test
@@ -99,8 +99,8 @@ class MailServiceIT {
         //then
         List<MailEntity> mailsByRecipient = mailRepository.findAllByRecipient(recipient);
         assertThat(mailResponses.size()).isEqualTo(mailsByRecipient.size());
-        assertThat(mailResponses.getFirst().recipients()).isEqualTo(mail2.getRecipients());
-        assertThat(mailResponses.getFirst().recipients()).isNotEqualTo(mail1.getRecipients());
+        assertThat(mailResponses.getFirst().getRecipients()).isEqualTo(mail2.getRecipients());
+        assertThat(mailResponses.getFirst().getRecipients()).isNotEqualTo(mail1.getRecipients());
     }
 
     @Test
@@ -118,8 +118,8 @@ class MailServiceIT {
         //then
         List<MailEntity> mailsWithKeyword = mailRepository.findAllBySubjectContaining(keyword);
         assertThat(mailResponses.size()).isEqualTo(mailsWithKeyword.size());
-        assertThat(mailResponses.getFirst().subject()).isEqualTo(mail2.getSubject());
-        assertThat(mailResponses).extracting(MailResponse::subject).doesNotContain(mail1.getSubject());
+        assertThat(mailResponses.getFirst().getSubject()).isEqualTo(mail2.getSubject());
+        assertThat(mailResponses).extracting(MailResponse::getSubject).doesNotContain(mail1.getSubject());
     }
 
     @Test

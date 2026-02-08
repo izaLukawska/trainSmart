@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: Mailing API
+  version: 1.0.0
+tags:
+  - name: Mailing
+    description: Mailing endpoints
+
+paths:
+  /mail/{id}:
+    get:
+      tags:
+        - Mail
+      operationId: getMailById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Mail found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MailResponse'
+        '404':
+          description: Mail not found
+  /mail/recipient:
+    get:
+      tags:
+        - Mail
+      operationId: getAllMailsByRecipient
+      parameters:
+        - name: recipient
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+            minLength: 1
+      responses:
+        '200':
+          description: Emails found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MailResponse'
+  /mail/subject:
+    get:
+      tags:
+        - Mail
+      operationId: getAllMailsBySubjectContaining
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: Emails found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MailResponse'
+
+components:
+  schemas:
+    AttachmentMeta:
+      type: object
+      properties:
+        filename:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          format: int64
+      required:
+        - filename
+        - size
+    MailResponse:
+      type: object
+      required:
+        - id
+        - recipients
+        - subject
+        - from
+        - sentAt
+      properties:
+        id:
+          type: integer
+          format: int64
+        recipients:
+          type: array
+          items:
+            type: string
+            format: email
+        cc:
+          type: array
+          items:
+            type: string
+            format: email
+        subject:
+          type: string
+        from:
+          type: string
+          format: email
+        replyTo:
+          type: string
+          format: email
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentMeta'
+        sentAt:
+          type: string
+          format: date-time

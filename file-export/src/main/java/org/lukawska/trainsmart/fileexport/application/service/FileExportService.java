@@ -88,8 +88,9 @@ public class FileExportService {
     }
 
     private MediaType resolveMediaType(ExportFormatEnum exportFormatEnum) {
+        String extension = ExportFormat.valueOf(exportFormatEnum.name()).getExtension();
         return MediaType.parseMediaType(
-                Optional.ofNullable(mailingProperties.getValidMimeTypes().get(exportFormatEnum.name().toLowerCase()))
+                Optional.ofNullable(mailingProperties.getValidMimeTypes().get(extension))
                         .filter(type -> !type.isEmpty())
                         .map(List::getFirst)
                         .orElseThrow(() -> new FileExportException(ExceptionType.INVALID_MEDIA_TYPE)));

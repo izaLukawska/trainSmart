@@ -1,43 +1,39 @@
 package org.lukawska.trainsmart.mailing.presentation.controller;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
+import org.lukawska.trainsmart.mailing.api.MailApi;
 import org.lukawska.trainsmart.mailing.application.service.MailService;
+import org.lukawska.trainsmart.mailing.model.MailResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/mail")
 @Slf4j
-@Validated
 @PreAuthorize("hasRole('ADMIN')")
-public class MailController {
+public class MailController implements MailApi {
 
     private final MailService mailService;
 
-    @GetMapping("/{id}")
-    public MailResponse getMailById(@PathVariable @Positive Long id) {
-        log.info("Searching for mail with id: {}", id);
-        return mailService.getMailResponseById(id);
+    @Override
+    public ResponseEntity<List<MailResponse>> getAllMailsByRecipient(String recipient) {
+        log.info("Received get all email by recipient request");
+        return ResponseEntity.ok(mailService.getAllMailsByRecipient(recipient));
     }
 
-    @GetMapping("/recipient")
-    public List<MailResponse> getAllMailsByRecipient(@RequestParam @NotBlank @Email String recipient) {
-        log.debug("Fetching mails for recipient: {}", recipient);
-        return mailService.getAllMailsByRecipient(recipient);
+    @Override
+    public ResponseEntity<List<MailResponse>> getAllMailsBySubjectContaining(String keyword) {
+        log.info("Received get all email by keyword request");
+        return ResponseEntity.ok(mailService.getAllMailsBySubjectContaining(keyword));
     }
 
-    @GetMapping("/subject")
-    public List<MailResponse> getAllMailsBySubjectContaining(@RequestParam @NotBlank String keyword) {
-        log.debug("Fetching mails with subject containing: {}", keyword);
-        return mailService.getAllMailsBySubjectContaining(keyword);
+    @Override
+    public ResponseEntity<MailResponse> getMailById(Long id) {
+        log.info("Received get all email by id request");
+        return ResponseEntity.ok(mailService.getMailResponseById(id));
     }
 }

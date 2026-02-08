@@ -18,17 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
-            <artifactId>openai</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lukawska</groupId>
             <artifactId>gym-finder</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lukawska</groupId>
-            <artifactId>mailing</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -38,27 +28,7 @@
         </dependency>
         <dependency>
             <groupId>org.lukawska</groupId>
-            <artifactId>exercise-catalog</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lukawska</groupId>
-            <artifactId>health-survey</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lukawska</groupId>
             <artifactId>user-management</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lukawska</groupId>
-            <artifactId>commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.lukawska</groupId>
-            <artifactId>training-plan</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

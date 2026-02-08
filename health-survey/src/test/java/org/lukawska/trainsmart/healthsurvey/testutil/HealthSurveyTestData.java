@@ -1,9 +1,10 @@
 package org.lukawska.trainsmart.healthsurvey.testutil;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.valueObjects.Gender;
+import org.lukawska.trainsmart.healthsurvey.model.GenderEnum;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyCreateRequest;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 
 import java.util.Set;
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.mock;
 public class HealthSurveyTestData {
 
     public HealthSurveyCreateRequest healthSurveyRequest() {
-        return new HealthSurveyCreateRequest(Gender.MALE, 180, 80, defaultInjuries());
+        return new HealthSurveyCreateRequest(GenderEnum.MALE, 180, 80, defaultInjuries());
     }
 
     public HealthSurvey healthSurveyEntity() {

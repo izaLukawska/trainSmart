@@ -5,11 +5,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementRequest;
-import org.lukawska.trainsmart.statements.application.dto.UserAgreementResponse;
 import org.lukawska.trainsmart.statements.application.validation.UserAgreementValidator;
 import org.lukawska.trainsmart.statements.domain.entities.UserAgreement;
 import org.lukawska.trainsmart.statements.domain.repositories.UserAgreementRepository;
+import org.lukawska.trainsmart.statements.model.UserAgreementRequest;
+import org.lukawska.trainsmart.statements.model.UserAgreementResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,10 +44,10 @@ class UserAgreementServiceTest {
     void shouldCreateNewUserAgreementWhenSignAgreement() {
         //given
         final UserAgreementRequest request = acceptedUserAgreementRequest();
-        final UserAgreement savedUserAgreement = acceptedUserAgreement(request.statementCode(), 1);
+        final UserAgreement savedUserAgreement = acceptedUserAgreement(request.getStatementCode(), 1);
 
-        when(userAgreementValidator.validateUserAgreement(request)).thenReturn(requiredStatement());
-        when(userAgreementRepository.findByUserIdAndStatementCode(USER_ID, request.statementCode()))
+        when(userAgreementValidator.validateUserAgreement(any())).thenReturn(requiredStatement());
+        when(userAgreementRepository.findByUserIdAndStatementCode(USER_ID, request.getStatementCode()))
                 .thenReturn(Optional.empty());
         when(userAgreementRepository.save(any())).thenReturn(savedUserAgreement);
 
@@ -55,19 +55,19 @@ class UserAgreementServiceTest {
         UserAgreementResponse result = userAgreementService.signAgreement(USER_ID, request);
 
         //then
-        assertThat(result.id()).isEqualTo(savedUserAgreement.getId());
-        assertThat(result.statementCode()).isEqualTo(savedUserAgreement.getStatementCode());
-        assertThat(result.agreementStatus()).isEqualTo(savedUserAgreement.getStatus());
+        assertThat(result.getId()).isEqualTo(savedUserAgreement.getId());
+        assertThat(result.getStatementCode()).isEqualTo(savedUserAgreement.getStatementCode());
+        assertThat(result.getAgreementStatus().name()).isEqualTo(savedUserAgreement.getStatus().name());
     }
 
     @Test
     void shouldUpdateUserAgreementWhenSignAgreement() {
         //given
         final UserAgreementRequest request = rejectedUserAgreementRequest(randomStatementCode());
-        final UserAgreement existingUserAgreement = acceptedUserAgreement(request.statementCode(), 1);
+        final UserAgreement existingUserAgreement = acceptedUserAgreement(request.getStatementCode(), 1);
 
         when(userAgreementValidator.validateUserAgreement(any())).thenReturn(optionalStatement());
-        when(userAgreementRepository.findByUserIdAndStatementCode(USER_ID, request.statementCode()))
+        when(userAgreementRepository.findByUserIdAndStatementCode(USER_ID, request.getStatementCode()))
                 .thenReturn(Optional.of(existingUserAgreement));
         when(userAgreementRepository.save(any())).thenReturn(existingUserAgreement);
 
@@ -75,9 +75,9 @@ class UserAgreementServiceTest {
         UserAgreementResponse result = userAgreementService.signAgreement(USER_ID, request);
 
         //then
-        assertThat(result.id()).isEqualTo(existingUserAgreement.getId());
-        assertThat(result.agreementStatus()).isEqualTo(request.agreementStatus());
-        assertThat(result.statementCode()).isEqualTo(request.statementCode());
+        assertThat(result.getId()).isEqualTo(existingUserAgreement.getId());
+        assertThat(result.getAgreementStatus().name()).isEqualTo(request.getAgreementStatus().name());
+        assertThat(result.getStatementCode()).isEqualTo(request.getStatementCode());
     }
 
     @Test
@@ -95,8 +95,8 @@ class UserAgreementServiceTest {
 
         //then
         assertThat(result).hasSize(userAgreements.size());
-        assertThat(result.getFirst().statementCode()).isEqualTo(userAgreements.getFirst().getStatementCode());
-        assertThat(result.getLast().statementCode()).isEqualTo(userAgreements.getLast().getStatementCode());
+        assertThat(result.getFirst().getStatementCode()).isEqualTo(userAgreements.getFirst().getStatementCode());
+        assertThat(result.getLast().getStatementCode()).isEqualTo(userAgreements.getLast().getStatementCode());
     }
 
     @Test

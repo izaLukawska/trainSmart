@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseRequest;
-import org.lukawska.trainsmart.exercisecatalog.application.dto.ExerciseResponse;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExceptionType;
 import org.lukawska.trainsmart.exercisecatalog.application.exception.ExerciseException;
 import org.lukawska.trainsmart.exercisecatalog.application.mapper.ExerciseMapper;
@@ -13,6 +11,9 @@ import org.lukawska.trainsmart.exercisecatalog.domain.entities.Exercise;
 import org.lukawska.trainsmart.exercisecatalog.domain.repositories.ExerciseRepository;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.ExerciseType;
 import org.lukawska.trainsmart.exercisecatalog.domain.valueObjects.MuscleGroup;
+import org.lukawska.trainsmart.exercisecatalog.model.ExerciseRequest;
+import org.lukawska.trainsmart.exercisecatalog.model.ExerciseResponse;
+import org.lukawska.trainsmart.exercisecatalog.model.MuscleGroupEnum;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,7 @@ public class ExerciseService {
             log.info("Saved exercise: {} with ID: {}", exercise.getName(), exercise.getId());
             return mapToResponse(exercise);
         } catch (DataIntegrityViolationException e) {
-            log.warn("Failed to create exercise {} due to {}", request.name(), e.getMessage());
+            log.warn("Failed to create exercise {} due to {}", request.getName(), e.getMessage());
             throw new ExerciseException(ExceptionType.EXERCISE_ALREADY_EXISTS);
         }
     }
@@ -54,7 +55,8 @@ public class ExerciseService {
         return mapToResponse(foundExercise);
     }
 
-    public List<ExerciseResponse> getExercisesByMuscleGroup(@NotNull MuscleGroup muscleGroup) {
+    public List<ExerciseResponse> getExercisesByMuscleGroup(@NotNull MuscleGroupEnum muscleGroupEnum) {
+        MuscleGroup muscleGroup = MuscleGroup.valueOf(muscleGroupEnum.name());
         List<Exercise> exercises = exerciseRepository.findAllByMuscleGroup(muscleGroup);
         log.info("Found {} exercises for muscle group: {}", exercises.size(), muscleGroup.name());
 

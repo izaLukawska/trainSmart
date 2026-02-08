@@ -11,6 +11,10 @@
 
     <artifactId>exercise-catalog</artifactId>
 
+    <properties>
+        <openapi.baseName>exercisecatalog</openapi.baseName>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.lukawska</groupId>
@@ -18,5 +22,29 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/${openapi.baseName}api.yml</inputSpec>
+                            <configOptions>
+                                <generateConstructorWithAllArgs>true</generateConstructorWithAllArgs>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

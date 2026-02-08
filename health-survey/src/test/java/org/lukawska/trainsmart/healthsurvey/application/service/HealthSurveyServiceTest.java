@@ -2,14 +2,14 @@ package org.lukawska.trainsmart.healthsurvey.application.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
-import org.lukawska.trainsmart.healthsurvey.application.dto.WeightHistoryResponse;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyCreateRequest;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyResponse;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyUpdateRequest;
+import org.lukawska.trainsmart.healthsurvey.model.WeightHistoryResponse;
 import org.lukawska.trainsmart.sharedpersistence.application.exception.UserNotFoundException;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
@@ -54,16 +54,15 @@ class HealthSurveyServiceTest {
         HealthSurveyResponse result = healthSurveyService.submitHealthSurvey(userId, healthSurveyCreateRequest);
 
         //then
-        assertThat(result.gender()).isEqualTo(healthSurveyCreateRequest.gender());
-        assertThat(result.injuriesCount()).isEqualTo(healthSurveyCreateRequest.injuries().size());
-        assertThat(result.weight()).isEqualTo(healthSurveyCreateRequest.weight());
+        assertThat(result.getGender().name()).isEqualTo(healthSurveyCreateRequest.getGender().name());
+        assertThat(result.getInjuriesCount()).isEqualTo(healthSurveyCreateRequest.getInjuries().size());
+        assertThat(result.getWeight()).isEqualTo(healthSurveyCreateRequest.getWeight());
     }
 
     @Test
     void shouldUpdateOnlyHealthSurveyWeight() {
         //given
         final Long userId = 1L;
-
         final HealthSurveyUpdateRequest healthSurveyUpdateRequest = HealthSurveyUpdateRequest.builder()
                                                                                              .weight(70)
                                                                                              .build();
@@ -74,9 +73,9 @@ class HealthSurveyServiceTest {
         HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(userId, healthSurveyUpdateRequest);
 
         //then
-        assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
-        assertThat(result.injuriesCount()).isEqualTo(existingHealthSurvey.getInjuries().size());
-        assertThat(result.weight()).isEqualTo(healthSurveyUpdateRequest.weight());
+        assertThat(result.getId()).isEqualTo(existingHealthSurvey.getId());
+        assertThat(result.getInjuriesCount()).isEqualTo(existingHealthSurvey.getInjuries().size());
+        assertThat(result.getWeight()).isEqualTo(healthSurveyUpdateRequest.getWeight());
     }
 
     @Test
@@ -94,9 +93,9 @@ class HealthSurveyServiceTest {
         HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(userId, healthSurveyUpdateRequest);
 
         //then
-        assertThat(result.id()).isEqualTo(existingHealthSurvey.getId());
-        assertThat(result.injuriesCount()).isEqualTo(healthSurveyUpdateRequest.injuries().size());
-        assertThat(result.weight()).isEqualTo(existingHealthSurvey.getWeight());
+        assertThat(result.getId()).isEqualTo(existingHealthSurvey.getId());
+        assertThat(result.getInjuriesCount()).isEqualTo(healthSurveyUpdateRequest.getInjuries().size());
+        assertThat(result.getWeight()).isEqualTo(existingHealthSurvey.getWeight());
     }
 
     @Test
@@ -110,9 +109,9 @@ class HealthSurveyServiceTest {
         HealthSurveyResponse result = healthSurveyService.updateHealthSurvey(1L, updateHealthSurveyRequest);
 
         //then
-        assertThat(result.id()).isEqualTo(expectedHealthSurvey.getId());
-        assertThat(result.weight()).isEqualTo(expectedHealthSurvey.getWeight());
-        assertThat(result.injuriesCount()).isEqualTo(expectedHealthSurvey.getInjuries().size());
+        assertThat(result.getId()).isEqualTo(expectedHealthSurvey.getId());
+        assertThat(result.getWeight()).isEqualTo(expectedHealthSurvey.getWeight());
+        assertThat(result.getInjuriesCount()).isEqualTo(expectedHealthSurvey.getInjuries().size());
     }
 
     @Test
@@ -126,10 +125,10 @@ class HealthSurveyServiceTest {
         HealthSurveyResponse resultHealthSurvey = healthSurveyService.getHealthSurveyByUserIdResponse(userId);
 
         //then
-        assertThat(resultHealthSurvey.id()).isEqualTo(expectedHealthSurvey.getId());
-        assertThat(resultHealthSurvey.injuriesCount()).isEqualTo(expectedHealthSurvey.getInjuries().size());
-        assertThat(resultHealthSurvey.weight()).isEqualTo(expectedHealthSurvey.getWeight());
-        assertThat(resultHealthSurvey.gender()).isEqualTo(expectedHealthSurvey.getGender());
+        assertThat(resultHealthSurvey.getId()).isEqualTo(expectedHealthSurvey.getId());
+        assertThat(resultHealthSurvey.getInjuriesCount()).isEqualTo(expectedHealthSurvey.getInjuries().size());
+        assertThat(resultHealthSurvey.getWeight()).isEqualTo(expectedHealthSurvey.getWeight());
+        assertThat(resultHealthSurvey.getGender().name()).isEqualTo(expectedHealthSurvey.getGender().name());
     }
 
     @Test
@@ -163,7 +162,7 @@ class HealthSurveyServiceTest {
 
         //then
         assertThat(expectedWeightHistory.size()).isEqualTo(1);
-        assertThat(expectedWeightHistory.getFirst().weight()).isEqualTo(healthSurvey.getWeight());
+        assertThat(expectedWeightHistory.getFirst().getWeight()).isEqualTo(healthSurvey.getWeight());
     }
 
     @Test

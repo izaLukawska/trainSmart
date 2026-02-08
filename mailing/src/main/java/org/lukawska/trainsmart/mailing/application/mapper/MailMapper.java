@@ -1,11 +1,11 @@
 package org.lukawska.trainsmart.mailing.application.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.lukawska.trainsmart.mailing.application.dto.AttachmentMeta;
 import org.lukawska.trainsmart.mailing.application.dto.MailDetails;
-import org.lukawska.trainsmart.mailing.application.dto.MailResponse;
 import org.lukawska.trainsmart.mailing.domain.entities.MailEntity;
 import org.lukawska.trainsmart.mailing.domain.valueObjects.Attachment;
+import org.lukawska.trainsmart.mailing.model.AttachmentMeta;
+import org.lukawska.trainsmart.mailing.model.MailResponse;
 
 import java.util.List;
 
@@ -25,14 +25,16 @@ public final class MailMapper {
     }
 
     public static MailResponse mapToResponse(MailEntity mail, String mailFrom, String replyTo) {
-        return new MailResponse(mail.getId(),
-                                defaultListIfNull(mail.getRecipients()),
-                                defaultListIfNull(mail.getCc()),
-                                mail.getSubject(),
-                                mailFrom,
-                                replyTo,
-                                mapToAttachmentMeta(mail.getAttachments()),
-                                mail.getSentAt());
+        return MailResponse.builder()
+                           .id(mail.getId())
+                           .from(mailFrom)
+                           .replyTo(replyTo)
+                           .sentAt(mail.getSentAt())
+                           .recipients(mail.getRecipients())
+                           .cc(defaultListIfNull(mail.getCc()))
+                           .attachments(mapToAttachmentMeta(mail.getAttachments()))
+                           .subject(mail.getSubject())
+                           .build();
     }
 
     private static List<AttachmentMeta> mapToAttachmentMeta(List<Attachment> attachments) {

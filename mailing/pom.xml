@@ -13,6 +13,7 @@
 
     <properties>
         <tika.version>3.2.3</tika.version>
+        <openapi.baseName>mailing</openapi.baseName>
     </properties>
 
     <dependencies>
@@ -26,5 +27,29 @@
             <version>${tika.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/${openapi.baseName}api.yml</inputSpec>
+                            <configOptions>
+                                <generateBuilders>true</generateBuilders>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

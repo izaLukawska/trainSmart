@@ -1,0 +1,96 @@
+openapi: 3.0.3
+info:
+  title: Statements API
+  version: 1.0.0
+tags:
+  - name: UserAgreement
+    description: User agreements endpoints
+
+paths:
+  /users/{userId}/agreements/sign:
+    put:
+      tags:
+        - UserAgreement
+      operationId: signAgreement
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAgreementRequest'
+      responses:
+        '200':
+          description: 'created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAgreementResponse'
+        '400':
+          description: Bad request
+  /users/{userId}/agreements/:
+    get:
+      tags:
+        - UserAgreement
+      operationId: getRequiredStatementsToSign
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: 'created'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserAgreementResponse'
+        '400':
+          description: Bad request
+
+components:
+  schemas:
+    AgreementStatusEnum:
+      type: string
+      enum:
+        - ACCEPTED
+        - REJECTED
+    UserAgreementRequest:
+      required:
+        - statementCode
+        - agreementStatus
+      properties:
+        statementCode:
+          type: string
+          minLength: 1
+        agreementStatus:
+          $ref: '#/components/schemas/AgreementStatusEnum'
+    UserAgreementResponse:
+      required:
+        - id
+        - statementCode
+        - version
+        - agreementStatus
+      properties:
+        id:
+          type: integer
+          format: int64
+        statementCode:
+          type: string
+          minLength: 1
+        version:
+          type: integer
+        agreementStatus:
+          $ref: '#/components/schemas/AgreementStatusEnum'

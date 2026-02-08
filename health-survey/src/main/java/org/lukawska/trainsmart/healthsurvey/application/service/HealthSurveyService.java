@@ -2,15 +2,15 @@ package org.lukawska.trainsmart.healthsurvey.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyCreateRequest;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyResponse;
-import org.lukawska.trainsmart.healthsurvey.application.dto.HealthSurveyUpdateRequest;
-import org.lukawska.trainsmart.healthsurvey.application.dto.WeightHistoryResponse;
 import org.lukawska.trainsmart.healthsurvey.application.exception.ExceptionType;
 import org.lukawska.trainsmart.healthsurvey.application.exception.HealthSurveyException;
 import org.lukawska.trainsmart.healthsurvey.application.mapper.HealthSurveyMapper;
 import org.lukawska.trainsmart.healthsurvey.domain.entites.HealthSurvey;
 import org.lukawska.trainsmart.healthsurvey.domain.repositories.HealthSurveyRepository;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyCreateRequest;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyResponse;
+import org.lukawska.trainsmart.healthsurvey.model.HealthSurveyUpdateRequest;
+import org.lukawska.trainsmart.healthsurvey.model.WeightHistoryResponse;
 import org.lukawska.trainsmart.sharedpersistence.application.service.UserAccessService;
 import org.lukawska.trainsmart.sharedpersistence.domain.entities.User;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -108,7 +108,7 @@ public class HealthSurveyService {
     }
 
     private void updateWeight(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {
-        Optional.ofNullable(updateRequest.weight())
+        Optional.ofNullable(updateRequest.getWeight())
                 .ifPresentOrElse(newWeight -> {
                     healthSurvey.updateWeight(newWeight);
                     log.info("Updated weight: {} for health survey: {}", newWeight, healthSurvey.getId());
@@ -116,7 +116,7 @@ public class HealthSurveyService {
     }
 
     private void updateInjuries(HealthSurveyUpdateRequest updateRequest, HealthSurvey healthSurvey) {
-        Optional.ofNullable(updateRequest.injuries())
+        Optional.ofNullable(updateRequest.getInjuries())
                 .ifPresentOrElse(newInjuries -> {
                     healthSurvey.updateInjuries(newInjuries);
                     log.info("Updated {} injuries for health survey {}", newInjuries.size(), healthSurvey.getId());

@@ -32,15 +32,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class AuthenticationControllerIT {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private MockMvc mockMvc;
+
     @MockitoBean
     private AuthenticationService authenticationService;
+
     @MockitoBean
     private JwtService jwtService;
+
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @WithMockUser
     @Test
