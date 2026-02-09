@@ -119,6 +119,13 @@ The application requires the following environment variables to be set (see `app
 **Steps:**
 
 ```bash
+# Clone the repo
+git clone https://github.com/izaLukawska/trainSmart.git
+
+# Go into the app directory
+cd trainSmart/app
+
+# Run the application
 mvn spring-boot:run -Dspring-boot.run.profiles=fast
 ```
 
