@@ -17,7 +17,7 @@ and current injuries and/or medical contraindications.
     - [Prerequisites](#1-prerequisites)
     - [Environment Configuration](#2-environment-configuration)
     - [Running the App](#3-running-the-app)
-        - [Fast Setup](#️-fast-setup)
+        - [Fast Setup](#-fast-setup)
         - [Full Setup (Docker)](#-full-setup-docker)
 
 ## 🌟 Key Features
@@ -110,6 +110,11 @@ The application requires the following environment variables to be set (see `app
 
 ### 3. Running the app
 
+```bash
+# Clone the repo
+git clone https://github.com/izaLukawska/trainSmart.git
+````
+
 #### ⚡️ Fast Setup
 
 - Runs in-memory using H2 + MailHog
@@ -119,9 +124,6 @@ The application requires the following environment variables to be set (see `app
 **Steps:**
 
 ```bash
-# Clone the repo
-git clone https://github.com/izaLukawska/trainSmart.git
-
 # Go into the app directory
 cd trainSmart/app
 
