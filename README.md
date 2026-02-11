@@ -1,3 +1,6 @@
+        - [Fast Setup](#-fast-setup)
+        - [Full Setup (Docker)](#-full-setup-docker)
+
 # Trainsmart
 
 An intelligent training platform to purchase training plans generated based on user's preferences
@@ -13,16 +16,16 @@ and current injuries and/or medical contraindications.
     - [Containerized Integration Testing (Testcontainers)](#3-containerized-integration-testing-testcontainers)
     - [Robust Test Data Management (TestFixtureBuilder)](#4-robust-test-data-management-testfixturebuilder)
     - [Automated Quality Gates (CI/CD)](#5-automated-quality-gates-cicd)
-4. [Quick Start](#-quick-start)
+4. [Quick Start](#quick-start)
     - [Prerequisites](#1-prerequisites)
     - [Environment Configuration](#2-environment-configuration)
     - [Running the App](#3-running-the-app)
-        - [Fast Setup](#-fast-setup)
+        - [Fast Setup](#fast-setup)
         - [Full Setup (Docker)](#-full-setup-docker)
 
 ## 🌟 Key Features
 
-- **Smart Plan Generation:** Generates workouts based on training type, volume, duration,
+- **Smart Training Plan Generation:** Generates workouts based on training type, volume, duration,
 - and injury constraints via OpenAI.
 - **Gym Finder:** Nearby gym search via OpenStreetMap, optimized with Redis caching for performance.
 - **Automated Reporting:** Training plans generated in PDF or Excel formats for download or email delivery.
@@ -46,7 +49,6 @@ microservices network.
 **Reasoning:**
 
 - **Clear boundaries:** Each module has a distinct responsibility.
-- **High cohesion:** Related logic is grouped together, reducing coupling across modules.
 - **No microservice overhead:** Avoids the operational complexity of running multiple services.
 - **Future-proof:** Flexibility to switch to microservices later if needed.
 
@@ -77,7 +79,7 @@ Ensures tests run with real databases (PostgreSQL and Redis) so they match produ
 **Reasoning:** Ensures that no code is merged without passing the 80% coverage threshold
 and basic "smoke tests" (verifying the Spring context starts successfully in a Docker container).
 
-## 🚀 Quick Start
+## Quick Start
 
 This project can be run in **two ways**:
 
@@ -115,7 +117,7 @@ The application requires the following environment variables to be set (see `app
 git clone https://github.com/izaLukawska/trainSmart.git
 ````
 
-#### ⚡️ Fast Setup
+#### Fast Setup
 
 - Runs in-memory using H2 + MailHog
 - Minimal configuration, no Postgres or Redis required
