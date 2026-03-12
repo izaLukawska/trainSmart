@@ -52,6 +52,7 @@
         <commons-compress.version>1.28.0</commons-compress.version>
         <spring-retry.version>2.0.12</spring-retry.version>
         <postgresql.version>42.7.8</postgresql.version>
+        <h2.version>2.4.240</h2.version>
         <jacoco.version>0.8.13</jacoco.version>
         <assertj.version>3.27.7</assertj.version>
         <logback.version>1.5.25</logback.version>
@@ -118,6 +119,11 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
         </dependency>
 
         <dependency>
