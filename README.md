@@ -1,6 +1,3 @@
-        - [Fast Setup](#-fast-setup)
-        - [Full Setup (Docker)](#-full-setup-docker)
-
 # Trainsmart
 
 An intelligent training platform to purchase training plans generated based on user's preferences
